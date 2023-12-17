@@ -24,17 +24,16 @@ body {
 }
 
 button {
-  color: var(--darkRed);
-  background-color: var(--grey);
+  background-color: var(--darkRed);
+  color: white;
   font-weight: 600;
   padding: 10px 15px;
-  border-radius: 5px;
+  border-radius: 999em;
   transition: 0.3s;
-  box-shadow: -2px 2px 10px var(--grey);
+
 }
 
 button:hover {
-  background-color: var(--darkRed);
-  box-shadow: -5px 5px 15px var(--grey);
-  color: white;
+  background-color: var(--grey);
+  color: var(--darkRed);
 }

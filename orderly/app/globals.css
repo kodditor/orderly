@@ -31,11 +31,10 @@ button {
   border-radius: 999em;
   transition: 0.3s;
   box-shadow: -2px 2px 10px var(--grey);
-  border: 2px solid  var(--darkRed);
 }
 
 button:hover {
-  background-color: transparent;
-  color: black;
+  background-color: var(--darkRed);
   box-shadow: -5px 5px 15px var(--grey);
+  color: white;
 }

@@ -1,26 +1,54 @@
-import Header from "@/app/components/Header.component"
-import ShopLoginComponent from "@/app/components/shopLogin.component"
-import { supabase } from "@/app/supabase"
+import { serverSupabase } from "@/app//supabase/supabase-server"
+import ShopDashboardModule from "@/components/dashboard/ShopDashboard.component"
+import { redirect } from "next/navigation"
 
 
-export default async function ShopDashboardModule(){
-    const user = await supabase.auth.getUser()
+export default async function ShopDashboard(){
 
-    if (user.data.user){
-        console.log(user)
-    return (
-        <>
-            {user.data.user!.email}
-            hello world
-        </>
-    )} else {
-        return (
-            <>
-                <Header />
-                <div className="mt-16">
-                    <ShopLoginComponent />
-                </div>
-            </>
-        )
+    const supabase = serverSupabase
+
+    const { data: { session }} = await supabase.auth.getSession()
+
+    if (session){
+
+        const user = session.user
+
+        if(user.user_metadata.firstName){
+
+            let {data, error } = await supabase
+                .from('shops')
+                .select('*')
+                .eq('userID', user.id)
+            
+            if (data && data.length != 0){
+                
+                let orderlyUser = {
+                    id: user.id,
+                    email: user.email,
+                    ...user.user_metadata
+                }
+
+                return (
+                    <>
+                        <div>
+                            <ShopDashboardModule orderlyUser={orderlyUser} orderlyShop={data[0]} />
+                        </div>
+                    </>
+                )
+            } else {
+                return (
+                    <>
+                        Skeleton
+                    </>
+                )
+            }
+            
+            
+        } else {
+            redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/s/onboarding?to=s/dashboard`)
+        }
+
+    } else {
+        redirect(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login?to=s/dashboard`)
     }
 }

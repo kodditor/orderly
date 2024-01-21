@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import Popup from '@/components/Popup.component'
 
 const metadata: Metadata = {
   title: 'Orderly Ghana',
@@ -16,7 +17,10 @@ export default function RootLayout({
       <head>
         <link href="https://fonts.cdnfonts.com/css/mona-sans" rel="stylesheet" /> 
       </head>
-      <body>{children}</body>
+      <body>
+        <Popup />
+        {children}
+      </body>
     </html>
   )
 }

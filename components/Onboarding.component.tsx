@@ -277,7 +277,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                 shopNameTag: shopNameTag,
                 tags: shopTags,
                 updatedAt: date.toISOString(),
-                userID: user!.id
+                user_id: user!.id
             }
 
             supabase

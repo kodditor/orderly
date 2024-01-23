@@ -1,7 +1,7 @@
 import { serverSupabase } from "@/app//supabase/supabase-server"
+import DashboardLoadSkeleton from "@/components/dashboard/DashboardLoadSkeleton.component"
 import ShopDashboardModule from "@/components/dashboard/ShopDashboard.component"
 import { redirect } from "next/navigation"
-
 
 export default async function ShopDashboard(){
 
@@ -18,7 +18,7 @@ export default async function ShopDashboard(){
             let {data, error } = await supabase
                 .from('shops')
                 .select('*')
-                .eq('userID', user.id)
+                .eq('user_id', user.id)
             
             if (data && data.length != 0){
                 
@@ -31,15 +31,17 @@ export default async function ShopDashboard(){
                 return (
                     <>
                         <div>
+                            {/*@ts-ignore*/}
                             <ShopDashboardModule orderlyUser={orderlyUser} orderlyShop={data[0]} />
                         </div>
                     </>
                 )
             } else {
+
+                
+                
                 return (
-                    <>
-                        Skeleton
-                    </>
+                    <DashboardLoadSkeleton />
                 )
             }
             

@@ -18,6 +18,11 @@ const config: Config = {
         'red': '#E03616',
         'darkRed':'#220901'
       },
+      gridTemplateColumns: {
+          'activeOrders':'70px 1fr 150px 120px',
+          'productList':'100px 70px 1fr 150px 200px',
+          'orderList': '100px 70px 1fr 150px 100px 175px'
+      },
     },
   },
   plugins: [],

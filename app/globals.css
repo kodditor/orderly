@@ -54,9 +54,9 @@ button[disabled]:hover button:disabled:hover {
 }
 
 .btn-secondary{
-  color: black;
-  background-color: lightgrey;
-  border-color: lightgrey;
+  color: var(--red);
+  background-color: transparent;
+  border-color: var(--red);
 }
 
 .btn-no-shadow, .btn-no-shadow:hover{

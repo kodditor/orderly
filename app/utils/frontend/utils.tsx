@@ -1,3 +1,4 @@
+import { capitalize } from "lodash";
 import { Ref } from "react";
 
 export function fadePages(parentRef :Ref<HTMLDivElement>) {
@@ -43,4 +44,21 @@ export function getExtension(path: string) {
         return "";
     }
     return a.pop();
+}
+
+export function pesewasToCedis(pesewas:number){
+    return pesewas/100
+}
+
+export function cedisToPesewas(cedis:number){
+    return Number((cedis * 100).toFixed(0))
+}
+
+export function capitalizeAll(s: string) :string{
+    let sArray = s.split(' ')
+    if (sArray.length == 1){
+        return (s[0].toUpperCase() + s.slice(1))    
+    } else {
+        return sArray.map((s)=>{return capitalizeAll(s)}).join(' ')
+    }
 }

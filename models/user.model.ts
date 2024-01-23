@@ -22,7 +22,7 @@ export interface IUserMetadata {
         isAnnual: boolean, 
         name: string 
     },
-    shopID: string
+    shop_id: string
 
 }
 

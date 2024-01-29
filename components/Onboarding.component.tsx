@@ -320,7 +320,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
 
     useEffect(()=>{
         handleIsOrderlyChoice('orderly')
-    }, [])
+    },)
 
     return (
         <>
@@ -334,7 +334,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                         <div className="mb-2 pl-2">
                             { selectedPlan?.fillText !== '' && <p className="text-gray-400">- { selectedPlan?.fillText}</p> }
                             { selectedPlan?.features.map((feature:string, idx:number)=>{
-                                return (<p>- {feature}</p>)
+                                return (<p key={idx}>- {feature}</p>)
                             }
                             )}
                         </div>

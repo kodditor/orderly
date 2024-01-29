@@ -42,7 +42,7 @@ function convertDate(dateString: string){
             }
         })
 
-    }, [])
+    })
 
     const tempOrder: Tables<'orders'>[] = [
         {

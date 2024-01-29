@@ -4,7 +4,7 @@ import { cookies } from "next/headers"
 
 export const serverSupabase = createServerComponentClient<Database>({ cookies },
     {
-    supabaseUrl: process.env.NEXT_PUBLIC_SUPABASE_URL!, 
+    supabaseUrl: process.env.SUPABASE_URL!, 
     supabaseKey: process.env.NEXT_PUBLIC_ANON_KEY!
 })
 

@@ -1,9 +1,9 @@
 import { capitalize } from "lodash";
-import { Ref } from "react";
+import { Ref, RefObject } from "react";
 
-export function fadePages(parentRef :Ref<HTMLDivElement>) {
+export function fadePages(parentRef :RefObject<HTMLDivElement>) {
 
-    const parent = parentRef!.current
+    const parent = parentRef!.current!
     parent.style.animation = 'fadeInOut forwards .5s ease-in-out'
     setTimeout(()=>{
         parent.style.animation = ''

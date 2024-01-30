@@ -36,7 +36,7 @@ export default function DashboardHeader(){
                         <Link href={'/s/dashboard'} className="w-full"><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-2" icon={faHome} />My Dashboard</li></Link>
                         <Link href={'?tab=products'} className="w-full "><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faShoppingBag} />My Products</li></Link>
                         <Link href={'?tab=orders'} className="w-full "><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faReceipt} />My Orders</li></Link>
-                        <Link href={'?tab=setting'} className="w-full "><li className="flex items-center hover:bg-peach p-2 border-b-2 border-b-peach rounded-full duration-150"><span className="mr-[7px] w-[30px] h-[30px] rounded-full overflow-hidden" ><Image src={shop.imageURL!} alt="Visit your shop" width={30} height={30} /></span>My Settings</li></Link>
+                        <Link href={'?tab=settings'} className="w-full "><li className="flex items-center hover:bg-peach p-2 border-b-2 border-b-peach rounded-full duration-150"><span className="mr-[7px] w-[30px] h-[30px] rounded-full overflow-hidden" ><Image src={shop.imageURL!} alt="Visit your shop" width={30} height={30} /></span>My Settings</li></Link>
                     
                     </ul>
                 </div>
@@ -52,20 +52,20 @@ export default function DashboardHeader(){
                     </div>
                 </div>    
             </nav>
-            <nav className="flex md:hidden fixed top-0 w-screen h-[50px] z-40 border-2 border-peach px-4 py-2 justify-between">
+            <nav className="flex md:hidden shadow-sm bg-white fixed top-0 w-screen h-[50px] z-40 border-2 border-peach px-4 py-2 justify-between">
                 <Link href={`/`} className="w-full flex items-center"><Image src={'/img/logo.png'} width={170} height={50} alt="The Orderly Logo"/></Link>
                 <div className="flex items-center gap-4">
                     <Link href={`/s/${shop.shopNameTag}`} className="w-[30px] h-[30px] rounded-full overflow-hidden border-1 border-black"><Image src={shop.imageURL!} alt="Visit your shop" width={50} height={50} /></Link>
                     <FontAwesomeIcon className="cursor-pointer" onClick={()=>{setClickedOpenNav(true)}} icon={faBars} />
                 </div>
                 <div className={`w-screen h-screen top-0 left-0 fixed bg-black text-white ${(clickedOpenNav) ? 'flex flex-col' : 'hidden'}`}>
-                    <ul className="flex flex-col w-1/3 min-w-[175px] m-auto gap-6">
-                        <span className="flex justify-center text-2xl " onClick={()=>{setClickedOpenNav(false)}}><FontAwesomeIcon icon={faClose} /></span>
-                        <Link href={'/s/dashboard'}><li className="flex items-center justify-center hover:bg-peach p-3 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faHome} />My Dashboard</li></Link>
-                        <Link href={'?tab=products'} className="w-full "><li className="flex justify-center items-center hover:bg-peach p-3 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faShoppingBag} />My Products</li></Link>
-                        <Link href={'?tab=orders'} className="w-full "><li className="flex items-center justify-center hover:bg-peach p-3 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faReceipt} />My Orders</li></Link>
-                        <Link href={'?tab=setting'} className="w-full "><li className="flex items-center justify-center hover:bg-peach p-3 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faCog} />My Settings</li></Link>
-                        <Link href={`/s/${shop.shopNameTag}`}><button className="w-full btn-no-shadow">Visit My Shop</button></Link>
+                    <ul className="flex flex-col w-2/3 min-w-[175px] m-auto gap-6">
+                        <span className="flex justify-center text-2xl mb-2 " onClick={()=>{setClickedOpenNav(false)}}><FontAwesomeIcon icon={faClose} /></span>
+                        <Link href={'/s/dashboard'} onClick={()=>{setClickedOpenNav(false)}}><li className="flex items-center justify-center hover:bg-peach p-3 border-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faHome} />My Dashboard</li></Link>
+                        <Link href={'?tab=products'} onClick={()=>{setClickedOpenNav(false)}} className="w-full "><li className="flex justify-center items-center hover:bg-peach p-3 border-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faShoppingBag} />My Products</li></Link>
+                        <Link href={'?tab=orders'} onClick={()=>{setClickedOpenNav(false)}} className="w-full "><li className="flex items-center justify-center hover:bg-peach p-3 border-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faReceipt} />My Orders</li></Link>
+                        <Link href={'?tab=settings'} onClick={()=>{setClickedOpenNav(false)}} className="w-full "><li className="flex items-center justify-center hover:bg-peach p-3 border-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faCog} />My Settings</li></Link>
+                        <Link href={`/s/${shop.shopNameTag}`} onClick={()=>{setClickedOpenNav(false)}}><button className="w-full btn-no-shadow">Visit My Shop</button></Link>
                         <button className="btn-secondary btn-no-shadow" onClick={handleSignOut}>Log Out</button>
                         <p className="text-center">Orderly Ghana &copy; {today.getFullYear()}</p>
                         <div className="flex justify-evenly w-full">

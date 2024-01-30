@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation"
 import DashboardTabComponent from "./DashboardTab.component"
 import ProductTabComponent from "./products/ProductTab.component"
 import OrderTabComponent from "./orders/OrderTab.component"
+import SettingsTabComponent from "./settings/SettingsTab.component"
 
 
 export default function DashboardComponent(){
@@ -20,6 +21,7 @@ export default function DashboardComponent(){
                 { (tab == null || tab == 'dashboard') && <DashboardTabComponent /> }
                 { (tab == 'products') && <ProductTabComponent /> }
                 { (tab == 'orders') && <OrderTabComponent /> }
+                { (tab == 'settings') && <SettingsTabComponent /> }
             </main>
         </>
     )

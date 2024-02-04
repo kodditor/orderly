@@ -2,21 +2,27 @@
 
 import { capitalizeAll } from "@/app/utils/frontend/utils"
 import { RootState } from "@/constants/orderly.store"
-import { faPhone } from "@fortawesome/free-solid-svg-icons"
+import { IShopCart } from "@/models/OrderProducts.model"
+import { faPhone, faShoppingBasket, faShoppingCart } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Image from "next/image"
-import { useState } from "react"
+import { Dispatch, SetStateAction, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 
 
-export default function ShopSideBar(){
+export default function ShopSideBar({ showCart, setShowCart, cart }: 
+        {   
+            showCart: boolean, 
+            setShowCart: Dispatch<SetStateAction<boolean>>, 
+            cart: IShopCart
+        }
+    ){
 
     const {shop, user, products} = useSelector((state: RootState) => state.shopAndUser) 
 
-    const [ dataLoading, setLoading ] = useState<boolean>(true)
-    const [ genError, setError ] = useState<boolean>(false)
+    //console.log(shop)
 
-    if(!shop){
+    if(shop.name == ''){
         return (
             <>
                 <aside  className="hidden md:block z-30 fixed p-5 pt-8 bg-white w-[20vw] min-w-[240px] h-[calc(100%-72px)] md:top-[63px] min-h-[500px] border-r-2 border-grey-200 overflow-auto ">
@@ -41,7 +47,7 @@ export default function ShopSideBar(){
                             <span className="bg-gray-300 inline-block w-1/5 h-6 rounded-md"></span>
                         </div>
                         <button disabled > <FontAwesomeIcon className="mr-1" icon={faPhone} /> Contact Business</button>
-
+                        <button disabled > <FontAwesomeIcon className="mr-1" icon={faShoppingBasket} /> View Cart</button>
                     </div>
                 </aside>
             </>
@@ -49,21 +55,30 @@ export default function ShopSideBar(){
     } else {
         return (
             <>
-                <aside  className="hidden md:block fixed p-5 pt-8 pb-2 z-30 bg-white w-[20vw] min-w-[240px] h-[calc(100%-60px)] md:top-[63px] min-h-[500px] border-r-2 border-grey-200 overflow-auto ">
-                    <div className="flex flex-col gap-2">
-                        <div className=" aspect-square w-full mb-4 flex items-center rounded-full overflow-hidden border-2 border-peach justify-center">
-                            <img className="w-full" src={shop.imageURL!} alt={`The ${shop.name} logo`}/>
+                <aside  className="block md:fixed p-4 md:p-5 md:pt-8 md:pb-2 z-30 bg-white w-full md:w-[20vw] md:min-w-[240px] md:h-[calc(100%-60px)] md:top-[63px] md:min-h-[500px] border-b-2 md:border-r-2 border-grey-200 overflow-auto ">
+                    <div className="flex flex-col" >
+                        <div className="flex flex-row md:flex-col items-center gap-4 md:gap-2" >
+                            <div className="aspect-square w-1/3 md:w-full md:max-w-[200px] md:m-auto mb-4 flex items-center rounded-full overflow-hidden border-2 border-peach justify-center">
+                                <img className="w-full" src={shop.imageURL!} alt={`The ${shop.name} logo`}/>
+                            </div>
+                            <div className="flex flex-col gap-1 md:gap-2">
+                                <h1 className="text-2xl md:text-center font-bold md:font-normal -mb-1">{shop.name}</h1>
+                                <small className="text-red opacity-70 md:text-center">@{shop.shopNameTag}</small>
+                                {/*@ts-ignore */}
+                                <h6 className="text-md text-gray-400 font-light md:text-center md:mb-2">{shop.location.city}, {shop.location.region}, {shop.location.country}</h6>
+                            </div>
                         </div>
-                        <h1 className="text-2xl -mb-2">{shop.name}</h1>
-                        <small className="text-gray-400">@{shop.shopNameTag}</small>
-                        {/*@ts-ignore */}
-                        <h6 className="text-md mb-4">{shop.location.city}, {shop.location.region}, {shop.location.country}</h6>
                         
-                        <p className="mb-4">{shop.description}</p>
-                        <small className="mb-4">{ capitalizeAll(shop.tags[0]) } • {capitalizeAll(shop.tags[1])} • {capitalizeAll(shop.tags[2])} • { capitalizeAll(shop.tags[3])}
+                        
+                        <p className="mb-0 md:text-center md:mb-4">{shop.description}</p>
+                        {/*}
+                        <small className="mb-2 md:mb-4">{ capitalizeAll(shop.tags[0]) } • {capitalizeAll(shop.tags[1])} • {capitalizeAll(shop.tags[2])} • { capitalizeAll(shop.tags[3])}
                            
-                        </small> 
-                        <button> <FontAwesomeIcon className="mr-1" icon={faPhone} /> Contact Shop</button>
+                        </small> */} 
+                        <span className="flex flex-col gap-4 mt-4">
+                            <button className="btn-secondary mt-3 md:mt-0 w-fit md:w-full"> <FontAwesomeIcon className="mr-1" width={15} height={15} icon={faPhone} /> Contact Shop</button>
+                            <button className="hidden md:flex items-center justify-center gap-2 mt-3 md:mt-0 w-fit md:w-full" onClick={()=>setShowCart(true)}> <FontAwesomeIcon className="mr-1" width={15} height={15} icon={faShoppingCart} /> My Cart ({cart.products?.length})</button>
+                        </span>
                     </div>
                 </aside>
             </>

@@ -17,7 +17,20 @@ export default async function ShopDashboard(){
 
             let {data, error } = await supabase
                 .from('shops')
-                .select('*')
+                .select(`
+                    id,
+                    createdAt,
+                    name,
+                    shopNameTag,
+                    updatedAt,
+                    description,
+                    imageURL,
+                    user_id,
+                    optionalEmail,
+                    optionalPhone,
+                    tags,
+                    location ( id, city, buildingNum, streetAddress, region, country )
+                `)
                 .eq('user_id', user.id)
             
             if (data && data.length != 0){
@@ -28,6 +41,8 @@ export default async function ShopDashboard(){
                     ...user.user_metadata
                 }
 
+                //console.log(data[0])
+
                 return (
                     <>
                         <div>
@@ -37,9 +52,6 @@ export default async function ShopDashboard(){
                     </>
                 )
             } else {
-
-                
-                
                 return (
                     <DashboardLoadSkeleton />
                 )

@@ -66,6 +66,7 @@ export default function SettingsTabComponent(){
                         <DefaultSettingsPage 
                             divRef={defaultPageRef} 
                             changePageTo={changePageTo}
+                            shop={shop}
                         />
 
                         <MyShopSettingsPage 
@@ -84,10 +85,50 @@ export default function SettingsTabComponent(){
     }
 }
 
-function DefaultSettingsPage({divRef, changePageTo}: {divRef:RefObject<HTMLDivElement>, changePageTo: any}){
+function DefaultSettingsPage({divRef, changePageTo, shop}: {divRef:RefObject<HTMLDivElement>, changePageTo: any, shop: IShop}){
+
+    const deleteDialogRef = useRef<HTMLDialogElement>(null)
+
+    function handleDeleteShop(e:any){
+        e.preventDefault()
+        let confirmationValue = e.target[0].value
+        //console.log(confirmationValue, shop.shopNameTag, typeof(confirmationValue), typeof(shop.shopNameTag))
+        if (confirmationValue === shop.shopNameTag){
+            //console.log(confirmationValue)
+            
+            clientSupabase
+            .from('shops')
+            .delete()
+            .eq('id', shop.id)
+            .then(({ error }) => {
+                if(!error){
+                    useRouter().push('/')
+                    popupText(`${shop.name} deleted.`)
+                } else {
+                    console.error(error)
+                    popupText('An error occurred.')
+
+                }
+
+            })
+        }
+    }
 
     return (
         <>
+            <dialog ref={deleteDialogRef} className="p-8 border-2 w-96 border-peach rounded-xl">
+                    <div className="flex flex-col gap-4">
+                        <h1 className="text-2xl text-center font-bold">Are you sure you want to delete your shop?</h1>
+                        <h2 className="text-center text-lg" >Enter <span className="text-red font-medium">{shop.shopNameTag}</span> to confirm.</h2>
+                        <form className="flex flex-col gap-4" onSubmit={handleDeleteShop}>
+                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="" name="confirmation" required/>
+                            <span className="flex flex-col md:flex-row gap-2 md:gap-4">
+                                <button className="w-full">Delete My Shop</button>
+                                <button className="w-full btn-secondary" onClick={(e)=>{e.preventDefault(); deleteDialogRef.current!.close()}}>Cancel</button>
+                            </span>
+                        </form>
+                    </div>
+                </dialog>
             <div ref={divRef}>   
                 <section className="w-full md:w-[calc(75%+8rem)] mb-8" >
                     <h3 className="text-gray-500 text-sm mb-4">GENERAL</h3>
@@ -97,6 +138,7 @@ function DefaultSettingsPage({divRef, changePageTo}: {divRef:RefObject<HTMLDivEl
                             changePageToDest='my-shop'
                             title="My Shop"
                         />
+                        {/*
                         <DefaultSettingOption 
                             changePageTo={changePageTo} 
                             changePageToDest=''
@@ -112,25 +154,28 @@ function DefaultSettingsPage({divRef, changePageTo}: {divRef:RefObject<HTMLDivEl
                             changePageToDest=''
                             title="Legal and Compliance"
                         />
+                        */}
                     </div>
                     <h3 className="text-gray-500 text-sm mb-4">USER</h3>
                     <div>
                         <DefaultSettingOption 
                             changePageTo={changePageTo} 
                             changePageToDest=''
-                            title="Account Management"
+                            title="Account Management (awaiting implementation)"
                         />
+                        {/*
                         <DefaultSettingOption 
                             changePageTo={changePageTo} 
                             changePageToDest=''
                             title="Notifications"
                         />
+                        */}
                     </div>
                 </section>
                 <section className="w-full md:w-[calc(75%+8rem)]">
                     <div className="bg-red rounded-lg p-4 md:p-8 text-white">
                         <h1 className="mb-2 md:mb-4">DANGER ZONE</h1>
-                        <div className="group cursor-pointer rounded-lg flex mb-0 md:mb-4 justify-between items-center px-4 py-2 text-black bg-white duration-150 border-2 border-gray-100">
+                        <div className="group cursor-pointer rounded-lg flex mb-0 md:mb-4 justify-between items-center px-4 py-2 text-black bg-white duration-150 border-2 border-gray-100" onClick={()=>{deleteDialogRef.current!.showModal()}}>
                             <h2 className="text-xl">Delete Shop</h2>
                             <span className="w-10 h-10 bg-peach rounded-full flex items-center justify-center duration-150 group-hover:bg-red group-hover:text-white">
                                 <FontAwesomeIcon className="w-7" icon={faTrash} />
@@ -173,7 +218,7 @@ function MyShopSettingsPage(
 
         switch (field) {
             case 'city':
-            case 'aptNum':
+            case 'buildingNum':
             case 'streetAddress':
             case 'region':
             case 'country':
@@ -391,16 +436,16 @@ function MyShopSettingsPage(
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <label htmlFor='aptNum' className="ml-2 font-bold">Building Number</label>
+                        <label htmlFor='buildingNum' className="ml-2 font-bold">Building Number</label>
                         <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
                         type="text" 
                         required
-                        id="aptNum"
-                        name="aptNum"
+                        id="buildingNum"
+                        name="buildingNum"
                         onChange={handleValueChange}
                         defaultValue={
                             //@ts-ignore 
-                            shop.location?.aptNum
+                            shop.location?.buildingNum
                             ?? ''} 
                         />
                     </div>

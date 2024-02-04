@@ -10,7 +10,7 @@ export interface IUserMetadata {
     isOrderly: boolean,
     lastName: string,
     location?: {
-        aptNum: string,
+        buildingNum: string,
         city: string,
         country: string,
         region: string,

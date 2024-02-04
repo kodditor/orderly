@@ -11,7 +11,23 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     const supabase = serverSupabase
     const shopNameTag = params.shopNameTag
 
-    const {data, error} = await supabase.from('shops').select('*').eq('shopNameTag', shopNameTag)
+    const {data, error} = await supabase
+                            .from('shops')
+                            .select(`
+                                id,
+                                createdAt,
+                                name,
+                                shopNameTag,
+                                updatedAt,
+                                description,
+                                imageURL,
+                                user_id,
+                                optionalEmail,
+                                optionalPhone,
+                                tags,
+                                location ( id, city, buildingNum, streetAddress, region, country )
+                            `)
+                            .eq('shopNameTag', shopNameTag)
 
     if (error != null){
         return (

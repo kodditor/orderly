@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBars, faClose, faCog, faHome, faReceipt, faShoppingBag } from "@fortawesome/free-solid-svg-icons"
 import { faInstagram, faFacebook, faXTwitter, faTiktok } from "@fortawesome/free-brands-svg-icons"
 import { useState } from "react"
+import { popupText } from "../Popup.component"
 
 
 export default function DashboardHeader(){
@@ -24,6 +25,7 @@ export default function DashboardHeader(){
     function handleSignOut(){
         supabase.auth.signOut().then((data) => {
             router.push('/')
+            popupText('You signed out')
         })
     }
 
@@ -33,10 +35,10 @@ export default function DashboardHeader(){
                 <div>
                     <Link href={'/'} className="w-full flex justify-center px-4 pb-8 border-b-2 border-b-peach"><Image src={'/img/logo.png'} width={170} height={50} alt="The Orderly Logo"/></Link>
                     <ul className="px-4 mt-8 mb-4">
-                        <Link href={'/s/dashboard'} className="w-full"><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-2" icon={faHome} />My Dashboard</li></Link>
-                        <Link href={'?tab=products'} className="w-full "><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faShoppingBag} />My Products</li></Link>
-                        <Link href={'?tab=orders'} className="w-full "><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faReceipt} />My Orders</li></Link>
-                        <Link href={'?tab=settings'} className="w-full "><li className="flex items-center hover:bg-peach p-2 border-b-2 border-b-peach rounded-full duration-150"><span className="mr-[7px] w-[30px] h-[30px] rounded-full overflow-hidden" ><Image src={shop.imageURL!} alt="Visit your shop" width={30} height={30} /></span>My Settings</li></Link>
+                        <Link href={'/s/dashboard'} className="w-full"><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-2" width={15} height={15} icon={faHome} />My Dashboard</li></Link>
+                        <Link href={'?tab=products'} className="w-full "><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" width={15} height={15} icon={faShoppingBag} />My Products</li></Link>
+                        <Link href={'?tab=orders'} className="w-full "><li className="flex items-center hover:bg-peach p-3 pl-5 border-b-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" width={15} height={15} icon={faReceipt} />My Orders</li></Link>
+                        <Link href={'?tab=settings'} className="w-full "><li className="flex items-center hover:bg-peach p-2 border-b-2 border-b-peach rounded-full duration-150"><span className="ml-[7px] mr-[7px] w-[25px] h-[25px] rounded-full overflow-hidden" ><Image src={shop.imageURL!} alt="Visit your shop" width={25} height={25} /></span>My Settings</li></Link>
                     
                     </ul>
                 </div>
@@ -46,9 +48,9 @@ export default function DashboardHeader(){
                     <p className="text-center">Orderly Ghana &copy; {today.getFullYear()}</p>
                     <div className="flex justify-evenly w-full">
                         <a href="https://instagram.com/orderlyghana" className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon icon={faInstagram} /></a>
-                        <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon icon={faFacebook} /></a>
-                        <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon icon={faXTwitter} /></a>
-                        <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon icon={faTiktok} /></a>
+                        <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon width={15} height={15} icon={faFacebook} /></a>
+                        <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon width={15} height={15} icon={faXTwitter} /></a>
+                        <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon width={15} height={15} icon={faTiktok} /></a>
                     </div>
                 </div>    
             </nav>

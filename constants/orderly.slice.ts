@@ -34,7 +34,7 @@ interface IShopAndUser {
       isOrderly: true,
       lastName: '',
       location: {
-        aptNum: '',
+        buildingNum: '',
         city: '',
         country: '',
         region: '',
@@ -53,7 +53,7 @@ interface IShopAndUser {
   }
   
   export function getOrderlyReducer(shop: IShop,user: IUserMetadataWithIDAndEmail){
-    
+
     const initialState: IShopAndUser = {
       shop: shop,
       user: user,

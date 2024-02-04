@@ -12,6 +12,7 @@ import { Tables } from "@/types/supabase"
 import { setProducts, removeProduct } from "@/constants/orderly.slice"
 import AddProduct from "./AddProduct.component"
 import EditProduct from "./EditProduct.component"
+import { popupText } from "@/components/Popup.component"
 
 export default function ProductTabComponent(){
 
@@ -32,7 +33,7 @@ export default function ProductTabComponent(){
 
     const supabase = clientSupabase;
 
-    // will the useffect run after a nav fron one of the child pages?
+    // will the useffect run after a nav from one of the child pages?
 
     useEffect(()=>{
         supabase
@@ -62,6 +63,7 @@ export default function ProductTabComponent(){
             if(!error){
                 console.log(data)
                 dispatch(removeProduct(selectedProduct!))
+                popupText(`Deleted ${selectedProduct!.name}`)
                 deleteDialogRef.current?.close()
 
             } else {
@@ -124,23 +126,24 @@ export default function ProductTabComponent(){
                     </div>
                 </dialog>
 
-                <section className="w-[calc(75%+8rem)]">
-                    <div className="flex justify-between mb-8">
+                <section className="w-full md:w-[calc(75%+8rem)]">
+                    <div className="flex justify-between mb-4 md:mb-8">
                         <h1 className="font-bold text-2xl">My Products</h1>
                         <span>
-                            <Link href={'/s/dashboard?tab=products&section=add'}><button><FontAwesomeIcon icon={faAdd} /> Add New Product</button></Link>
+                            <Link href={'/s/dashboard?tab=products&section=add'}><button><FontAwesomeIcon style={{width: '15px', height: '15px'}} icon={faAdd} /> Add<span className="hidden md:inline"> New Product</span></button></Link>
                         </span>
                     </div>
                     <div>
                         <div className="border-2 border-peach rounded-xl">
-                            <div className="bg-peach grid grid-cols-productList gap-6 p-4">
-                                <p className="flex justify-center">Product #</p>
-                                <p  className="flex justify-center" >Image</p>
-                                <p>Name and Description</p>
-                                <p className="flex justify-center" >Price</p>
+                            <div className="hidden md:grid bg-peach grid-cols-productListMob md:grid-cols-productList gap-4 md:gap-6 p-2 md:p-4">
+                                <p className="hidden md:flex justify-center"><span className="hidden md:inline">Product </span>#</p>
+                                <p  className="flex justify-center" ><span className="hidden md:inline">Image</span></p>
+                                <p><span className="hidden md:inline">Name and Description</span><span className="inline md:hidden">Details</span></p>
+                                <p className="hidden md:flex justify-center" >Price</p>
                                 <p className="flex justify-center">Actions</p>
                             </div>
-                            <div className="max-h-[550px]  overflow-auto">
+                            <div className="md:max-h-[550px] max-h-[100vh-150px] overflow-auto">
+                            {/* Loading state */}
                             { dataLoading && 
                                 <>
                                     <div className="flex justify-center animate-pulse w-full p-4">
@@ -148,27 +151,33 @@ export default function ProductTabComponent(){
                                     </div>
                                 </>
                             }
-
+                            {/* Desktop View */}
                             { (!dataLoading) && (products!.length != 0) &&
                                 products!.map((product, idx) => {
                                     return(
-                                        <div className="border-b-peach last:border-b-transparent hover:bg-gray-50 duration-150 grid grid-cols-productList gap-6 p-4" key={idx}>
-                                            <p className="flex justify-center items-center"># {product.id.slice(0,4)}</p>
-                                            <span className="w-[70px] h-[70px] rounded-xl overflow-hidden flex justify-center items-center">
+                                        <div className="hidden md:grid border-b-peach last:border-b-transparent hover:bg-gray-50 duration-150 grid-cols-productList gap-6 p-4" key={idx}>
+                                            <p className="hidden md:flex justify-center items-center"># {product.id.slice(0,4)}</p>
+                                            <span className="w-[45px] md:w-[70px] h-[45px] md:h-[70px] rounded-xl overflow-hidden flex justify-center items-center">
                                                 <img src={product.imageURL!} />
                                             </span>
                                             <span className="flex flex-col truncate justify-center">
                                                 <h1 className="font-black text-xl">{product.name}</h1>
                                                 <h2 className="text-gray-400">{product.description}</h2>
                                             </span>
-                                            <p className="flex justify-center items-center font-black">GHS{pesewasToCedis(product.price!).toFixed(2).toLocaleString()}</p>
-                                            <span className="flex justify-center items-center">
-                                                <Link href={`/s/${shop.shopNameTag}/product/${product.id}`}><button className="mr-2 btn-secondary">View Product</button></Link>
-                                                <button className="btn-secondary group w-10 h-10 relative rounded-full">
-                                                    <FontAwesomeIcon icon={faEllipsisV} />
-                                                    <span className=" hidden group-hover:block z-10 absolute -top-5 right-[38px] bg-gray-100 rounded-xl overflow-hidden border-2 border-peach">
-                                                        <Link href= {`/s/dashboard?tab=products&section=edit&id=${product.id}`}  className="flex gap-2 text-black items-center p-2 hover:bg-darkRed duration-150 hover:text-white"><FontAwesomeIcon icon={faPen} /><span>Edit</span></Link>
-                                                        <div onClick={()=>{setSelectedProduct(product); deleteDialogRef.current?.showModal() }} className="text-red flex gap-2 p-2 items-center duration-150 hover:bg-red hover:text-white"><FontAwesomeIcon icon={faTrash}/><span>Delete</span></div>
+                                            <p className=" flex items-center justify-center font-black">GHS{pesewasToCedis(product.price!).toFixed(2).toLocaleString()}</p>
+                                            <span className="flex flex-col md:flex-row justify-center items-center">
+                                                <Link href={`/s/${shop.shopNameTag}?product=${product.id}`}><button className="w-full md:w-fit mr-2 btn-secondary">View<span className="hidden md:inline"> Product</span></button></Link>
+                                                <button className="group relative bg-peach !border-transparent !rounded-full hover:bg-red !text-black hover:!text-white duration-150">
+                                                    <FontAwesomeIcon width={15} height={15} icon={faEllipsisV}/>
+                                                    <span className="absolute right-10 -top-5 hidden group-hover:flex flex-col rounded-lg overflow-hidden border-darkRed border-2 bg-white">
+                                                        <Link href={`/s/dashboard?tab=products&section=edit&id=${product.id}`}  className="flex gap-2 p-2 duration-150 items-center bg-white text-black hover:bg-darkRed hover:text-white" >
+                                                            <FontAwesomeIcon width={15} height={15} icon={faPen} />
+                                                            Edit
+                                                        </Link>
+                                                        <span className="flex gap-2 p-2  duration-150 items-center bg-white text-black hover:bg-red hover:text-white" onClick={()=>{setSelectedProduct(product); deleteDialogRef.current?.showModal()}}>
+                                                            <FontAwesomeIcon width={15} height={15} icon={faTrash} />
+                                                            Delete
+                                                        </span>
                                                     </span>
                                                 </button>
                                             </span>
@@ -176,9 +185,47 @@ export default function ProductTabComponent(){
                                     )
                                 })
                             }
+                            {/* Mobile View */}
+                            { (!dataLoading) && (products!.length != 0) &&
+                                products!.map((product, idx) => {
+                                    return(
+                                        <div className="border-b-peach border-2 md:hidden last:border-b-transparent hover:bg-gray-50 flex flex-col duration-150 gap-4 p-2 py-3" key={idx}>
+                                            <span className="flex flex-row gap-4">
+                                                <span className="w-[60px] md:w-[70px] h-[60px] md:h-[70px] rounded-xl overflow-hidden flex justify-center items-center">
+                                                    <img src={product.imageURL!} />
+                                                </span>
+                                                <span className="w-[calc(100%-60px-0.5rem)] flex flex-col truncate justify-center">
+                                                    <h1 className="font-black text-xl">{product.name}</h1>
+                                                    <h2 className="text-gray-400">{product.description}</h2>
+                                                    <p className="md:hidden font-black">GHS{pesewasToCedis(product.price!).toFixed(2).toLocaleString()}</p>
+                                                </span>
+                                            </span>
+                                            <span className="flex flex-row gap-2 items-center">
+                                                <Link href={`/s/${shop.shopNameTag}?product=${product.id}`} className="w-6/12">
+                                                    <button className="w-full md:w-fit mr-2">
+                                                        View Product
+                                                    </button>
+                                                    </Link>
+                                                
+                                                <span className="w-6/12 flex items-center justify-center gap-4">
+                                                    <Link className="w-2/3" href={`/s/dashboard?tab=products&section=edit&id=${product.id}`}>
+                                                        <button className="flex items-center gap-2 btn-secondary rounded-full">
+                                                            <FontAwesomeIcon style={{width: '15px', height: '15px'}} icon={faPen} />
+                                                            Edit
+                                                        </button>
+                                                    </Link>
+                                                    <span className="flex items-center justify-center rounded-full" onClick={()=>{setSelectedProduct(product); deleteDialogRef.current?.showModal()}}>
+                                                        <FontAwesomeIcon style={{width: '15px', height: '15px'}} icon={faTrash} />
+                                                    </span>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    )
+                                })
+                            }
                             { !dataLoading &&  products!.length == 0 && 
                                 <>
-                                    <div className="flex w-full justify-center p-4">
+                                    <div className="flex w-full text-center justify-center p-4">
                                         Oh no! It's empty. Add a new product to begin!
                                     </div>
                                 </> 

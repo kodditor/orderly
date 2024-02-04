@@ -1,11 +1,13 @@
 export interface IShopperDetails {
-    name: string,
+    shopperFirstName: string,
+    shopperLastName: string,
     location: {
         city: string,
-        aptNum: string,
+        buildingNum: string,
+        streetAddress: string,
         region: string,
-        country: string,
-        streetAddress: string 
+        country: string
       },
     phone: string,
+    shopper_user_id?: string
 }

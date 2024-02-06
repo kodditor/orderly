@@ -4,10 +4,10 @@ import { IShop } from '@/models/shop.model'
 import { merge } from 'lodash'
 import { IUserMetadataWithIDAndEmail } from '@/models/user.model'
 import { Tables } from '@/types/supabase'
-import { ordersType } from '@/app/utils/db/supabase-queries'
+import { ordersType } from '@/app/utils/db/supabase-client-queries'
 
 interface IShopAndUser {
-  shop :IShop
+  shop : IShop
   user :IUserMetadataWithIDAndEmail
   products: Tables<'products'>[]
   orders: ordersType
@@ -16,10 +16,18 @@ interface IShopAndUser {
   const initialState: IShopAndUser = {
     shop: {
       createdAt: '',
-      description: null,
+      description: '',
       id: '',
-      imageURL: null,
-      location: null,
+      imageURL: '',
+      location: {
+        buildingNum: '',
+        city: '',
+        country: '',
+        created_at: null,
+        id: '',
+        region: '',
+        streetAddress: ''
+      },
       name: '',
       optionalEmail: null,
       optionalPhone: null,
@@ -70,8 +78,11 @@ interface IShopAndUser {
         setShop: (state, action: PayloadAction<IShop>) => {
           state.shop = action.payload
         },
-        updateShop: (state, action: PayloadAction<IShop>) => {
-          state.shop = merge(state, action.payload)
+        updateShop: (state, action: PayloadAction<Partial<IShop>>) => {
+          state.shop = {
+            ...state.shop,
+            ...action
+          }
           // Probably call a supabase update func here
         },
         setUser: (state, action: PayloadAction<IUserMetadataWithIDAndEmail>) => {
@@ -110,9 +121,11 @@ interface IShopAndUser {
       setShop: (state, action: PayloadAction<IShop>) => {
         state.shop = action.payload
       },
-      updateShop: (state, action: PayloadAction<IShop>) => {
-        state.shop = merge(state, action.payload)
-        // Probably call a supabase update func here
+      updateShop: (state, action: PayloadAction<Partial<IShop>>) => {
+        state.shop = {
+          ...state.shop,
+          ...action
+        }
       },
       setUser: (state, action: PayloadAction<IUserMetadataWithIDAndEmail>) => {
         state.user = action.payload

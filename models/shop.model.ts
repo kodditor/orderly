@@ -1,3 +1,8 @@
+import { shopDetailsType } from "@/app/utils/db/supabase-server-queries";
 import { Tables } from "@/types/supabase";
 
-export interface IShop extends Tables<'shops'> {}
+
+//@ts-ignore
+export interface IShop extends shopDetailsType {
+    location: Tables<'locations'>
+}

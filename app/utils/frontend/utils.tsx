@@ -1,6 +1,6 @@
 import { capitalize } from "lodash";
 import { Ref, RefObject } from "react";
-import { ordersType } from "../db/supabase-queries";
+import { ordersType } from "../db/supabase-client-queries";
 
 export function fadePages(parentRef :RefObject<HTMLDivElement>) {
 

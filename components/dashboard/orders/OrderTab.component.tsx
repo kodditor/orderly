@@ -6,13 +6,14 @@ import { getOrderTotal, pesewasToCedis, styledCedis } from "@/app/utils/frontend
 import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from "@/constants/orderly.store"
-import { Tables } from "@/types/supabase"
+import { Tables, TablesUpdate } from "@/types/supabase"
 import { setOrders, removeOrder, setProducts } from "@/constants/orderly.slice"
 import { User } from "@supabase/auth-helpers-nextjs"
-import { getAllProducts, getOrdersWithProductsAndShopperDetails, ordersType } from "@/app/utils/db/supabase-queries"
+import { accessOrders, getAllProducts, getOrdersWithProductsAndShopperDetails, ordersType } from "@/app/utils/db/supabase-client-queries"
 import { popupText } from "@/components/Popup.component"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
+import { sendConfirmationText } from "@/app/utils/notifications/phone"
 
 function convertDate(dateString: string){
     let date = new Date(dateString)
@@ -59,6 +60,37 @@ function convertDate(dateString: string){
 
     }, [section])
 
+    function handleConfirmOrder(): void{        
+        const updateObject: TablesUpdate<'orders'> = {
+            status: "CONFIRMED",
+            updated_at: new Date().toISOString()
+        }
+
+        accessOrders
+        .update(updateObject)
+        .eq('id', selectedOrder!.id)
+        .select()
+        .then(({data, error}) => {
+            //console.log(data)
+            if(error){
+                console.error(error)
+                popupText(`SB${error.code}: An error occurred when confirming the order.`)
+            } else {
+                //@ts-expect-error
+                sendConfirmationText(selectedOrder!.shopper.phone, selectedOrder!.id, shop.name)
+                .then(({data, error}) =>{
+                    if(error){
+                        popupText(`ARK${error.code}: An error occurred when confirming the order`)
+                        confirmationRef.current?.close()
+                    } else {
+                        popupText('Order confirmed! The shopper has been notified.')
+                        confirmationRef.current?.close()
+                    }
+                })
+            } 
+        })
+    }
+
 
     switch (section){
 
@@ -78,6 +110,30 @@ function convertDate(dateString: string){
 
                 return (
                     <>
+                        <dialog ref={confirmationRef} className="w-[90%] md:max-w-[400px] rounded-xl overflow-hidden">
+                            <div className="p-6 flex flex-col gap-3">
+                                <h1 className="text-xl font-bold">Confirm order #{selectedOrder?.id}?</h1>
+                                <p>This will send a notification to the customer confirming their order.</p>
+                                <div className="max-h-[300px]">
+                                    {
+                                        selectedOrder?.order_products.length != 0 && selectedOrder?.order_products.map((product, idx) => { 
+                                            let specificProduct = products.find((prod) => prod.id == product.product) as Tables<'products'> // I'm sorry
+                                            return (
+                                                <div className="flex p-1 gap-1 items-center border-2 border-gray-200 border-b-0 last:border-b-2 first:rounded-t-md last:rounded-b-md " key={idx}>
+                                                    <span className="w-1/12 text-xs text-gray-400">x{product.quantity}</span>
+                                                    <span className="w-7/12">{specificProduct.name}</span>
+                                                    <span className="w-4/12 font-bold">GHS{pesewasToCedis(product.price).toFixed(2)}</span>
+                                                </div>
+                                            )
+                                        })
+                                    }
+                                </div>
+                                <div className="flex gap-2 mt-2">
+                                    <button className="w-1/2" onClick={handleConfirmOrder}>Confirm Order</button>
+                                    <button className="btn-secondary w-1/2" onClick={()=>{confirmationRef.current?.close()}}>Cancel</button>
+                                </div>
+                            </div>
+                        </dialog>
                         <section className="w-full md:w-[calc(75%+8rem)]">
                             <span className="mb-4 flex gap-4 items-center">
                                 <Link href={'/s/dashboard?tab=orders'} className="group p-4 flex h-10 rounded-full items-center justify-center bg-gray-100 hover:bg-gray-300 duration-150"><FontAwesomeIcon className="mr-3 group-hover:mr-2 duration-150" icon={faArrowLeft} /> Back to Orders</Link>
@@ -110,19 +166,18 @@ function convertDate(dateString: string){
                                                 let specificProduct = products.find((prod) => prod.id == product.product) as Tables<'products'>
 
                                                 return (
-                                                    <>
-                                                        <div className="flex items-center py-2 px-4 gap-4 w-full border-b-peach border-b-2 last:border-b-0" key={idx}>
-                                                            <small className="w-[30px] text-center">x{product.quantity}</small>
-                                                            <span className="w-1/12 flex items-center justify-center">
-                                                                <span className="w-[40px] aspect-square rounded-md border-2 border-gray-200 overflow-hidden flex justify-center items-center">
-                                                                    <img src={specificProduct?.imageURL ?? '/img/chevron-logo.png'} />
-                                                                </span>
+                                                    
+                                                    <div className="flex items-center py-2 px-4 gap-4 w-full border-b-peach border-b-2 last:border-b-0" key={idx}>
+                                                        <small className="w-[30px] text-center">x{product.quantity}</small>
+                                                        <span className="w-1/12 flex items-center justify-center">
+                                                            <span className="w-[40px] aspect-square rounded-md border-2 border-gray-200 overflow-hidden flex justify-center items-center">
+                                                                <img src={specificProduct?.imageURL ?? '/img/chevron-logo.png'} />
                                                             </span>
-                                                            <h1 className="w-6/12">{specificProduct.name}</h1>
-                                                            <p className="w-4/12">GHS{styledCedis(product.price)}</p>
+                                                        </span>
+                                                        <h1 className="w-6/12">{specificProduct.name ?? ''}</h1>
+                                                        <p className="w-4/12">GHS{styledCedis(product.price)}</p>
 
-                                                        </div>
-                                                    </>
+                                                    </div>
                                                 )
                                             })
                                         }
@@ -132,10 +187,10 @@ function convertDate(dateString: string){
                                     <p className="text-xl font-bold">Total: GHS{styledCedis(total)}</p>
                                 </div>
                                 <div className="mt-4 flex flex-col md:flex-row gap-2 md:gap-4 w-full md:max-w-[500px]">
-                                    <span className="w-1/2">
+                                    <span className="w-full md:w-1/2">
                 
                                         { order.status == "SENT" &&
-                                            <button className="w-full" onClick={(e)=>{e.preventDefault() ;setSelectedOrder(order); confirmationRef.current?.showModal()}}>Confirm Order</button>
+                                            <button className="w-full" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); confirmationRef.current?.showModal()}}>Confirm Order</button>
                                         }
                                         { order.status == "CONFIRMED" &&
                                             <button className="w-full" disabled>Deliver Order</button>
@@ -154,7 +209,7 @@ function convertDate(dateString: string){
                                         }
 
                                     </span>
-                                    <button className="w-1/2 btn-secondary">Decline Order</button>
+                                    <button className="w-full md:w-1/2 btn-secondary">Decline Order</button>
                             
                                 </div>
                             </div>

@@ -1,4 +1,5 @@
 import { serverSupabase } from "@/app//supabase/supabase-server"
+import { getShopDetails } from "@/app/utils/db/supabase-server-queries"
 import DashboardLoadSkeleton from "@/components/dashboard/DashboardLoadSkeleton.component"
 import ShopDashboardModule from "@/components/dashboard/ShopDashboard.component"
 import { redirect } from "next/navigation"
@@ -15,22 +16,7 @@ export default async function ShopDashboard(){
 
         if(user.user_metadata.firstName){
 
-            let {data, error } = await supabase
-                .from('shops')
-                .select(`
-                    id,
-                    createdAt,
-                    name,
-                    shopNameTag,
-                    updatedAt,
-                    description,
-                    imageURL,
-                    user_id,
-                    optionalEmail,
-                    optionalPhone,
-                    tags,
-                    location ( id, city, buildingNum, streetAddress, region, country )
-                `)
+            let {data, error } = await getShopDetails
                 .eq('user_id', user.id)
             
             if (data && data.length != 0){

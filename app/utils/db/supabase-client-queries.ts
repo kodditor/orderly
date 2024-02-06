@@ -15,3 +15,7 @@ export const getAllProducts = clientSupabase
                             .select('*')
 
 export type ordersType = QueryData<typeof getOrdersWithProductsAndShopperDetails>
+
+
+export const accessOrders = clientSupabase
+                            .from('orders')

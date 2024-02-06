@@ -67,6 +67,7 @@ export default function SettingsTabComponent(){
                             divRef={defaultPageRef} 
                             changePageTo={changePageTo}
                             shop={shop}
+                            router={router}
                         />
 
                         <MyShopSettingsPage 
@@ -85,7 +86,7 @@ export default function SettingsTabComponent(){
     }
 }
 
-function DefaultSettingsPage({divRef, changePageTo, shop}: {divRef:RefObject<HTMLDivElement>, changePageTo: any, shop: IShop}){
+function DefaultSettingsPage({divRef, changePageTo, shop, router }: {divRef:RefObject<HTMLDivElement>, changePageTo: any, shop: IShop, router: AppRouterInstance}){
 
     const deleteDialogRef = useRef<HTMLDialogElement>(null)
 
@@ -102,7 +103,7 @@ function DefaultSettingsPage({divRef, changePageTo, shop}: {divRef:RefObject<HTM
             .eq('id', shop.id)
             .then(({ error }) => {
                 if(!error){
-                    useRouter().push('/')
+                    router.push('/')
                     popupText(`${shop.name} deleted.`)
                 } else {
                     console.error(error)

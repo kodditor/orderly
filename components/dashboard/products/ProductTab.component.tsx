@@ -13,7 +13,7 @@ import { setProducts, removeProduct } from "@/constants/orderly.slice"
 import AddProduct from "./AddProduct.component"
 import EditProduct from "./EditProduct.component"
 import { popupText } from "@/components/Popup.component"
-import { getAllProducts } from "@/app/utils/db/supabase-queries"
+import { getAllProducts } from "@/app/utils/db/supabase-client-queries"
 
 export default function ProductTabComponent(){
 

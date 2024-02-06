@@ -62,10 +62,10 @@ export default function ShopSideBar({ showCart, setShowCart, cart }:
                                 <img className="w-full" src={shop.imageURL!} alt={`The ${shop.name} logo`}/>
                             </div>
                             <div className="flex flex-col gap-1 md:gap-2">
-                                <h1 className="text-2xl md:text-center font-bold md:font-normal -mb-1">{shop.name}</h1>
+                                <h1 className="text-2xl md:text-center font-bold font-semibold -mb-1">{shop.name}</h1>
                                 <small className="text-red opacity-70 md:text-center">@{shop.shopNameTag}</small>
                                 {/*@ts-ignore */}
-                                <h6 className="text-md text-gray-400 font-light md:text-center md:mb-2">{shop.location.city}, {shop.location.region}, {shop.location.country}</h6>
+                                <h6 className="text-md text-gray-400 font-normal md:text-center md:mb-2">{shop.location.city}, {shop.location.region}, {shop.location.country}</h6>
                             </div>
                         </div>
                         

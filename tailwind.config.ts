@@ -19,11 +19,11 @@ const config: Config = {
         'darkRed':'#220901'
       },
       gridTemplateColumns: {
-          'activeOrders':'70px 1fr 150px 120px',
+          'activeOrders':'50px 1fr 150px 120px',
           'activeOrdersMob': '1fr 100px',
           'productList':'100px 70px 1fr 150px 200px',
           'productListMob': '50px 1fr 100px',
-          'orderList': '100px 70px 1fr 150px 100px 175px'
+          'orderList': '50px 60px 1fr 150px 100px 175px'
       },
     },
   },

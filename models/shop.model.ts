@@ -3,6 +3,6 @@ import { Tables } from "@/types/supabase";
 
 
 //@ts-ignore
-export interface IShop extends shopDetailsType {
+export interface IShop extends Tables<'shops'> {
     location: Tables<'locations'>
 }

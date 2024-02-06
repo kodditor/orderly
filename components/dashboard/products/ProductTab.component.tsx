@@ -13,6 +13,7 @@ import { setProducts, removeProduct } from "@/constants/orderly.slice"
 import AddProduct from "./AddProduct.component"
 import EditProduct from "./EditProduct.component"
 import { popupText } from "@/components/Popup.component"
+import { getAllProducts } from "@/app/utils/db/supabase-queries"
 
 export default function ProductTabComponent(){
 
@@ -36,9 +37,7 @@ export default function ProductTabComponent(){
     // will the useffect run after a nav from one of the child pages?
 
     useEffect(()=>{
-        supabase
-        .from('products')
-        .select('*')
+        getAllProducts
         .eq('shop_id', shop.id)
         .then(({data, error}) =>{
             if(!error){

@@ -1,5 +1,6 @@
 import { capitalize } from "lodash";
 import { Ref, RefObject } from "react";
+import { ordersType } from "../db/supabase-queries";
 
 export function fadePages(parentRef :RefObject<HTMLDivElement>) {
 
@@ -47,7 +48,11 @@ export function getExtension(path: string) {
 }
 
 export function pesewasToCedis(pesewas:number){
-    return pesewas/100
+    return (pesewas/100)
+}
+
+export function styledCedis(pesewas: number):string {
+    return pesewasToCedis(pesewas).toLocaleString(navigator.language, { maximumFractionDigits: 2, minimumFractionDigits: 2 })
 }
 
 export function cedisToPesewas(cedis:number){
@@ -61,4 +66,12 @@ export function capitalizeAll(s: string) :string{
     } else {
         return sArray.map((s)=>{return capitalizeAll(s)}).join(' ')
     }
+}
+
+export function getOrderTotal(order: ordersType[0]) :number{
+    let total = 0
+    for(let i = 0; i < order.order_products.length; i++){
+        total += order.order_products[i].price * order.order_products[i].quantity 
+    }
+    return total
 }

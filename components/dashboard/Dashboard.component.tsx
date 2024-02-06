@@ -13,8 +13,6 @@ export default function DashboardComponent(){
     const searchParams = useSearchParams()
     const tab = searchParams.get('tab')
 
-   
-
     return (
         <>
             <DashboardHeader />

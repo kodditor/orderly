@@ -7,8 +7,8 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Dispatch, SetStateAction } from "react"
 import { popupText } from "../Popup.component"
 import { setOrders } from "@/constants/orderly.slice"
-import { getOrdersWithProductsAndShopperDetails } from "@/app/utils/db/supabase-queries"
-import { pesewasToCedis } from "@/app/utils/frontend/utils"
+import { getOrdersWithProductsAndShopperDetails } from "@/app/utils/db/supabase-client-queries"
+import {  styledCedis } from "@/app/utils/frontend/utils"
 
 
 
@@ -147,9 +147,9 @@ export default function DashboardTabComponent (){
                                         {/* @ts-ignore */}
                                         <p>{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phone}
                                             <br />
-                                            <span className="font-bold text-gray-500">{order.order_products.length } Products</span>
-                                            <span className="md:hidden text-red font-bold"> - GHS{pesewasToCedis(total).toFixed(2)}</span></p>
-                                        <p className="font-black hidden md:flex justify-center">GHS{pesewasToCedis(total).toFixed(2)}</p>
+                                            <span className="font-medium text-gray-500">{order.order_products.length } Products</span>
+                                            <span className="md:hidden text-red font-bold"> - GHS{styledCedis(total)}</span></p>
+                                        <p className="font-bold hidden md:flex justify-center">GHS{styledCedis(total)}</p>
                                         <Link href={`/s/dashboard?tab=orders&section=order&id=${order.id}`} className="flex items-center h-full md:h-fit md:items-start justify-center md:block"><button>View<span className="hidden md:inline"> Details</span></button></Link>
                                     </div>
                                 )

@@ -9,7 +9,7 @@ import { RootState } from "@/constants/orderly.store"
 import { SetStateAction, useEffect, useState } from "react"
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import ShopSideBar from "./ShopSidebar.component"
-import { capitalizeAll,  pesewasToCedis } from "@/app/utils/frontend/utils"
+import { capitalizeAll,  pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils"
 import ProductItem from "./ProductItem.component"
 import { Tables } from "@/types/supabase"
 import { useSearchParams } from "next/navigation"
@@ -278,7 +278,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                                             <div className="flex mt-1 flex-col">
                                                 <span className="flex gap-1 items-baseline">
                                                     <small className="text-sm">GHS</small>
-                                                    <h2 className="text-xl mb-0 font-extrabold">{pesewasToCedis(product.price!).toFixed(2).toLocaleString() }</h2>
+                                                    <h2 className="text-xl mb-0 font-bold">{styledCedis(product.price!) }</h2>
                                                 </span>
                                             </div>
                                         </div>

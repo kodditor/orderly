@@ -1,5 +1,5 @@
 import { clientSupabase } from "@/app/supabase/supabase-client"
-import { fadePages, pesewasToCedis } from "@/app/utils/frontend/utils"
+import { fadePages, pesewasToCedis, styledCedis} from "@/app/utils/frontend/utils"
 import { IOrderResponse, IShopCart } from "@/models/OrderProducts.model"
 import { IUserMetadataWithIDAndEmail } from "@/models/user.model"
 import { Tables, TablesInsert } from "@/types/supabase"
@@ -202,7 +202,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                             { /* Cart Page */}
                             <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-[calc(100%-1rem)] md:h-[calc(100%-4rem)]">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
-                                    <h1 className="text-3xl font-bold">My Cart <span className="text-gray-400 ml-1 md:ml-3 text-xl">({cart.products.length} items)</span></h1>
+                                    <h1 className="text-3xl font-bold">My Cart <span className="text-gray-400 ml-1 md:ml-1 md:pb-2 text-xl">({cart.products.length} items)</span></h1>
                                     <div className="mt-4 rounded-lg w-full p-2 h-fit max-h-[calc(100%-2rem)] overflow-y-auto flex flex-col bg-gray-100">
 
                                         { 
@@ -226,8 +226,8 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                                         <div className="w-[calc(100%-100px)] flex flex-col md:flex-row md:justify-between gap-0 md:gap-2">
                                                             <h1 className="text-lg leading-5 md:leading-normal -mb-1 md:mb-0">{specificProduct?.name}</h1>
                                                             <span className="flex flex-col md:flex-row md:items-center gap-0 md:gap-4">
-                                                                <small className="text-gray-400">x{product.quantity}</small>
-                                                                <h3 className="font-bold text-lg">GHS{pesewasToCedis(product.price).toFixed(2)}</h3>
+                                                                <small className="text-gray-500">x{product.quantity}</small>
+                                                                <h3 className="font-bold text-lg">GHS{styledCedis(product.price)}</h3>
                                                             </span>
                                                             <div className="flex md:hidden gap-2">
                                                                 <div className={`bg-gray-200 text-gray-700 hover:bg-darkRed hover:text-white flex cursor-pointer duration-150  w-8 h-8  top-1 rounded-lg  overflow-hidden items-center justify-center`} onClick={()=>{addToCart(specificProduct)}}>
@@ -267,7 +267,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                         <span className="flex gap-1 items-baseline">
                                             <small className="text-md mb-[3px]">GHS</small>
                                             {/*@ts-ignore*/}
-                                            <h2 className="text-3xl mb-0 font-extrabold">{pesewasToCedis(total).toFixed(2).toLocaleString() }</h2>
+                                            <h2 className="text-3xl mb-0 font-bold">{styledCedis(total)}</h2>
                                         </span>
                                     </span>
                                     <div className="w-full flex gap-2 md:gap-4 mb-4 mt-2 md:mt-0 md:mb-0 items-center md:items-end" >
@@ -367,7 +367,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                                             <div className="w-full flex items-start gap-2 p-2 pl-4 border-b-2 border-b-gray-100 last:border-b-0" key={idx}>
                                                                 <span className="w-1/12">x{product.quantity}</span>
                                                                 <span className="w-7/12 md:w-8/12">{specificProduct.name}</span>
-                                                                <span className="w-4/12 md:w-3/12 font-bold">GHS{pesewasToCedis(specificProduct.price!).toFixed(2)}</span>
+                                                                <span className="w-4/12 md:w-3/12 font-bold">GHS{styledCedis(specificProduct.price!)}</span>
                                                             </div>
                                                         </>
                                                     )
@@ -376,7 +376,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                         </div>
                                     </div>
                                     <div className="mt-4">
-                                        <h3>Total: <span className="font-black ml-2 text-2xl text-darkRed">GHS{pesewasToCedis(total).toFixed(2)}</span></h3>
+                                        <h3>Total: <span className="font-bold ml-2 text-2xl text-darkRed">GHS{styledCedis(total)}</span></h3>
                                     </div>
                                 </div>
                                 <div className="w-full flex gap-2 md:gap-4 mb-4 mt-2 md:mt-0 md:mb-0 items-center md:items-end" >

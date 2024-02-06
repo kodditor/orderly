@@ -1,4 +1,4 @@
-import { capitalizeAll, pesewasToCedis } from "@/app/utils/frontend/utils";
+import { capitalizeAll, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils";
 import { Tables } from "@/types/supabase";
 import Image from "next/image";
 import { Dispatch, SetStateAction } from "react";
@@ -54,8 +54,8 @@ export default function ProductItem({product, isOpen, setIsOpen, addToCart} :{pr
                                 <span className="w-full md:w-1/3">
                                     <small className="text-red mb-1">Price</small>
                                     <span className="flex gap-1 items-baseline">
-                                        <small className="text-md mb-[3px]">GHS</small>
-                                        <h2 className="text-3xl mb-0 font-extrabold">{pesewasToCedis(product.price!).toFixed(2).toLocaleString() }</h2>
+                                        <small className="text-md mb-1">GHS</small>
+                                        <h2 className="text-3xl mb-0 font-bold">{styledCedis(product.price!) }</h2>
                                     </span>
                                 </span>
                                 <div className="w-full flex gap-2 md:gap-4 mb-4 mt-2 md:mt-0 md:mb-0 items-center md:items-end" >

@@ -4,12 +4,13 @@ import { IShop } from '@/models/shop.model'
 import { merge } from 'lodash'
 import { IUserMetadataWithIDAndEmail } from '@/models/user.model'
 import { Tables } from '@/types/supabase'
+import { ordersType } from '@/app/utils/db/supabase-queries'
 
 interface IShopAndUser {
   shop :IShop
   user :IUserMetadataWithIDAndEmail
   products: Tables<'products'>[]
-  orders: Tables<'orders'>[]
+  orders: ordersType
 }
 
   const initialState: IShopAndUser = {
@@ -85,11 +86,11 @@ interface IShopAndUser {
         removeProduct: (state, action: PayloadAction<Tables<'products'>>) => {
           state.products = state.products.filter((product) =>  {return (product.id != action.payload.id) } )
         },
-        setOrders: (state, action: PayloadAction<Tables<'orders'>[]>) => {
+        setOrders: (state, action: PayloadAction<ordersType>) => {
           state.orders = action.payload
         },
-        addOrder: (state, action: PayloadAction<Tables<'orders'>>) => {
-          state.orders.unshift(action.payload)
+        addOrder: (state, action: PayloadAction<ordersType>) => {
+          state.orders.unshift(action.payload[0])
         },
         removeOrder: (state, action: PayloadAction<Tables<'orders'>>) => {
           state.orders = state.orders?.filter((order) =>  {return (order.id != action.payload.id) } )
@@ -125,11 +126,11 @@ interface IShopAndUser {
       removeProduct: (state, action: PayloadAction<Tables<'products'>>) => {
         state.products = state.products?.filter((product) =>  {return (product.id != action.payload.id) } )
       },
-      setOrders: (state, action: PayloadAction<Tables<'orders'>[]>) => {
+      setOrders: (state, action: PayloadAction<ordersType>) => {
         state.orders = action.payload
       },
-      addOrder: (state, action: PayloadAction<Tables<'orders'>>) => {
-        state.orders.unshift(action.payload)
+      addOrder: (state, action: PayloadAction<ordersType>) => {
+        state.orders.unshift(action.payload[0])
       },
       removeOrder: (state, action: PayloadAction<Tables<'orders'>>) => {
         state.orders = state.orders?.filter((order) =>  {return (order.id != action.payload.id) } )

@@ -11,7 +11,7 @@ import { IShop } from "@/models/shop.model"
 import { popupText } from "@/components/Popup.component"
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import { Database, Tables, TablesUpdate } from "@/types/supabase"
-import { setShop } from "@/constants/orderly.slice"
+import { setShop, updateShop } from "@/constants/orderly.slice"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import { Dispatch } from "@reduxjs/toolkit"
 import { IUserMetadataWithIDAndEmail } from "@/models/user.model"
@@ -211,6 +211,7 @@ function MyShopSettingsPage(
     const [invalidValueProvided, setInvalidValueProvided] = useState<boolean>(false)
 
     const [updatedShop, setUpdatedShop] = useState<TablesUpdate<'shops'>>({})
+    const [updatedShopLocation, setUpdatedShopLocation] = useState<TablesUpdate<'locations'>>({})
 
     function handleValueChange(e: any){ // events amiright?
         let field = e.target.name
@@ -223,23 +224,23 @@ function MyShopSettingsPage(
             case 'streetAddress':
             case 'region':
             case 'country':
-                setUpdatedShop( (prev) =>{
+                setUpdatedShopLocation( (prev) =>{
                     return (
                         {
+                            /*
+                            //@ts-ignore
+                            aptNum: shop.location?.aptNum,
+                            //@ts-ignore
+                            city: shop.location?.city,
+                            //@ts-ignore
+                            streetAddress: shop.location?.streetAddress,
+                            //@ts-ignore
+                            region: shop.location?.region,
+                            //@ts-ignore
+                            country: shop.location?.country,
+                            */
                             ...prev,
-                            location: {
-                                //@ts-ignore
-                                aptNum: shop.location?.aptNum,
-                                //@ts-ignore
-                                city: shop.location?.city,
-                                //@ts-ignore
-                                streetAddress: shop.location?.streetAddress,
-                                //@ts-ignore
-                                region: shop.location?.region,
-                                //@ts-ignore
-                                country: shop.location?.country,
-                                [field]: value
-                            }
+                            [field]: value
                         }
                     )
                 })
@@ -334,23 +335,40 @@ function MyShopSettingsPage(
 
         //console.log(updateObject)
         const supabase = clientSupabase
+        
+        //console.log(updatedShopLocation)
 
-        supabase.from('shops')
-        .update(updateObject)
-        .eq('id', shop.id)
-        //.eq('user_id', user.id)
+        supabase.from('locations')
+        .update(updatedShopLocation)
+        // @ts-ignore
+        .eq('id', shop.location.id!)
         .select()
-        .then( ({data, error}) =>{
-            if(!error){
-                //console.log(data[0], error, shop.id)
-                popupText("Shop Updated Successfully")
-                //@ts-ignore
-                dispatch(setShop(data[0])) 
-                setTimeout(() => router.push('/s/dashboard'), 1500)
-                      
+        .then( ({data, error}) => {
+            if(error){
+                console.log(error)
+                popupText(`SB${error.code}: An error occured when updating the location.`)
             } else {
-                popupText(`SB${error.code}: An error occurred. Please try again later.`)
-                console.error(error)
+                //console.log(data, shop.location.id)
+                dispatch(updateShop({ location: data![0] }))
+                supabase.from('shops')
+                .update(updateObject)
+                .eq('id', shop.id)
+                //.eq('user_id', user.id)
+                .select()
+                .then( ({data, error}) =>{
+                    if(!error){
+                        //console.log(data[0], error, shop.id)
+                        popupText("Shop Updated Successfully")
+                        //@ts-ignore
+                        dispatch(setShop(data[0])) 
+                        setTimeout(() => router.push('/s/dashboard'), 1000)
+                            
+                    } else {
+                        popupText(`SB${error.code}: An error occurred. Please try again later.`)
+                        console.error(error)
+                    }
+                })
+
             }
         })
 

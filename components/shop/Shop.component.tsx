@@ -32,7 +32,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
     const [ showProduct, setShowProduct          ] = useState<boolean>(false)
     const [ showCart, setShowCart                ] = useState<boolean>(false)
 
-    const [ orderResponse, setOrderResponse      ] = useState<IOrderResponse|null>(null)
+    
     const [ cart, setCart                        ] = useState<IShopCart>({
                                                                             id: v4(),
                                                                             products: [],
@@ -178,6 +178,32 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
         //console.log(cart.products)
     }
 
+    function clearCart(){
+
+        setCart(
+            {
+                id: v4(),
+                products: [],
+                shopper: {
+                    shopperFirstName: user?.firstName,
+                    shopperLastName: user?.lastName,
+                    location: {
+                        city: user.location?.city ?? "",
+                        buildingNum: user.location?.buildingNum ?? "",
+                        region: user.location?.region ?? "",
+                        country: user.location?.country ?? "",
+                        streetAddress: user.location?.streetAddress ?? ""
+                    },
+                    phone: user.phoneNumber ?? "",
+                    shopper_user_id: user?.id ?? null
+                }
+            }
+        )
+
+        // cookie implementation as well
+
+    }
+
     return(
         <>
             <Header />
@@ -201,7 +227,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                 removeFromCart={removeFromCart}
                 setCart={setCart}
                 shop={shop}
-                setOrderResponse={setOrderResponse}        
+                clearCart={clearCart}        
             />
             
             <main className="w-[100%] pb-8 md:pl-[20vw] md:min-h-[calc(100vh-138px)]">

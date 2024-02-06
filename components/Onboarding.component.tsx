@@ -9,9 +9,11 @@ import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { OrderlyPlans } from "@/constants/orderlyPlans.constant";
 import { IPlan } from "@/models/plans.model";
 import { clientSupabase } from "@/app/supabase/supabase-client";
-import { Tables } from "@/types/supabase";
+import { Tables, TablesInsert } from "@/types/supabase";
 import { v4 as uuidv4 } from 'uuid';
 import { User } from "@supabase/supabase-js";
+import { IShop } from "@/models/shop.model";
+import { popupText } from "./Popup.component";
 
 export default function OnboardingComponent({user}: {user: User}){ //Let's try to avoid prop drilling eh?
 
@@ -257,43 +259,52 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
             let { data: {publicUrl}} = supabase.storage.from('Orderly Shops').getPublicUrl(data.data!.path)
             console.log('Shop Logo:', publicUrl)
             
-            let date = new Date()
-            let shopID = uuidv4()
-            let insertObject: Tables<'shops'> = {
-                id: shopID,
-                createdAt: date.toISOString(),
-                description: shopDesc,
-                imageURL: publicUrl,
-                location: {
-                    aptNum: aptNum,
-                    streetAddress: streetAddress,
-                    city: city,
-                    region: region,
-                    country: country
-                },
-                name: shopName,
-                optionalEmail: null,
-                optionalPhone: null,
-                shopNameTag: shopNameTag,
-                tags: shopTags,
-                updatedAt: date.toISOString(),
-                user_id: user!.id
-            }
-
-            supabase
-            .from('shops')
-            .insert(insertObject).then(()=>{
-                supabase.auth.updateUser({
-                    data: {
-                        isOrderly: true,
-                        shopID: shopID
+            const locationRes = supabase.from('locations').insert({
+                aptNum: aptNum,
+                streetAddress: streetAddress,
+                city: city,
+                region: region,
+                country: country
+            }).select()
+            .then(({data, error}) =>{
+                if(error){
+                    console.log(error)
+                    popupText(`SB${error.code}: An error occurred when signing up.`)
+                    return
+                } else {
+                    let date = new Date()
+                    let shopID = uuidv4()
+                    let insertObject: TablesInsert<'shops'> = {
+                        id: shopID,
+                        createdAt: date.toISOString(),
+                        description: shopDesc,
+                        imageURL: publicUrl,
+                        location: data[0].id,
+                        name: shopName,
+                        optionalEmail: null,
+                        optionalPhone: null,
+                        shopNameTag: shopNameTag,
+                        tags: shopTags,
+                        updatedAt: date.toISOString(),
+                        user_id: user!.id
                     }
-                }).then(()=>{
-                    handleChangeQuestions('page7s', 'page8s')
-                    setTimeout(() => {
-                        setSubmitted(false)
-                    }, 250);
-                })
+
+                    supabase
+                    .from('shops')
+                    .insert(insertObject).then(()=>{
+                        supabase.auth.updateUser({
+                            data: {
+                                isOrderly: true,
+                                shopID: shopID
+                            }
+                        }).then(()=>{
+                            handleChangeQuestions('page7s', 'page8s')
+                            setTimeout(() => {
+                                setSubmitted(false)
+                            }, 250);
+                        })
+                    })
+                }
             })
         })
     }

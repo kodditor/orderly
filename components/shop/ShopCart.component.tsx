@@ -10,7 +10,7 @@ import { Dispatch,  FormEvent,  RefObject, SetStateAction, useRef, useState } fr
 import { popupText } from "../Popup.component"
 import { IShop } from "@/models/shop.model"
 
-export default function ShopCart({cart, showCart, setShowCart, allProducts, removeFromCart, addToCart, setCart, shop, setOrderResponse}: 
+export default function ShopCart({cart, showCart, setShowCart, allProducts, removeFromCart, addToCart, setCart, shop, clearCart}: 
         {
             showCart: boolean,
             setShowCart: Dispatch<SetStateAction<boolean>>,
@@ -19,16 +19,18 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
             removeFromCart: (product: Tables<'products'>, removeAll?:boolean) => void,
             addToCart: (product: Tables<'products'>) => void,
             setCart: Dispatch<SetStateAction<IShopCart>>,
-            shop: IShop
-            setOrderResponse: Dispatch<SetStateAction<IOrderResponse|null>>
+            shop: IShop,
+            clearCart: ()=>void,
         }){
 
     const cartRef = useRef<HTMLDivElement>(null)
     const checkoutRef = useRef<HTMLDivElement>(null)
     const confirmationRef = useRef<HTMLDivElement>(null)
+    const orderedRef = useRef<HTMLDivElement>(null)
     const parentRef = useRef<HTMLDivElement>(null)
     
     const [ isSendingOrder, setIsSendingOrder ] = useState<boolean>(false)
+    const [ orderResponse, setOrderResponse   ] = useState<IOrderResponse|null>(null)
 
     function changePageTo(currentRef:RefObject<HTMLDivElement> , nextRef:RefObject<HTMLDivElement>){
         fadePages(parentRef)
@@ -39,11 +41,11 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
         
     }
     
-    async function handleFinalizeOrder(e: any){
+    async function handleFinalizeOrder(){
 
         setIsSendingOrder((prev)=>true)
+        changePageTo(confirmationRef, orderedRef)
 
-        e.preventDefault()
         if(cart.shopper.shopper_user_id){ // The person is already an orderly user.
             
             clientSupabase
@@ -84,7 +86,8 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                 shop_id: shop.id,
                                 shopper: data[0].id,
                                 shopper_user_id: null,
-                                status: "SENT"
+                                status: "SENT",
+                                isActive: true,
                             }
 
                             clientSupabase
@@ -106,7 +109,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                             product: prodObj.product_id,
                                             price: prodObj.price,
                                             quantity: prodObj.quantity,
-                                            order: orderDetails.id 
+                                            order: orderDetails.id
                                         }
                                     })
                                     
@@ -123,7 +126,9 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                             orderDetails.products = data
                                             setOrderResponse(orderDetails)
                                             setIsSendingOrder(false)
+                                            clearCart()
                                             popupText('Order submitted!')
+                                            //console.log(orderDetails)
                                         } 
                                     })
                                 }
@@ -136,14 +141,14 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
     }
 
     function handleValueChange(e: any){
-        let field = e.target.field
+        let field = e.target.name
         let value = e.target.value
 
         if(value === null || field === null) return
 
         switch (field) {
-            case 'firstName':
-            case 'lastName':
+            case 'shopperFirstName':
+            case 'shopperLastName':
             case 'phone':
                 setCart((prev) => {
                     return ({
@@ -177,7 +182,6 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
             default:
                 break;
         }
-
     }
 
     if(showCart){
@@ -196,7 +200,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                     <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="w-full h-full" ref={parentRef}>
                             { /* Cart Page */}
-                            <div ref={cartRef} className="flex flex-col justify-between h-[calc(100%-1rem)] md:h-[calc(100%-4rem)]">
+                            <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-[calc(100%-1rem)] md:h-[calc(100%-4rem)]">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
                                     <h1 className="text-3xl font-bold">My Cart <span className="text-gray-400 ml-1 md:ml-3 text-xl">({cart.products.length} items)</span></h1>
                                     <div className="mt-4 rounded-lg w-full p-2 h-fit max-h-[calc(100%-2rem)] overflow-y-auto flex flex-col bg-gray-100">
@@ -280,21 +284,24 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                             { /* Checkout Page */}
                             <div ref={checkoutRef} style={{display: 'none'}} className="flex flex-col justify-between h-[calc(100%-1rem)] md:h-[calc(100%-4rem)]">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
-                                    <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center py-2 px-4 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(checkoutRef, cartRef)}}>
-                                        <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 group-hover:mr-1 mr-0" icon={faArrowLeft} />
-                                        <p>Back</p>
+                                    <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(checkoutRef, cartRef)}}>
+                                        <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 mr-0" icon={faArrowLeft} />
                                     </span>
                                     <h1 className="text-3xl font-bold mb-3">Enter your delivery details</h1>
                                     <form onSubmit={(e)=>{e.preventDefault()}} className="flex flex-col gap-2 md:gap-4">
                                         <span className="flex flex-col md:flex-row gap-2 md:gap-4 ">
                                             <span className="flex flex-col w-full md:w-1/2">
-                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="firstName">First Name</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="First Name" type="text" id='firstName' name="firstName" defaultValue={cart.shopper.shopperFirstName}  maxLength={50} onChange={handleValueChange} required/>
+                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="shopperFirstName">First Name</label>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="First Name" type="text" id='shopperFirstName' name="shopperFirstName" defaultValue={cart.shopper.shopperFirstName}  maxLength={50} onChange={handleValueChange} required/>
                                             </span>
                                             <span className="flex flex-col w-full md:w-1/2">
-                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="lastName">Last Name</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Last Name" type="text" id='lastName' name="lastName" defaultValue={cart.shopper.shopperLastName}  maxLength={50} onChange={handleValueChange} required/>
+                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="shopperLastName">Last Name</label>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Last Name" type="text" id='shopperLastName' name="shopperLastName" defaultValue={cart.shopper.shopperLastName}  maxLength={50} onChange={handleValueChange} required/>
                                             </span>
+                                        </span>
+                                        <span className="flex flex-col">
+                                            <label className="mb-1 md:mb-2 text-sm" htmlFor="phone">Telephone Number</label>
+                                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Telephone Number" type="text" id='country' name="phone" defaultValue={cart.shopper.phone}  maxLength={50} onChange={handleValueChange} required/>
                                         </span>
                                         <span className="flex flex-col md:flex-row gap-2 md:gap-4 ">
                                             <span className="flex flex-col w-full md:w-3/12">
@@ -322,7 +329,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                         </span>
                                         <div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-end mt-3 md:mt-2" >
                                             <span  className="w-full md:w-1/2" >
-                                                <button className="w-full">Confirm Details</button>
+                                                <button className="w-full" onClick={()=>{changePageTo(checkoutRef, confirmationRef)}}>Confirm Details</button>
                                             </span>
                                             <span  className="w-full pb-4 md:pb-0 md:w-1/2" >
                                                 <button className=" btn-secondary w-full" onClick={(e)=>{setShowCart(false)}}>Close</button>
@@ -334,12 +341,83 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                             { /* Order Confirmation */}
                             <div ref={confirmationRef} style={{display: 'none'}} className="flex flex-col justify-between h-[calc(100%-1rem)] md:h-[calc(100%-4rem)]">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
-                                    <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center py-2 px-4 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(confirmationRef,checkoutRef)}}>
-                                        <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 group-hover:mr-1 mr-0" icon={faArrowLeft} />
-                                        <p>Back</p>
+                                    <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(confirmationRef,checkoutRef)}}>
+                                        <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 mr-0" icon={faArrowLeft} />
                                     </span>
                                     <h1 className="text-3xl font-bold mb-3">Order Confirmation</h1>
+                                    <div className="bg-gray-200 border-2 mb-4 border-gray-200 rounded-lg">
+                                        <div className="p-2 pl-4 text-gray-700 text-sm">DELIVERY DETAILS</div>
+                                        <div className="bg-white p-2 pl-4">
+                                            <p>Name: <span className="font-bold text-darkRed" >{cart.shopper.shopperFirstName} {cart.shopper.shopperLastName}</span></p>
+                                            <p>Telephone: <span className="font-bold text-darkRed" >{cart.shopper.phone}</span></p>
+                                            <p>Address: <span className="font-bold text-darkRed">{cart.shopper.location.buildingNum} {cart.shopper.location.streetAddress}, {cart.shopper.location.city}</span></p>
+                                            <p>Region and Country: <span className="font-bold text-darkRed">{cart.shopper.location.region} {cart.shopper.location.country}</span></p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-gray-200 border-2 border-gray-200 rounded-lg">
+                                        <div className="p-2 pl-4 text-gray-700 text-sm">PRODUCTS</div>
+                                        <div className="bg-white max-h-[300px]">
+
+                                            { 
+                                                cart.products.map((product, idx) =>{
+                                                    let specificProduct = allProducts.find((prod) => prod.id == product.product_id) as Tables<'products'>
+
+                                                    return (
+                                                        <>
+                                                            <div className="w-full flex items-start gap-2 p-2 pl-4 border-b-2 border-b-gray-100 last:border-b-0" key={idx}>
+                                                                <span className="w-1/12">x{product.quantity}</span>
+                                                                <span className="w-7/12 md:w-8/12">{specificProduct.name}</span>
+                                                                <span className="w-4/12 md:w-3/12 font-bold">GHS{pesewasToCedis(specificProduct.price!).toFixed(2)}</span>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                })
+                                            } 
+                                        </div>
+                                    </div>
+                                    <div className="mt-4">
+                                        <h3>Total: <span className="font-black ml-2 text-2xl text-darkRed">GHS{pesewasToCedis(total).toFixed(2)}</span></h3>
+                                    </div>
                                 </div>
+                                <div className="w-full flex gap-2 md:gap-4 mb-4 mt-2 md:mt-0 md:mb-0 items-center md:items-end" >
+                                    <span  className="w-1/2" >
+                                        <button className="w-full" disabled={cart.products.length === 0 || isSendingOrder} onClick={handleFinalizeOrder}>Order Products</button>
+                                    </span>
+                                    <span  className="w-1/2" >
+                                        <button className=" btn-secondary w-full" onClick={()=>{setShowCart(false)}}>Close</button>
+                                    </span>
+                                </div>
+                            </div>
+                            {/* Checkout Completion */}
+                            <div ref={orderedRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
+                                { isSendingOrder && 
+                                    <>
+                                        <div className="w-full h-full flex flex-col items-center justify-center">
+                                            <iframe src="https://lottie.host/embed/de7c52da-ae54-4a84-84fb-ac117514476c/DzMMU5jUCA.json"></iframe>
+                                            <iframe className="hidden" src="https://lottie.host/embed/901d9ab6-8b08-4466-8ef7-644ad47ed453/IVknWOpUl1.json"></iframe>
+                                            <p className="font-bold text-red animate-pulse mt-3">Placing order</p>
+                                        </div>
+                                    </>
+                                }
+                                {
+                                    !isSendingOrder && orderResponse == null &&
+                                    <>
+                                        <div className="w-full h-full flex flex-col items-center justify-center">
+                                            <p className="w-[70%] md:w-full text-center text-red font-bold">Oops! An error occured, please try again later</p>
+                                            <button className="mt-4" onClick={()=>{setShowCart(false)}}>Back to Shop</button>
+                                        </div>
+                                    </>
+                                }
+                                {
+                                    !isSendingOrder && orderResponse != null &&
+                                    <>
+                                        <div className="w-full h-full flex flex-col items-center justify-center">
+                                            <h1 className="text-3xl font-bold">Order <span className="text-red">#{orderResponse.id}</span> submitted</h1>
+                                            <p className="text-xl mt-6 w-[70%] text-center">Your order has been sent to the shop! <br /> You'll receive a confirmation message when {shop.name} confirms your order.</p>
+                                            <button className="mt-6" onClick={()=>{setShowCart(false)}}>Continue Shopping</button>
+                                        </div>
+                                    </>
+                                }
                             </div>
                         </div>
                     </div>

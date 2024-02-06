@@ -3,7 +3,7 @@ import { serverSupabase } from "@/app/supabase/supabase-server"
 import { IShop } from "@/models/shop.model"
 import { QueryData } from "@supabase/supabase-js"
 
-export function getShopDetails(shopNameTag: string){ 
+export function getShopDetails(equalityField: string, value:string){ 
     
     return serverSupabase
             .from('shops')
@@ -17,7 +17,7 @@ export function getShopDetails(shopNameTag: string){
                     country
                 )
             `)
-            .eq('shopNameTag', shopNameTag)
+            .eq(equalityField, value)
             .returns<IShop>()
 }
 export type shopDetailsType = QueryData<typeof getShopDetails>

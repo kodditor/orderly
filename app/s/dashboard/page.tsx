@@ -16,10 +16,9 @@ export default async function ShopDashboard(){
 
         if(user.user_metadata.firstName){
 
-            let {data, error } = await getShopDetails
-                .eq('user_id', user.id)
+            let {data, error } = await getShopDetails('user_id', user.id)
             
-            if (data && data.length != 0){
+            if (data){
                 
                 let orderlyUser = {
                     id: user.id,
@@ -27,13 +26,13 @@ export default async function ShopDashboard(){
                     ...user.user_metadata
                 }
 
-                //console.log(data[0])
+                //console.log(data)
 
                 return (
                     <>
                         <div>
                             {/*@ts-ignore*/}
-                            <ShopDashboardModule orderlyUser={orderlyUser} orderlyShop={data[0]} />
+                            <ShopDashboardModule orderlyUser={orderlyUser} orderlyShop={data} />
                         </div>
                     </>
                 )

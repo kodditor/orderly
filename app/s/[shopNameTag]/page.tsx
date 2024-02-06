@@ -12,7 +12,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     const supabase = serverSupabase
     const shopNameTag = params.shopNameTag
 
-    const {data, error} = await getShopDetails(shopNameTag)
+    const {data, error} = await getShopDetails('shopNameTag',shopNameTag)
 
     if (error != null){
         return (

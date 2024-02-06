@@ -1,4 +1,5 @@
 import { serverSupabase } from "@/app/supabase/supabase-server"
+import { getShopDetails } from "@/app/utils/db/supabase-server-queries"
 import Footer from "@/components/Footer.component"
 import Header from "@/components/Header.component"
 import ShopModule from "@/components/shop/ShopModule.component"
@@ -11,23 +12,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     const supabase = serverSupabase
     const shopNameTag = params.shopNameTag
 
-    const {data, error} = await supabase
-                            .from('shops')
-                            .select(`
-                                id,
-                                createdAt,
-                                name,
-                                shopNameTag,
-                                updatedAt,
-                                description,
-                                imageURL,
-                                user_id,
-                                optionalEmail,
-                                optionalPhone,
-                                tags,
-                                location ( id, city, buildingNum, streetAddress, region, country )
-                            `)
-                            .eq('shopNameTag', shopNameTag)
+    const {data, error} = await getShopDetails(shopNameTag)
 
     if (error != null){
         return (
@@ -45,7 +30,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
                 <Footer />
             </>
         )
-    } else if(data!.length == 0){
+    } else if(!data){
         return(
             <>
                 <Header />
@@ -64,7 +49,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     } else {
         return(
             <>
-                <ShopModule selectedShop={data![0]}/>
+                <ShopModule selectedShop={data!}/>
             </>
         )
     }

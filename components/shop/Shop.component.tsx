@@ -16,7 +16,7 @@ import { useSearchParams } from "next/navigation"
 import { IOrderProducts, IOrderResponse, IShopCart } from "@/models/OrderProducts.model"
 import { v4 } from "uuid"
 import ShopCart from "./ShopCart.component"
-import { faShoppingCart } from "@fortawesome/free-solid-svg-icons"
+import { faMinus, faPlus, faShoppingCart } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 
 export default function Shop({selectedShop}: {selectedShop: IShop})
@@ -101,7 +101,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
     function addToCart(product: Tables<'products'>){
         if(product == null) return
 
-       let addedProductIndex = cart.products.findIndex((prodObj)=>prodObj.product_id === product.id)
+        let addedProductIndex = cart.products.findIndex((prodObj)=>prodObj.product_id === product.id)
         
 
         if(addedProductIndex != -1){ // Product already exists in cart
@@ -214,7 +214,9 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
             />
             <ProductItem 
                 isOpen={showProduct} 
-                product={selectedProduct} 
+                product={selectedProduct}
+                allProducts={cart.products}
+                removeFromCart={removeFromCart}
                 addToCart={addToCart} 
                 setIsOpen={setShowProduct} 
             />
@@ -227,7 +229,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                 removeFromCart={removeFromCart}
                 setCart={setCart}
                 shop={shop}
-                clearCart={clearCart}        
+                clearCart={clearCart}     
             />
             
             <main className="w-[100%] pb-8 md:pl-[20vw] md:min-h-[calc(100vh-138px)]">
@@ -240,13 +242,24 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                             </> 
                         }
                         { products.length != 0 && products.map((product, idx) =>{
+
+                            let productIndexInCart: number | null = null
+                            if( cart.products.length == 0){null}
+                            else {
+                                for (let i = 0; i < cart.products.length; ++i){
+                                    if(cart.products[i].product_id === product.id){
+                                        productIndexInCart = i
+                                    }
+                                }
+                            }
+
                             return (
                                 <div className="bg-white cursor-pointer text-black rounded-xl flex flex-col p-3 md:p-4 w-full duration-150 hover:shadow-md" key={idx} onClick={()=>showProductItem(product)}>
                                     <div className="flex gap-2 md:gap-4 h-full flex-col">
                                         <span className="w-full aspect-square rounded-xl overflow-hidden flex justify-center items-center">
                                             <img src={product.imageURL!} />
                                         </span>
-                                        <div className="flex flex-col gap-2 justify-between">
+                                        <div className="h-1/3 flex flex-col gap-2 justify-between">
                                             <div>
                                                 <h2 className="text-lg mb-2">{product.name}</h2>
                                                 <div className="w-full overflow-auto  flex gap-1">
@@ -275,10 +288,15 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                                                 
                                                 </div>
                                             </div>
-                                            <div className="flex mt-1 flex-col">
+                                            <div className="flex mt-1 justify-between">
                                                 <span className="flex gap-1 items-baseline">
                                                     <small className="text-sm">GHS</small>
                                                     <h2 className="text-xl mb-0 font-bold">{styledCedis(product.price!) }</h2>
+                                                </span>
+                                                <span className="bg-gray-200 flex gap-2 items-center p-1 rounded-full">
+                                                    <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className={`text-gray-400 rounded-full w-5 h-5 flex items-center justify-center duration-150 ${(productIndexInCart == null) ? '' : 'hover:bg-white'}`} onClick={(e)=>{e.stopPropagation(); (productIndexInCart == null) ? null : removeFromCart(product)} }><FontAwesomeIcon width={12} height={12} icon={faMinus} /></span>
+                                                    <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className="text-sm text-gray-500 font-black items-center">{productIndexInCart != null ? cart.products[productIndexInCart].quantity : 0 }</span>
+                                                    <span className={`text-gray-400 rounded-full w-5 h-5 flex items-center justify-center duration-150 hover:bg-white`} onClick={(e)=>{e.stopPropagation(); addToCart(product)}}><FontAwesomeIcon width={12} height={12} icon={faPlus} /></span>
                                                 </span>
                                             </div>
                                         </div>

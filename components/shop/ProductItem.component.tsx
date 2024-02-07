@@ -1,13 +1,28 @@
 import { capitalizeAll, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils";
+import { IOrderProducts } from "@/models/OrderProducts.model";
 import { Tables } from "@/types/supabase";
+import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Image from "next/image";
 import { Dispatch, SetStateAction } from "react";
 
 
-export default function ProductItem({product, isOpen, setIsOpen, addToCart} :{product:Tables<'products'> | null, isOpen:boolean,  setIsOpen:Dispatch<SetStateAction<boolean>>, addToCart:Function}){
+export default function ProductItem({product, allProducts, isOpen, setIsOpen, addToCart, removeFromCart} :{product:Tables<'products'> | null, isOpen:boolean, allProducts: IOrderProducts[],  setIsOpen:Dispatch<SetStateAction<boolean>>, addToCart:Function, removeFromCart: (product:Tables<'products'>)=>void}){
     
     if(isOpen && ( product != null ))
     {
+
+        let productIndexInCart: number | null = null
+        if( allProducts.length == 0){null}
+        else {
+            for (let i = 0; i < allProducts.length; ++i){
+                if(allProducts[i].product_id === product.id){
+                    productIndexInCart = i
+                }
+            }
+        }
+
+
         return (
             <>
                 <div className="fixed top-0 flex flex-col md:flex-row w-full h-screen z-[51]">
@@ -60,7 +75,14 @@ export default function ProductItem({product, isOpen, setIsOpen, addToCart} :{pr
                                 </span>
                                 <div className="w-full flex gap-2 md:gap-4 mb-4 mt-2 md:mt-0 md:mb-0 items-center md:items-end" >
                                     <span  className="w-1/2" >
-                                        <button className="w-full" onClick={()=>{addToCart(product)}}>Add to Cart</button>
+                                        <span className="w-full">
+                                            <button className="w-full"  style={{display: (productIndexInCart != null ? 'none': 'block')}} onClick={()=>{addToCart(product)}}>Add to Cart</button>
+                                            <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className="bg-white border-2 border-gray-200 w-full flex gap-2 items-center justify-between p-[0.2rem] rounded-full">
+                                                <span  className={`text-gray-400 cursor-pointer rounded-full w-7 h-7 flex items-center justify-center duration-150 ${(productIndexInCart == null) ? '' : 'hover:bg-red hover:text-white'}`} onClick={(e)=>{e.stopPropagation(); (productIndexInCart == null) ? null : removeFromCart(product)} }><FontAwesomeIcon width={12} height={12} icon={faMinus} /></span>
+                                                <span  className="text-sm text-gray-500 font-black items-center">{productIndexInCart != null ? allProducts[productIndexInCart].quantity : 0 }</span>
+                                                <span className={`text-gray-400 cursor-pointer rounded-full w-7 h-7 flex items-center justify-center duration-150 hover:bg-red hover:text-white`} onClick={(e)=>{e.stopPropagation(); addToCart(product)}}><FontAwesomeIcon width={12} height={12} icon={faPlus} /></span>
+                                            </span>
+                                        </span>
                                     </span>
                                     <span  className="w-1/2" >
                                         <button className=" btn-secondary w-full" onClick={()=>{setIsOpen(false)}}>Close</button>

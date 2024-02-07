@@ -30,7 +30,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
                 <Footer />
             </>
         )
-    } else if(!data){
+    } else if(data.length == 0){
         return(
             <>
                 <Header />
@@ -49,7 +49,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     } else {
         return(
             <>
-                <ShopModule selectedShop={data!}/>
+                <ShopModule selectedShop={data![0]}/>
             </>
         )
     }

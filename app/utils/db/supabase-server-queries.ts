@@ -18,6 +18,6 @@ export function getShopDetails(equalityField: string, value:string){
                 )
             `)
             .eq(equalityField, value)
-            .returns<IShop>()
+            .returns<IShop[]>()
 }
 export type shopDetailsType = QueryData<typeof getShopDetails>

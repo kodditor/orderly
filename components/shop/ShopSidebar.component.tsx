@@ -1,13 +1,11 @@
 'use client'
 
-import { capitalizeAll } from "@/app/utils/frontend/utils"
 import { RootState } from "@/constants/orderly.store"
 import { IShopCart } from "@/models/OrderProducts.model"
 import { faPhone, faShoppingBasket, faShoppingCart } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import Image from "next/image"
-import { Dispatch, SetStateAction, useState } from "react"
-import { useDispatch, useSelector } from "react-redux"
+import { Dispatch, SetStateAction } from "react"
+import { useSelector } from "react-redux"
 
 
 export default function ShopSideBar({ showCart, setShowCart, cart }: 
@@ -18,16 +16,16 @@ export default function ShopSideBar({ showCart, setShowCart, cart }:
         }
     ){
 
-    const {shop, user, products} = useSelector((state: RootState) => state.shopAndUser) 
+    const {shop} = useSelector((state: RootState) => state.shopAndUser) 
 
-    //console.log(shop)
+    console.log(shop)
 
     if(shop.name == ''){
         return (
             <>
                 <aside  className="hidden md:block z-30 fixed p-5 pt-8 bg-white w-[20vw] min-w-[240px] h-[calc(100%-72px)] md:top-[63px] min-h-[500px] border-r-2 border-grey-200 overflow-auto ">
                     <div className="flex flex-col gap-2 animate-pulse">
-                        <div className=" aspect-square w-full mb-4 flex items-center rounded-full border-2 border-peach justify-center">
+                        <div className=" aspect-square w-1/3 md:w-full md:max-w-[200px] mb-4 flex items-center rounded-full border-2 border-peach justify-center">
                             <img className="w-full saturate-0 animate-pulse" src={'/img/logo.png'} alt="The Orderly logo"/>
                         </div>
                         <div className="w-full h-5 bg-gray-300 rounded-full"></div>
@@ -62,10 +60,10 @@ export default function ShopSideBar({ showCart, setShowCart, cart }:
                                 <img className="w-full" src={shop.imageURL!} alt={`The ${shop.name} logo`}/>
                             </div>
                             <div className="flex flex-col gap-1 md:gap-2">
-                                <h1 className="text-2xl md:text-center font-bold font-semibold -mb-1">{shop.name}</h1>
+                                <h1 className="text-2xl md:text-center font-semibold -mb-1">{shop.name}</h1>
                                 <small className="text-red opacity-70 md:text-center">@{shop.shopNameTag}</small>
                                 {/*@ts-ignore */}
-                                <h6 className="text-md text-gray-400 font-normal md:text-center md:mb-2">{shop.location.city}, {shop.location.region}, {shop.location.country}</h6>
+                                <h6 className="text-md text-gray-400 font-normal md:text-center md:mb-2">{ shop.location && (shop.location.city + ", "+ shop.location.region + ", " + shop.location.country)}</h6>
                             </div>
                         </div>
                         

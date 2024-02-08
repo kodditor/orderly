@@ -11,7 +11,7 @@ import { clientSupabase } from "@/app/supabase/supabase-client"
 import { TablesInsert } from "@/types/supabase";
 
 import { popupText } from "@/components/Popup.component";
-import { cedisToPesewas, getBlobAndURLFromArrayBuffer, getCSV, getExtension, pesewasToCedis } from "@/app/utils/frontend/utils"
+import { cedisToPesewas, getBlobAndURLFromArrayBuffer, getCSV, getExtension, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils"
 
 export default function AddProduct(){
     
@@ -190,7 +190,7 @@ export default function AddProduct(){
                                 <img src={ productImageURL ?? '/img/chevron-logo.png'} />
                             </span>
                             <h2 className="text-xl -mb-2">{newProduct.name ? newProduct.name : 'Product Name'}</h2>
-                            <div className="w-full overflow-auto  -mb-2 flex gap-2">
+                            <div className="w-full overflow-auto flex-wrap  -mb-2 flex gap-2">
                             {
                                 ( newProduct.variations?.length != 0) && ( newProduct.variations?.at(0) != '' ) && newProduct.variations?.map((variation, idx) =>{
                                 return(
@@ -202,7 +202,7 @@ export default function AddProduct(){
 
                             <span className="flex gap-1 items-baseline">
                                 <small className="text-sm">GHS</small>
-                                <h2 className="text-2xl mb-0 font-extrabold">{newProduct.price ? pesewasToCedis(newProduct.price!).toFixed(2).toLocaleString() : '0.00' }</h2>
+                                <h2 className="text-2xl mb-0 font-bold">{newProduct.price ? styledCedis(newProduct.price!) : '0.00' }</h2>
                             </span>
                         </div>
                     </div>

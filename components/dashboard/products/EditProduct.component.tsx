@@ -2,7 +2,7 @@
 import { clientSupabase } from "@/app/supabase/supabase-client"
 
 import { v4 as uuidv4 } from 'uuid';
-import { cedisToPesewas, getBlobAndURLFromArrayBuffer, getCSV, getExtension, pesewasToCedis } from "@/app/utils/frontend/utils"
+import { cedisToPesewas, getBlobAndURLFromArrayBuffer, getCSV, getExtension, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils"
 import { faArrowLeft, faUpload } from "@fortawesome/free-solid-svg-icons"
 import { useRouter } from "next/navigation"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
@@ -181,7 +181,7 @@ export default function EditProduct({product}: {product: Tables<'products'>}){
                             </span>
                             <span className="w-full">
                                 <label className="text-sm mb-2" htmlFor="variations">Variations</label>
-                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Product Variations (eg. Small, Medium, Large )"  maxLength={50} defaultValue={product.variations!.join(', ')} type="text" id='variations' name="variations" onChange={handleValueChange} required/>
+                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Product Variations (eg. Small, Medium, Large )"  maxLength={50} defaultValue={product.variations?.join(', ')} type="text" id='variations' name="variations" onChange={handleValueChange} required/>
                             </span>
                             <span className="w-full flex items-baseline gap-2">
                                 <small className="text-sm">GHS</small>
@@ -211,7 +211,7 @@ export default function EditProduct({product}: {product: Tables<'products'>}){
                                 <img src={ productImageURL ? productImageURL : product.imageURL!} />
                             </span>
                             <h2 className="text-xl -mb-2">{updatedProduct.name ? updatedProduct.name : product.name}</h2>
-                            <div className="w-full overflow-auto  -mb-2 flex flex-nowrap gap-2">
+                            <div className="w-full overflow-auto  -mb-2 flex flex-wrap gap-2">
                             {
                                 ( updatedProduct.variations?.length != 0) && ( updatedProduct.variations?.at(0) != '' ) && updatedProduct.variations?.map((variation, idx) => {
                                 return(
@@ -221,7 +221,7 @@ export default function EditProduct({product}: {product: Tables<'products'>}){
                                 
                             }
                             {
-                                ( product.variations?.length != 0 && updatedProduct.variations == null ) && product.variations!.map((variation, idx) =>{
+                                ( product.variations?.length != 0 && updatedProduct.variations == null ) && product.variations?.map((variation, idx) =>{
                                     return(
                                         <div className="bg-peach rounded-xl whitespace-nowrap p-2" key={idx}>{variation}</div>
                                     )}
@@ -231,7 +231,7 @@ export default function EditProduct({product}: {product: Tables<'products'>}){
 
                             <span className="flex gap-1 items-baseline">
                                 <small className="text-sm">GHS</small>
-                                <h2 className="text-2xl mb-0 font-extrabold">{updatedProduct.price ? pesewasToCedis(updatedProduct.price!).toFixed(2).toLocaleString() : pesewasToCedis(product.price!).toFixed(2).toLocaleString() }</h2>
+                                <h2 className="text-2xl mb-0 font-bold">{updatedProduct.price ? styledCedis(updatedProduct.price!) : styledCedis(product.price!)}</h2>
                             </span>
                         </div>
                     </div>

@@ -8,8 +8,7 @@ import { Dispatch, SetStateAction } from "react"
 import { popupText } from "../Popup.component"
 import { setOrders } from "@/constants/orderly.slice"
 import { getOrdersWithProductsAndShopperDetails } from "@/app/utils/db/supabase-client-queries"
-import {  styledCedis } from "@/app/utils/frontend/utils"
-
+import {  sortByDateUpdated, styledCedis } from "@/app/utils/frontend/utils"
 
 
 export default function DashboardTabComponent (){
@@ -65,9 +64,19 @@ export default function DashboardTabComponent (){
                     popupText(`SB${error.code}: An error occured when fetching the orders`)
                 } else {
                     //console.log(data)
-                    dispatch(setOrders(data))
+                    dispatch(setOrders(data.sort(sortByDateUpdated)))
                     //console.log(data.length)
-                    setOrdersNum(data.length ?? 0)
+                    setOrdersNum(data.filter((order)=>order.isActive).length ?? 0)
+                    let newTotal = 0
+                    for (let i = 0 ; i < data.length; i++){
+                        let order = data[i]
+                        if(order.status == 'FULFILLED' || order.status == 'CLOSED'){
+                            for (let j = 0; j < order.order_products.length; j++){
+                                newTotal += order.order_products[j].price * order.order_products[j].quantity
+                            }
+                        }
+                    }
+                    setTotal(newTotal)
                 }
                 setIsLoadingOrders(false)
                 //console.log(ordersNum)
@@ -83,13 +92,13 @@ export default function DashboardTabComponent (){
                 <h3 className="text-gray-500 mb-4">METRICS</h3>
                 <div className="flex flex-col md:flex-row gap-4 md:gap-16 mb-8">
                     <div className="bg-red w-full md:w-1/4 text-white p-4 md:p-8 rounded-xl" >
-                        <small className="text-lg" >Total Revenue</small>
+                        <small className="text-lg" >Shop Balance</small>
                         <span className="flex mt-1 md:mt-2 mb-2 items-baseline" >
                             <h4 className="font-bold mr-2">GHS</h4>
-                            <h1 className="font-bold text-4xl">{totalRevenue.toFixed(0).toLocaleLowerCase()}</h1>
-                            <h4 className="font-bold">.{totalRevenue.toFixed(2).slice(-2)}</h4>
+                            <h1 className="font-bold text-4xl">{styledCedis(totalRevenue).slice(0, -3)}</h1>
+                            <h4 className="font-bold">.{styledCedis(totalRevenue).slice(-2)}</h4>
                         </span>
-                        <small className=" font-light" >this month</small>
+                        <small className=" font-light" >{/*this month*/}as of now</small>
                     </div>
                     <span className="w-full md:w-[calc(50%+4rem)] flex gap-4 md:gap-16">
                         <div className="bg-peach w-1/2 text-darkRed p-4 md:p-8 rounded-xl" >
@@ -98,7 +107,7 @@ export default function DashboardTabComponent (){
                                 <h1 className="font-bold text-4xl" >{ordersNum}</h1>
                                 <h4 className="font-bold hidden md:block">order(s)</h4>
                             </span>
-                            <small className=" font-light" >this month</small>
+                            <small className=" font-light" >{/*this month*/}at the moment</small>
                         </div>
 
                         <div className="bg-darkRed w-1/2 text-white p-4 md:p-8 rounded-xl" >
@@ -107,7 +116,7 @@ export default function DashboardTabComponent (){
                                 <h1 className="font-bold text-4xl" >{productsNum}</h1>
                                 <h4 className="font-bold hidden md:block">product(s)</h4>
                             </span>
-                            <small className=" font-light" >listed</small>
+                            <small className=" font-light" >listed publicly</small>
                         </div>
                     </span>
                 </div>
@@ -135,26 +144,27 @@ export default function DashboardTabComponent (){
                                     </>
                             } 
 
-                            { !isLoadingOrders && ordersNum != 0 && orders.map((order, idx) =>{
+                            { 
+                                !isLoadingOrders && ordersNum != 0 && orders.filter((order)=>order.isActive).map((order, idx) =>{
 
-                                let total = 0
-                                for(let i = 0; i < order.order_products.length; i++){
-                                    total += order.order_products[i].price * order.order_products[i].quantity 
-                                }
-                                
-                                return (
-                                    <div className="border-b-peach last:border-b-transparent items-start md:items-center grid grid-cols-activeOrdersMob md:grid-cols-activeOrders gap-2 p-2 md:p-4" key={idx}>
-                                        <p className="hidden md:flex justify-center"># {order.id}</p>
-                                        {/* @ts-ignore */}
-                                        <p className="font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phone}
-                                            <br />
-                                            <span className="font-medium text-gray-500">{order.order_products.length } Products</span>
-                                            <span className="md:hidden text-red font-bold"> - GHS{styledCedis(total)}</span></p>
-                                        <p className="hidden md:flex justify-center">GHS{styledCedis(total)}</p>
-                                        <Link href={`/s/dashboard?tab=orders&section=order&id=${order.id}`} className="flex items-center h-full md:h-fit md:items-start justify-center md:block"><button>View<span className="hidden md:inline"> Details</span></button></Link>
-                                    </div>
-                                )
-                            })
+                                    let total = 0
+                                    for(let i = 0; i < order.order_products.length; i++){
+                                        total += order.order_products[i].price * order.order_products[i].quantity 
+                                    }
+                                    
+                                    return (
+                                        <div className="border-b-peach border-b-2 last:border-b-transparent items-start md:items-center grid grid-cols-activeOrdersMob md:grid-cols-activeOrders gap-2 p-2 md:p-4" key={idx}>
+                                            <p className="hidden md:flex justify-center"># {order.id}</p>
+                                            {/* @ts-ignore */}
+                                            <p className="font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phone}
+                                                <br />
+                                                <span className="font-medium text-gray-500">{order.order_products.length } Products</span>
+                                                <span className="md:hidden text-red font-bold"> - GHS{styledCedis(total)}</span></p>
+                                            <p className="hidden md:flex justify-center">GHS{styledCedis(total)}</p>
+                                            <Link href={`/s/dashboard?tab=orders&section=order&id=${order.id}`} className="flex items-center h-full md:h-fit md:items-start justify-center md:block"><button>View<span className="hidden md:inline"> Details</span></button></Link>
+                                        </div>
+                                    )
+                                })
                             }
                         </div>
                     </div>

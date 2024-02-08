@@ -235,7 +235,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
             <main className="w-[100%] pb-8 md:pl-[20vw] md:min-h-[calc(100vh-138px)]">
                 <div className="w-full md:w-3/4 overflow-x-hidden h-full p-4 md:p-8">
                     <h1 className="font-bold text-2xl md:text-3xl mb-4 md:mb-8">{products?.length + ' '}Product<span style={{display: (products?.length === 1) ? 'none' : 'inline'}}>s</span></h1>
-                    <section className="bg-gray-100 rounded-lg p-4 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 w-full">
+                    <section className="bg-gray-100 rounded-lg p-2 md:p-4 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 w-full">
                         { products.length == 0 && 
                             <>
                                 <p>This shop has no products.</p>
@@ -262,7 +262,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                                         <div className="h-1/3 flex flex-col gap-2 justify-between">
                                             <div>
                                                 <h2 className="text-lg mb-2">{product.name}</h2>
-                                                <div className="w-full overflow-auto  flex gap-1">
+                                                <div className="w-full overflow-auto hidden md:flex gap-1">
                                                 {   
                                                     ArrayExistsAndHasLengthLessThanOrEqualToThree(product.variations) && <>
                                                             
@@ -285,18 +285,22 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                                                         <small className="bg-peach whitespace-nowrap rounded-xl py-1 px-2" key={idx}>+{product.variations!.length - 1} More</small>
                                                     </>
                                                 }
-                                                
+                                                </div>
+                                                <div className="w-full md:hidden ">
+                                                    { product.variations && product.variations.length > 0 &&
+                                                        <small className="bg-peach rounded-xl py-1 px-2" >{product.variations.length} Variations</small>
+                                                    }
                                                 </div>
                                             </div>
-                                            <div className="flex mt-1 justify-between">
+                                            <div className="flex flex-col md:flex-row mt-1 gap-3 md:gap-0 relative justify-between">
                                                 <span className="flex gap-1 items-baseline">
                                                     <small className="text-sm">GHS</small>
                                                     <h2 className="text-xl mb-0 font-bold">{styledCedis(product.price!) }</h2>
                                                 </span>
-                                                <span className="bg-gray-200 flex gap-2 items-center p-1 rounded-full">
-                                                    <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className={`text-gray-400 rounded-full w-5 h-5 flex items-center justify-center duration-150 ${(productIndexInCart == null) ? '' : 'hover:bg-white'}`} onClick={(e)=>{e.stopPropagation(); (productIndexInCart == null) ? null : removeFromCart(product)} }><FontAwesomeIcon width={12} height={12} icon={faMinus} /></span>
+                                                <span className={`bg-gray-200 flex ${productIndexInCart == null ? 'w-fit md:ml-0 p-0 md:p-1' : 'p-1' } gap-2 justify-between md:justify-normal items-center rounded-full`}>
+                                                    <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className={`text-gray-400 rounded-full w-7 md:w-5 h-7 md:h-5 flex items-center justify-center duration-150 ${(productIndexInCart == null) ? '' : 'hover:bg-white'}`} onClick={(e)=>{e.stopPropagation(); (productIndexInCart == null) ? null : removeFromCart(product)} }><FontAwesomeIcon width={12} height={12} icon={faMinus} /></span>
                                                     <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className="text-sm text-gray-500 font-black items-center">{productIndexInCart != null ? cart.products[productIndexInCart].quantity : 0 }</span>
-                                                    <span className={`text-gray-400 rounded-full w-5 h-5 flex items-center justify-center duration-150 hover:bg-white`} onClick={(e)=>{e.stopPropagation(); addToCart(product)}}><FontAwesomeIcon width={12} height={12} icon={faPlus} /></span>
+                                                    <span className={`rounded-full w-7 md:w-5 h-7 md:h-5 flex items-center justify-center duration-150 ${productIndexInCart == null ? 'bg-red md:bg-gray-200 gap-2 md:gap-0 w-[4.5rem] md:w-5 text-white md:text-gray-400 p-1' : ' bg-gray-200 text-gray-400'} hover:bg-white`} onClick={(e)=>{e.stopPropagation(); addToCart(product)}}><FontAwesomeIcon width={12} height={12} icon={faPlus} /><span className={`${ (productIndexInCart == null) ? 'block md:hidden' : 'hidden'}`} >Add</span></span>
                                                 </span>
                                             </div>
                                         </div>

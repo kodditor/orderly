@@ -18,7 +18,7 @@ export default function ShopSideBar({ showCart, setShowCart, cart }:
 
     const {shop} = useSelector((state: RootState) => state.shopAndUser) 
 
-    console.log(shop)
+    //console.log(shop)
 
     if(shop.name == ''){
         return (

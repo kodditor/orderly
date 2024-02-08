@@ -200,7 +200,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                     <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="w-full h-full" ref={parentRef}>
                             { /* Cart Page */}
-                            <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-[calc(100%-1rem)] md:h-[calc(100%-4rem)]">
+                            <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-full">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
                                     <h1 className="text-3xl font-bold">My Cart <span className="text-gray-400 ml-1 md:ml-1 md:pb-2 text-xl">({cart.products.length} items)</span></h1>
                                     <div className="mt-4 rounded-lg w-full p-2 h-fit max-h-[calc(100%-2rem)] overflow-y-auto flex flex-col bg-gray-100">
@@ -261,7 +261,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
 
                                     </div>
                                 </div>
-                                <div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-end mt-3 md:mt-2" >
+                                <div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-end mt-3 md:mt-2 mb-4 md:mb-0" >
                                     <span className="w-full md:w-1/3">
                                         <small className="text-red mb-1">Total</small>
                                         <span className="flex gap-1 items-baseline">
@@ -282,7 +282,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                             </div>
 
                             { /* Checkout Page */}
-                            <div ref={checkoutRef} style={{display: 'none'}} className="flex flex-col justify-between h-[calc(100%-1rem)] md:h-[calc(100%-4rem)]">
+                            <div ref={checkoutRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
                                     <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(checkoutRef, cartRef)}}>
                                         <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 mr-0" icon={faArrowLeft} />
@@ -327,7 +327,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                             <label className="mb-1 md:mb-2 text-sm" htmlFor="country">Country</label>
                                             <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Country" type="text" id='country' name="country" defaultValue={cart.shopper.location.country}  maxLength={50} onChange={handleValueChange} required/>
                                         </span>
-                                        <div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-end mt-3 md:mt-2" >
+                                        <div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-end mt-3 md:mt-2 mb-4 md:mb-0" >
                                             <span  className="w-full md:w-1/2" >
                                                 <button className="w-full" onClick={()=>{changePageTo(checkoutRef, confirmationRef)}}>Confirm Details</button>
                                             </span>
@@ -339,7 +339,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                 </div>
                             </div>
                             { /* Order Confirmation */}
-                            <div ref={confirmationRef} style={{display: 'none'}} className="flex flex-col justify-between h-[calc(100%-1rem)] md:h-[calc(100%-4rem)]">
+                            <div ref={confirmationRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
                                     <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(confirmationRef,checkoutRef)}}>
                                         <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 mr-0" icon={faArrowLeft} />

@@ -150,6 +150,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
             case 'shopperFirstName':
             case 'shopperLastName':
             case 'phone':
+            case 'email':
                 setCart((prev) => {
                     return ({
                         ...prev,
@@ -200,9 +201,9 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                     <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="w-full h-full" ref={parentRef}>
                             { /* Cart Page */}
-                            <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-full">
+                            <div ref={cartRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
-                                    <h1 className="text-3xl font-bold">My Cart <span className="text-gray-400 ml-1 md:ml-1 md:pb-2 text-xl">({cart.products.length} items)</span></h1>
+                                    <h1 className="text-2xl md:text-3xl font-bold">My Cart <span className="text-gray-400 ml-1 md:ml-1 md:pb-2 text-xl">({cart.products.length} items)</span></h1>
                                     <div className="mt-4 rounded-lg w-full p-2 h-fit max-h-[calc(100%-2rem)] overflow-y-auto flex flex-col bg-gray-100">
 
                                         { 
@@ -280,59 +281,64 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                     </div>
                                 </div>
                             </div>
-
                             { /* Checkout Page */}
-                            <div ref={checkoutRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
-                                <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
+                            <div ref={checkoutRef} style={{display: 'flex'}} className="flex flex-col justify-between h-full">
+                                <div className="h-fit max-h-full overflow-auto md:max-h-[calc(70vh)] mb-8 md:mb-10">
                                     <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(checkoutRef, cartRef)}}>
                                         <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 mr-0" icon={faArrowLeft} />
                                     </span>
-                                    <h1 className="text-3xl font-bold mb-3">Enter your delivery details</h1>
-                                    <form onSubmit={(e)=>{e.preventDefault()}} className="flex flex-col gap-2 md:gap-4">
-                                        <span className="flex flex-col md:flex-row gap-2 md:gap-4 ">
-                                            <span className="flex flex-col w-full md:w-1/2">
+                                    <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-3">Enter your delivery details</h1>
+                                    <form onSubmit={(e)=>{e.preventDefault(); changePageTo(checkoutRef, confirmationRef)}} className="flex flex-col gap-2 mb-4 md:mb-2 md:gap-4">
+                                        <span className="flex flex-row gap-2 md:gap-4 ">
+                                            <span className="flex flex-col w-1/2">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="shopperFirstName">First Name</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="First Name" type="text" id='shopperFirstName' name="shopperFirstName" defaultValue={cart.shopper.shopperFirstName}  maxLength={50} onChange={handleValueChange} required/>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Kwaku" type="text" id='shopperFirstName' name="shopperFirstName" defaultValue={cart.shopper.shopperFirstName}  maxLength={50} onChange={handleValueChange} required/>
                                             </span>
-                                            <span className="flex flex-col w-full md:w-1/2">
+                                            <span className="flex flex-col w-1/2">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="shopperLastName">Last Name</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Last Name" type="text" id='shopperLastName' name="shopperLastName" defaultValue={cart.shopper.shopperLastName}  maxLength={50} onChange={handleValueChange} required/>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Ananse" type="text" id='shopperLastName' name="shopperLastName" defaultValue={cart.shopper.shopperLastName}  maxLength={50} onChange={handleValueChange} required/>
                                             </span>
                                         </span>
-                                        <span className="flex flex-col">
-                                            <label className="mb-1 md:mb-2 text-sm" htmlFor="phone">Telephone Number</label>
-                                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Telephone Number" type="text" id='country' name="phone" defaultValue={cart.shopper.phone}  maxLength={50} onChange={handleValueChange} required/>
+                                        <span className="flex flex-row gap-2 md:gap-4">
+                                            <span className="flex flex-col w-1/2">
+                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="phone">Telephone Number</label>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="0207007007" type="text" id='country' name="phone" defaultValue={cart.shopper.phone}  maxLength={50} onChange={handleValueChange} required/>
+                                            </span>
+                                            <span className="flex flex-col w-1/2">
+                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="email">Email Address</label>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="kwaku@ananse.com" type="text" id='email' name="email" defaultValue={cart.shopper.email}  maxLength={50} onChange={handleValueChange}/>
+                                            </span>
                                         </span>
-                                        <span className="flex flex-col md:flex-row gap-2 md:gap-4 ">
-                                            <span className="flex flex-col w-full md:w-3/12">
+                                        <span className="flex flex-row gap-2 md:gap-4 ">
+                                            <span className="flex flex-col w-1/3 md:w-3/12">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="buildingNum">Building Number</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Building Number" type="text" id="buildingNum" name="buildingNum" defaultValue={cart.shopper.location.buildingNum}  maxLength={50} onChange={handleValueChange} />
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="No. 8" type="text" id="buildingNum" name="buildingNum" defaultValue={cart.shopper.location.buildingNum}  maxLength={50} onChange={handleValueChange} />
                                             </span>
-                                            <span className="flex flex-col w-full md:w-9/12">
+                                            <span className="flex flex-col w-2/3 md:w-9/12">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="streetAddress">Street Address</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Street Address" type="text" id='streetAddress' name="streetAddress" defaultValue={cart.shopper.location.streetAddress} maxLength={50} onChange={handleValueChange} required/>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Giffard - Burma Camp Road, " type="text" id='streetAddress' name="streetAddress" defaultValue={cart.shopper.location.streetAddress} maxLength={50} onChange={handleValueChange} required/>
                                             </span>
                                         </span>
-                                        <span className="flex flex-col md:flex-row gap-4 ">
-                                            <span className="flex flex-col w-full md:w-1/2">
+                                        <span className="flex flex-row gap-2 md:gap-4 ">
+                                            <span className="flex flex-col w-1/2 md:w-1/2">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="city">City</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="City" type="text" id='city' name="city" defaultValue={cart.shopper.location.city}  maxLength={50} onChange={handleValueChange} required/>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Accra" type="text" id='city' name="city" defaultValue={cart.shopper.location.city}  maxLength={50} onChange={handleValueChange} required/>
                                             </span>
-                                            <span className="flex flex-col w-full md:w-1/2">
+                                            <span className="flex flex-col w-1/2 md:w-1/2">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="region">Region</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Region" type="text" id='region' name="region" defaultValue={cart.shopper.location.region}  maxLength={50} onChange={handleValueChange} required/>
+                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Greater Accra" type="text" id='region' name="region" defaultValue={cart.shopper.location.region}  maxLength={50} onChange={handleValueChange} required/>
                                             </span>
                                         </span>
                                         <span className="flex flex-col">
                                             <label className="mb-1 md:mb-2 text-sm" htmlFor="country">Country</label>
-                                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Country" type="text" id='country' name="country" defaultValue={cart.shopper.location.country}  maxLength={50} onChange={handleValueChange} required/>
+                                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Ghana" type="text" id='country' name="country" defaultValue={cart.shopper.location.country}  maxLength={50} onChange={handleValueChange} required/>
                                         </span>
                                         <div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-end mt-3 md:mt-2 mb-4 md:mb-0" >
                                             <span  className="w-full md:w-1/2" >
-                                                <button className="w-full" onClick={()=>{changePageTo(checkoutRef, confirmationRef)}}>Confirm Details</button>
+                                                <button className="w-full">Confirm Details</button>
                                             </span>
                                             <span  className="w-full pb-4 md:pb-0 md:w-1/2" >
-                                                <button className=" btn-secondary w-full" onClick={(e)=>{setShowCart(false)}}>Close</button>
+                                                <button className=" btn-secondary w-full" onClick={(e)=>{e.preventDefault(); setShowCart(false)}}>Close</button>
                                             </span>
                                         </div>
                                     </form> 
@@ -340,16 +346,17 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                             </div>
                             { /* Order Confirmation */}
                             <div ref={confirmationRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
-                                <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
+                                <div className="h-fit max-h-full overflow-auto md:max-h-[calc(70vh)] mb-8 md:mb-10">
                                     <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(confirmationRef,checkoutRef)}}>
                                         <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 mr-0" icon={faArrowLeft} />
                                     </span>
-                                    <h1 className="text-3xl font-bold mb-3">Order Confirmation</h1>
+                                    <h1 className="text-2xl md:text-3xl font-bold mb-3">Order Confirmation</h1>
                                     <div className="bg-gray-200 border-2 mb-4 border-gray-200 rounded-lg">
                                         <div className="p-2 pl-4 text-gray-700 text-sm">DELIVERY DETAILS</div>
                                         <div className="bg-white p-2 pl-4">
                                             <p>Name: <span className="font-bold text-darkRed" >{cart.shopper.shopperFirstName} {cart.shopper.shopperLastName}</span></p>
                                             <p>Telephone: <span className="font-bold text-darkRed" >{cart.shopper.phone}</span></p>
+                                            <p>Email Address: <span className="font-bold text-darkRed" >{cart.shopper.email}</span></p>
                                             <p>Address: <span className="font-bold text-darkRed">{cart.shopper.location.buildingNum} {cart.shopper.location.streetAddress}, {cart.shopper.location.city}</span></p>
                                             <p>Region and Country: <span className="font-bold text-darkRed">{cart.shopper.location.region} {cart.shopper.location.country}</span></p>
                                         </div>
@@ -363,13 +370,11 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                                     let specificProduct = allProducts.find((prod) => prod.id == product.product_id) as Tables<'products'>
 
                                                     return (
-                                                        <>
-                                                            <div className="w-full flex items-start gap-2 p-2 pl-4 border-b-2 border-b-gray-100 last:border-b-0" key={idx}>
-                                                                <span className="w-1/12">x{product.quantity}</span>
-                                                                <span className="w-7/12 md:w-8/12">{specificProduct.name}</span>
-                                                                <span className="w-4/12 md:w-3/12 font-bold">GHS{styledCedis(specificProduct.price!)}</span>
-                                                            </div>
-                                                        </>
+                                                        <div className="w-full flex items-start gap-2 p-2 pl-4 border-b-2 border-b-gray-100 last:border-b-0" key={idx}>
+                                                            <span className="w-1/12">x{product.quantity}</span>
+                                                            <span className="w-7/12 md:w-8/12">{specificProduct.name}</span>
+                                                            <span className="w-4/12 md:w-3/12 font-bold">GHS{styledCedis(specificProduct.price!)}</span>
+                                                        </div>
                                                     )
                                                 })
                                             } 

@@ -9,5 +9,6 @@ export interface IShopperDetails {
         country: string
       },
     phone: string,
-    shopper_user_id?: string
+    shopper_user_id?: string,
+    email:string
 }

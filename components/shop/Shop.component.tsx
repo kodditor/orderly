@@ -47,6 +47,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                                                                                     streetAddress: user.location?.streetAddress ?? ""
                                                                                 },
                                                                                 phone: user.phoneNumber ?? "",
+                                                                                email: "",
                                                                                 shopper_user_id: user?.id ?? null
                                                                             }
                                                                         })
@@ -195,7 +196,8 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                         streetAddress: user.location?.streetAddress ?? ""
                     },
                     phone: user.phoneNumber ?? "",
-                    shopper_user_id: user?.id ?? null
+                    shopper_user_id: user?.id ?? null,
+                    email: ""
                 }
             }
         )
@@ -254,7 +256,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                             }
 
                             return (
-                                <div className="bg-white cursor-pointer text-black rounded-xl flex flex-col p-3 md:p-4 w-full duration-150 hover:shadow-md" key={idx} onClick={()=>showProductItem(product)}>
+                                <div className="bg-white cursor-pointer text-black rounded-xl flex flex-col p-2 md:p-4 w-full duration-150 hover:shadow-md" key={idx} onClick={()=>showProductItem(product)}>
                                     <div className="flex gap-2 md:gap-4 h-full flex-col">
                                         <span className="w-full aspect-square rounded-xl overflow-hidden flex justify-center items-center">
                                             <img src={product.imageURL!} />

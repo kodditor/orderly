@@ -1,6 +1,6 @@
 "use client"
 import { clientSupabase } from "@/app/supabase/supabase-client"
-import { pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils"
+import { pesewasToCedis, sortByDateUpdated, styledCedis } from "@/app/utils/frontend/utils"
 import { faAdd, faEllipsisV, faPen, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from "next/link"
@@ -35,23 +35,6 @@ export default function ProductTabComponent(){
     const supabase = clientSupabase;
 
     // will the useffect run after a nav from one of the child pages?
-
-    function sortByDateUpdated(a: Partial<Tables<'products'>>, b: Partial<Tables<'products'>>): -1 | 1 | 0 {
-        
-        if(!a.updated_at && !b.updated_at) return 0
-        if(!a.updated_at) return 1
-        if(!b.updated_at) return -1
-
-
-        let firstDate = new Date(a.updated_at!)
-        let nextDate = new Date(b.updated_at!)
-
-        if( firstDate < nextDate) return 1
-        if( firstDate > nextDate ) return -1
-        if( firstDate == nextDate ) return 0
-        
-        return 0
-    }
 
 
     useEffect(()=>{

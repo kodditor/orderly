@@ -26,7 +26,8 @@ interface IShopAndUser {
         created_at: null,
         id: '',
         region: '',
-        streetAddress: ''
+        streetAddress: '',
+        updated_at: ''
       },
       name: '',
       optionalEmail: null,

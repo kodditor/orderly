@@ -30,7 +30,7 @@ function convertDate(dateString: string){
 
     const searchParams = useSearchParams()
     const section = searchParams.get('section')
-
+    const router = useRouter()
 
     const confirmationRef = useRef<HTMLDialogElement>(null)
     const declineRef = useRef<HTMLDialogElement>(null)
@@ -95,6 +95,7 @@ function convertDate(dateString: string){
     function handleDeclineOrder(): void{        
         const updateObject: TablesUpdate<'orders'> = {
             status: "DECLINED",
+            isActive: false,
             updated_at: new Date().toISOString()
         }
 
@@ -117,6 +118,7 @@ function convertDate(dateString: string){
                     } else {
                         popupText('Order Declined. The shopper has been notified.')
                         declineRef.current?.close()
+                        router.push('/s/dashboard?tab=orders')
                     }
                 })
             }
@@ -351,6 +353,9 @@ function convertDate(dateString: string){
                                                             }
                                                             { order.status == "DISPUTED" &&
                                                                 <button className="mr-2 btn-secondary" disabled>Handle Dispute</button>
+                                                            }
+                                                            { order.status == "DECLINED" &&
+                                                                <button className="mr-2 btn-secondary" disabled>Order Declined</button>
                                                             }
                                                         </div>
                                                     </div>

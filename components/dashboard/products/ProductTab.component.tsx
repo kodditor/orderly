@@ -1,6 +1,6 @@
 "use client"
 import { clientSupabase } from "@/app/supabase/supabase-client"
-import { pesewasToCedis } from "@/app/utils/frontend/utils"
+import { pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils"
 import { faAdd, faEllipsisV, faPen, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from "next/link"
@@ -36,12 +36,31 @@ export default function ProductTabComponent(){
 
     // will the useffect run after a nav from one of the child pages?
 
+    function sortByDateUpdated(a: Partial<Tables<'products'>>, b: Partial<Tables<'products'>>): -1 | 1 | 0 {
+        
+        if(!a.updated_at && !b.updated_at) return 0
+        if(!a.updated_at) return 1
+        if(!b.updated_at) return -1
+
+
+        let firstDate = new Date(a.updated_at!)
+        let nextDate = new Date(b.updated_at!)
+
+        if( firstDate < nextDate) return 1
+        if( firstDate > nextDate ) return -1
+        if( firstDate == nextDate ) return 0
+        
+        return 0
+    }
+
+
     useEffect(()=>{
         getAllProducts
         .eq('shop_id', shop.id)
         .then(({data, error}) =>{
             if(!error){
-                dispatch(setProducts(data!))
+                let sortedProducts = data.sort(sortByDateUpdated)
+                dispatch(setProducts(sortedProducts!))
                 setLoading(false)
             } else {
                 setError(true)
@@ -117,7 +136,7 @@ export default function ProductTabComponent(){
                 <dialog ref={deleteDialogRef} className="p-8 border-2 w-96 border-peach rounded-xl">
                     <div className="flex flex-col gap-4">
                         <h1 className="text-xl text-center">Are You sure you want to delete this product?</h1>
-                        <h2 className="text-center text-2xl font-extrabold" >{selectedProduct?.name}</h2>
+                        <h2 className="text-center text-2xl font-bold" >{selectedProduct?.name}</h2>
                         <span className="flex flex-col w-full gap-4 ">
                             <button onClick={()=>{handleDeleteProduct()}}>Delete Product</button>
                             <button className="btn-secondary" onClick={()=>{deleteDialogRef.current?.close()}} >Cancel</button>
@@ -134,8 +153,8 @@ export default function ProductTabComponent(){
                     </div>
                     <div>
                         <div className="border-2 border-peach rounded-xl">
-                            <div className="hidden md:grid bg-peach grid-cols-productListMob md:grid-cols-productList gap-4 md:gap-6 p-2 md:p-4">
-                                <p className="hidden md:flex justify-center"><span className="hidden md:inline">Product </span>#</p>
+                            <div className="hidden md:grid bg-peach grid-cols-productListMob md:grid-cols-productList gap-6 p-4">
+                                <p className="hidden md:flex justify-center">ID</p>
                                 <p  className="flex justify-center" ><span className="hidden md:inline">Image</span></p>
                                 <p><span className="hidden md:inline">Name and Description</span><span className="inline md:hidden">Details</span></p>
                                 <p className="hidden md:flex justify-center" >Price</p>
@@ -155,20 +174,20 @@ export default function ProductTabComponent(){
                                 products!.map((product, idx) => {
                                     return(
                                         <div className="hidden md:grid border-b-peach last:border-b-transparent hover:bg-gray-50 duration-150 grid-cols-productList gap-6 p-4" key={idx}>
-                                            <p className="hidden md:flex justify-center items-center"># {product.id.slice(0,4)}</p>
+                                            <p className="hidden md:flex justify-center items-center cursor-pointer" title={product.id}>#{product.id.slice(0,4)}</p>
                                             <span className="w-[45px] md:w-[70px] h-[45px] md:h-[70px] rounded-xl overflow-hidden flex justify-center items-center">
                                                 <img src={product.imageURL!} />
                                             </span>
                                             <span className="flex flex-col truncate justify-center">
-                                                <h1 className="font-black text-xl">{product.name}</h1>
+                                                <h1 className="font-medium text-xl">{product.name}</h1>
                                                 <h2 className="text-gray-400">{product.description}</h2>
                                             </span>
-                                            <p className=" flex items-center justify-center font-black">GHS{pesewasToCedis(product.price!).toFixed(2).toLocaleString()}</p>
+                                            <p className=" flex items-center justify-center font-semibold">GHS{styledCedis(product.price!)}</p>
                                             <span className="flex flex-col md:flex-row justify-center items-center">
                                                 <Link href={`/s/${shop.shopNameTag}?product=${product.id}`}><button className="w-full md:w-fit mr-2 btn-secondary">View<span className="hidden md:inline"> Product</span></button></Link>
                                                 <button className="group relative bg-peach !border-transparent !rounded-full hover:bg-red !text-black hover:!text-white duration-150">
                                                     <FontAwesomeIcon width={15} height={15} icon={faEllipsisV}/>
-                                                    <span className="absolute right-10 -top-5 hidden group-hover:flex flex-col rounded-lg overflow-hidden border-darkRed border-2 bg-white">
+                                                    <span className="absolute right-10 -top-5 hidden group-hover:flex flex-col rounded-lg overflow-hidden border-darkRed border-[1px] bg-white">
                                                         <Link href={`/s/dashboard?tab=products&section=edit&id=${product.id}`}  className="flex gap-2 p-2 duration-150 items-center bg-white text-black hover:bg-darkRed hover:text-white" >
                                                             <FontAwesomeIcon width={15} height={15} icon={faPen} />
                                                             Edit
@@ -190,13 +209,13 @@ export default function ProductTabComponent(){
                                     return(
                                         <div className="border-b-peach border-2 md:hidden last:border-b-transparent hover:bg-gray-50 flex flex-col duration-150 gap-4 p-2 py-3" key={idx}>
                                             <span className="flex flex-row gap-4">
-                                                <span className="w-[60px] md:w-[70px] h-[60px] md:h-[70px] rounded-xl overflow-hidden flex justify-center items-center">
+                                                <span className="w-[80px] h-[80px] rounded-lg overflow-hidden flex justify-center items-center">
                                                     <img src={product.imageURL!} />
                                                 </span>
-                                                <span className="w-[calc(100%-60px-0.5rem)] flex flex-col truncate justify-center">
-                                                    <h1 className="font-black text-xl">{product.name}</h1>
-                                                    <h2 className="text-gray-400">{product.description}</h2>
-                                                    <p className="md:hidden font-black">GHS{pesewasToCedis(product.price!).toFixed(2).toLocaleString()}</p>
+                                                <span className="w-[calc(100%-80px-0.5rem)] flex flex-col md:truncate justify-center">
+                                                    <h1 className="font-semibold text-xl">{product.name}</h1>
+                                                    <h2 className="text-gray-400 truncate">{product.description}</h2>
+                                                    <p className="md:hidden font-semibold">GHS{pesewasToCedis(product.price!).toFixed(2).toLocaleString()}</p>
                                                 </span>
                                             </span>
                                             <span className="flex flex-row gap-2 items-center">
@@ -207,12 +226,14 @@ export default function ProductTabComponent(){
                                                     </Link>
                                                 
                                                 <span className="w-6/12 flex items-center justify-center gap-4">
-                                                    <Link className="w-2/3" href={`/s/dashboard?tab=products&section=edit&id=${product.id}`}>
-                                                        <button className="flex items-center gap-2 btn-secondary rounded-full">
-                                                            <FontAwesomeIcon style={{width: '15px', height: '15px'}} icon={faPen} />
-                                                            Edit
-                                                        </button>
-                                                    </Link>
+                                                    <span className="w-2/3">
+                                                        <Link href={`/s/dashboard?tab=products&section=edit&id=${product.id}`}>
+                                                            <button className="flex items-center gap-2 btn-secondary rounded-full">
+                                                                <FontAwesomeIcon style={{width: '15px', height: '15px'}} icon={faPen} />
+                                                                Edit
+                                                            </button>
+                                                        </Link>
+                                                    </span>
                                                     <span className="flex items-center justify-center rounded-full" onClick={()=>{setSelectedProduct(product); deleteDialogRef.current?.showModal()}}>
                                                         <FontAwesomeIcon style={{width: '15px', height: '15px'}} icon={faTrash} />
                                                     </span>

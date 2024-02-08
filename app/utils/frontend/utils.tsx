@@ -1,6 +1,7 @@
 import { capitalize } from "lodash";
 import { Ref, RefObject } from "react";
 import { ordersType } from "../db/supabase-client-queries";
+import { Tables } from "@/types/supabase";
 
 export function fadePages(parentRef :RefObject<HTMLDivElement>) {
 
@@ -74,4 +75,21 @@ export function getOrderTotal(order: ordersType[0]) :number{
         total += order.order_products[i].price * order.order_products[i].quantity 
     }
     return total
+}
+
+export function sortByDateUpdated(a: Partial<Tables<'products'>> | Partial<Tables<'orders'>>, b: Partial<Tables<'products'>>| Partial<Tables<'orders'>>): -1 | 1 | 0 {
+        
+    if(!a.updated_at && !b.updated_at) return 0
+    if(!a.updated_at) return 1
+    if(!b.updated_at) return -1
+
+
+    let firstDate = new Date(a.updated_at!)
+    let nextDate = new Date(b.updated_at!)
+
+    if( firstDate < nextDate) return 1
+    if( firstDate > nextDate ) return -1
+    if( firstDate == nextDate ) return 0
+    
+    return 0
 }

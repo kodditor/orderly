@@ -16,30 +16,41 @@ export default async function ShopDashboard(){
 
         if(user.user_metadata.firstName){
 
-            let {data, error } = await getShopDetails('user_id', user.id)
+            let { data, error } = await getShopDetails('user_id', user.id)
             
-            if (data){
-                
-                let orderlyUser = {
-                    id: user.id,
-                    email: user.email,
-                    ...user.user_metadata
-                }
-
-                //console.log(data)
-
+            if(error){
                 return (
                     <>
-                        <div>
-                            {/*@ts-ignore*/}
-                            <ShopDashboardModule orderlyUser={orderlyUser} orderlyShop={data} />
+                        <div className="w-full h-full flex gap-4 justify-center items-center">
+                            <p className="font-bold text-2xl">An error occurred when loading your shop. Please try again later</p>
+                            <p className="text-red text-lg">SB{error.code}</p>
                         </div>
                     </>
                 )
             } else {
-                return (
-                    <DashboardLoadSkeleton />
-                )
+                if (data!.length != 0){
+                    
+                    let orderlyUser = {
+                        id: user.id,
+                        email: user.email,
+                        ...user.user_metadata
+                    }
+
+                    //console.log(data)
+
+                    return (
+                        <>
+                            <div>
+                                {/*@ts-ignore*/}
+                                <ShopDashboardModule orderlyUser={orderlyUser} orderlyShop={data[0]} />
+                            </div>
+                        </>
+                    )
+                } else {
+                    return (
+                        <DashboardLoadSkeleton />
+                    )
+                }
             }
             
             

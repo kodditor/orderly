@@ -21,8 +21,8 @@ const config: Config = {
       gridTemplateColumns: {
           'activeOrders':'50px 1fr 150px 120px',
           'activeOrdersMob': '1fr 100px',
-          'productList':'100px 70px 1fr 150px 200px',
-          'productListMob': '50px 1fr 100px',
+          'productList':'50px 70px 1fr 150px 200px',
+          'productListMob': '30px 1fr 100px',
           'orderList': '50px 60px 1fr 150px 100px 175px'
       },
     },

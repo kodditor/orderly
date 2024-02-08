@@ -20,7 +20,7 @@ export default function DashboardTabComponent (){
     const [ ordersNum, setOrdersNum ] = useState<number>(0)
     const [ totalRevenue, setTotal ] = useState<number>(0)
 
-    const [ isLoadingOrders, setIsLoadingOrders ] = useState<boolean>(false)
+    const [ isLoadingOrders, setIsLoadingOrders ] = useState<boolean>(true)
 
     const today = new Date()
     let hour = today.getHours()
@@ -39,11 +39,12 @@ export default function DashboardTabComponent (){
             })
             .eq('shop_id', shop.id)
             .then(({count,error}) =>{
-                if(!error){
-                    setStateAction(count!)
-                } else (
+                if(error){
+                    //console.log(shop)
                     console.log('Error: ', error)
-                )
+                } else {
+                    setStateAction(count!)
+                }
             })
     }
 
@@ -145,11 +146,11 @@ export default function DashboardTabComponent (){
                                     <div className="border-b-peach last:border-b-transparent items-start md:items-center grid grid-cols-activeOrdersMob md:grid-cols-activeOrders gap-2 p-2 md:p-4" key={idx}>
                                         <p className="hidden md:flex justify-center"># {order.id}</p>
                                         {/* @ts-ignore */}
-                                        <p>{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phone}
+                                        <p className="font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phone}
                                             <br />
                                             <span className="font-medium text-gray-500">{order.order_products.length } Products</span>
                                             <span className="md:hidden text-red font-bold"> - GHS{styledCedis(total)}</span></p>
-                                        <p className="font-bold hidden md:flex justify-center">GHS{styledCedis(total)}</p>
+                                        <p className="hidden md:flex justify-center">GHS{styledCedis(total)}</p>
                                         <Link href={`/s/dashboard?tab=orders&section=order&id=${order.id}`} className="flex items-center h-full md:h-fit md:items-start justify-center md:block"><button>View<span className="hidden md:inline"> Details</span></button></Link>
                                     </div>
                                 )

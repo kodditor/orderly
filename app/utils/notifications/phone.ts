@@ -4,22 +4,11 @@ Provide handlers to send notifications to users
 
 */
 
-import { ordersType } from "../db/supabase-client-queries"
+import { notificationResponse } from "@/models/notification.model"
 
-type confirmationResponse = {
-    data: {
-        status: string
-        msg: string
-    }
-    error: {
-        code: string,
-        msg: string
-    } | null
-}
+export async function sendConfirmationText(number:string, order_id:string | number, shopName: string): Promise<notificationResponse> {
 
-export async function sendConfirmationText(number:string, order_id:string | number, shopName: string): Promise<confirmationResponse> {
-
-    let response: confirmationResponse
+    let response: notificationResponse
 
     if(number.startsWith('0')){
         number = '233' + number.slice(1)
@@ -67,9 +56,9 @@ export async function sendConfirmationText(number:string, order_id:string | numb
 
 } 
 
-export async function sendDeclinedText(number:string, order_id:string | number, shopName: string): Promise<confirmationResponse> {
+export async function sendDeclinedText(number:string, order_id:string | number, shopName: string): Promise<notificationResponse> {
 
-    let response: confirmationResponse
+    let response: notificationResponse
 
     if(number.startsWith('0')){
         number = '233' + number.slice(1)

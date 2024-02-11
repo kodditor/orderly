@@ -53,7 +53,7 @@ export function pesewasToCedis(pesewas:number){
 }
 
 export function styledCedis(pesewas: number):string {
-    return pesewasToCedis(pesewas).toLocaleString(navigator.language, { maximumFractionDigits: 2, minimumFractionDigits: 2 })
+    return pesewasToCedis(pesewas).toLocaleString('en', { maximumFractionDigits: 2, minimumFractionDigits: 2 })
 }
 
 export function cedisToPesewas(cedis:number){

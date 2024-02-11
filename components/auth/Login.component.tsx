@@ -99,7 +99,7 @@ export default function LoginComponent(){
 
     return (
         <>
-            <div className="m-auto w-[80%]  md:mt-10 lg:mt-16 max-w-48 flex justify-center">
+            <div className="m-auto w-[80%]  md:mt-10 lg:mt-16 max-w-48 flex justify-center" >
                 <form onSubmit={handleLoginSubmit} className="flex flex-col items-center gap-4 w-72 " >
                     <h6>Welcome Back.</h6>
                     <h1 className="text-3xl font-bold mb-4">Login</h1>

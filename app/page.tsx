@@ -21,7 +21,7 @@ export default function Home() {
 						</a>
 					</span>
 				</section>
-				<section className="flex flex-col-reverse md:flex-row gap-4 py-16 w-[100%] px-[5%] md:px-[10%] m-auto justify-center items-center">
+				<section className="flex flex-col-reverse md:flex-row gap-4 py-16 w-[100%] px-[5%] md:px-[10%] lg:px-[20%] m-auto justify-center items-center">
 					<div className="w-full md:w-1/2 flex gap-8 flex-col">
 						<div>
 							<div className="w-full flex justify-center md:justify-start">
@@ -55,7 +55,7 @@ export default function Home() {
 					</div>
 				</section>
 
-				<section className="flex flex-col bg-peach md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] m-auto justify-center items-center">
+				<section className="flex flex-col bg-peach md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] lg:px-[20%] m-auto justify-center items-center">
 					<div className="w-full max-w-[300px] rounded-lg overflow-hidden md:max-w-none md:w-1/2">
 						<div className="relative h-full w-full">
 							<img alt="" src={'/img/shop_view.png'}/>
@@ -90,7 +90,7 @@ export default function Home() {
 					
 				</section>
 
-				<section className="flex flex-col-reverse md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] m-auto justify-center items-center">
+				<section className="flex flex-col-reverse md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] lg:px-[20%] m-auto justify-center items-center">
 					<div className="w-full md:w-1/2 flex gap-8 flex-col">
 						<div className="w-full">
 							<div className="w-full flex justify-center md:justify-start">
@@ -114,36 +114,35 @@ export default function Home() {
 					</div>
 				</section>
 
-				<section className="bg-peach py-16 w-[100%] px-[5%] md:px-[10%] m-auto">
+				<section className="bg-peach py-16 w-[100%] px-[5%] md:px-[10%] lg:px-[20%] m-auto">
 					<div className="w-full max-w-[300px] m-auto md:max-w-none md:w-1/2">
 						<div className="w-full flex justify-center">
 							<small className="text-sm text-center">SIMPLIFIED</small>
 						</div>
 					</div>
 					<h1 className="text-darkRed leading-snug text-4xl mt-4 mb-16 font-extrabold text-center">Effortless setup for expanding your market reach</h1>
-					<div className="w-full flex flex-col md:flex-row gap-16 md:gap-8 mb-8">
+					<div className="w-full flex flex-col md:flex-row gap-16 md:gap-8 mb-8">				
 						<div className="w-full md:w-1/3">
-							<div className="w-full h-auto md:h-[250px] flex items-center justify-center rounded-lg overflow-hidden md:justify-start">
-								<img src="/img/support.png" />
-							</div>
-							<h1 className="text-red leading-snug text-2xl mt-4 mb-4 font-extrabold text-center">Dedicated support for your business growth</h1>
-							<h4 className=" text-black text-2xl md:text-lg text-center">Our team is committed to providing dedicated support to help your business thrive. We are here to assist you every step of the way.</h4>
-						</div>
-						
-						<div className="w-full md:w-1/3">
-							<div className="w-full h-auto md:h-[250px] flex items-center justify-center rounded-lg overflow-hidden md:justify-start">
-								<img src="/img/orders.png" />
+							<div className="w-full aspect-[4/3] object-fill flex items-center justify-center rounded-lg overflow-hidden md:justify-start">
+								<img className="w-full" src="/img/orders.png" />
 							</div>
 							<h1 className="text-red leading-snug text-2xl mt-4 mb-4 font-extrabold text-center">Streamlined order management and fulfillment</h1>
 							<h4 className=" text-black text-2xl md:text-lg text-center">With Orderly Ghana, you can easily manage and fulfill orders, ensuring a smooth and efficient process for your business.</h4>
 						</div>
 
 						<div className="w-full md:w-1/3">
-							<div className="w-full h-auto md:h-[250px] flex justify-center rounded-lg overflow-hidden md:justify-start">
-								<img src="/img/payments-2.png" />
+							<div className="w-full aspect-[4/3] object-fill flex items-center justify-center rounded-lg overflow-hidden md:justify-start">
+								<img className="w-full" src="/img/payments-2.png" />
 							</div>
 							<h1 className="text-red leading-snug text-2xl mt-4 mb-4 font-extrabold text-center">Secure and reliable online payment processing</h1>
 							<h4 className=" text-black text-2xl md:text-lg text-center">Rest assured that your online payments are safe and secure with our trusted payment processing system.</h4>
+						</div>
+						<div className="w-full md:w-1/3">
+							<div className="w-full aspect-[4/3] object-fill flex items-center justify-center rounded-lg overflow-hidden md:justify-start">
+								<img className="w-full" src="/img/support.png" />
+							</div>
+							<h1 className="text-red leading-snug text-2xl mt-4 mb-4 font-extrabold text-center">Dedicated support for your business growth</h1>
+							<h4 className=" text-black text-2xl md:text-lg text-center">Our team is committed to providing dedicated support to help your business thrive. We are here to assist you every step of the way.</h4>
 						</div>
 					</div>
 					<div className="w-full flex gap-4 justify-center">
@@ -156,7 +155,7 @@ export default function Home() {
 						</div>
 					</div>				
 				</section>
-				<section className="bg-red text-white py-16 w-[100%] px-[5%] md:px-[10%] m-auto">
+				<section className="bg-red text-white py-16 w-[100%] px-[5%] md:px-[10%] lg:px-[20%] m-auto">
 					<div className="w-3/4 md:w-1/2 m-auto flex flex-col">
 						<h1 className="leading-snug md:leading-normal mb-0 text-4xl font-extrabold text-center">Create Your Digital Storefront</h1>
 						<h4 className="text-center text-xl mt-2">Join Orderly and start selling your products online today.</h4>

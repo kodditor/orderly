@@ -50,7 +50,6 @@ interface IShopAndUser {
         region: '',
         streetAddress: ''
       },
-      locationExists: true,
       phoneNumber: '',
       plan: {
         isAnnual: true,

@@ -16,7 +16,6 @@ export interface IUserMetadata {
         region: string,
         streetAddress: string
     },
-    locationExists: boolean,
     phoneNumber: string,
     plan?: { 
         isAnnual: boolean, 

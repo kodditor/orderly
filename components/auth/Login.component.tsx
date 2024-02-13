@@ -61,16 +61,21 @@ export default function LoginComponent(){
             }
             captchaRef.current!.resetCaptcha()
         } else {
-            popupText('Invalid login details entered.')
             if(( failedLoginCounter + 1 ) === 5){
                 captchaRef.current!.resetCaptcha()
                 setSubmitted(false)
                 setFailedLogins(0)
-                return
+            } else {
+                setFailedLogins((prev) => prev + 1)
             }
-            setFailedLogins((prev) => prev + 1)
-            //console.log(error)
-            setSubmitted(false)
+            if (error?.message == 'Email not confirmed'){
+                popupText('Email not confirmed. Please check you email.')
+                setSubmitted(false)
+            } else {
+                popupText('Invalid login details entered.')
+                //console.log(error)
+                setSubmitted(false)
+            }
         }
     }
 

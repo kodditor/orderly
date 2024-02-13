@@ -27,6 +27,7 @@ export default function SignUpComponent(){
     const [ submitted, setSubmitted ] = useState<boolean>(false)  
     const [ verified, setVerified   ] = useState<boolean>(false)
     const [ failedSignUpsCounter, setFailedSignUps ] = useState<number>(0)
+    const [ sentEmail, setSentEmail ] = useState<boolean>(false)
 
     const captchaRef = useRef<HCaptcha>(null);
 
@@ -52,16 +53,9 @@ export default function SignUpComponent(){
         })
 
         if (data.user){
-            if(destination && destination.length != 0){
-                if(destination.startsWith('/')){
-                    router.push(destination)
-                } else {
-                    router.push(( '/' + destination ))
-                }
-                captchaRef.current!.resetCaptcha()
-            } else {
-                router.push('/s/dashboard')
-            }
+            setSentEmail(true)
+            captchaRef.current!.resetCaptcha()
+            setSubmitted(false)
         } else {
             popupText('An error occurred when trying to sign in.')
             if(( failedSignUpsCounter + 1 ) === 5){
@@ -99,34 +93,47 @@ export default function SignUpComponent(){
 
     }
 
-    return(
-        <>
-            <div className="m-auto w-[80%] max-w-48 md:mt-10 lg:mt-16 flex justify-center">
-                <form onSubmit={handleSignUpSubmit} className="flex flex-col items-center gap-4 w-72 ">
-                    <h6>Welcome.</h6>
-                    <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
-                    <span className="w-full flex flex-col gap-2">
-                        <label className="text-sm" htmlFor="email">Email Address</label>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="kwaku@ananse.com" type="email" name="email" id='email' onChange={handleValueChange} required/>
-                    </span>
-                    <span className="w-full flex flex-col gap-2 mb-2">
-                        <label className="text-sm" htmlFor="password">Password</label>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="superSecretPassword" type="password" id='password' name="password" onChange={handleValueChange} minLength={8} required/>
-                    </span>
-                    <button className="rounded-full w-full mb-4" disabled={submitted || !verified}>
-                        <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
-                        <span style={{display: submitted ? 'none' : 'block'}} >Get Orderly</span>
-                    </button>
-                    <HCaptcha
-                        ref={captchaRef}
-                        sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
-                        onVerify={() => setVerified(true)}
-                    />
-                    <h3>Already have an account? <a href={`/auth/login?to=${destination || '/s/dashboard' }`}  className=" text-red cursor-pointer underline underline-offset-1 hover:underline-offset-2 duration-150"><span>Login</span></a></h3>
-                    <a href={`/auth/forgot?to=${destination}`} className="cursor-pointer no-underline hover:underline duration-150"><h4>Forgot Password?</h4></a>
-                </form>
-            </div>
-        </>
-    )
-
+    if(!sentEmail){
+        return(
+            <>
+                <div className="m-auto w-[80%] max-w-48 md:mt-10 lg:mt-16 flex justify-center">
+                    <form onSubmit={handleSignUpSubmit} className="flex flex-col items-center gap-4 w-72 ">
+                        <h6>Welcome.</h6>
+                        <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
+                        <span className="w-full flex flex-col gap-2">
+                            <label className="text-sm" htmlFor="email">Email Address</label>
+                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="kwaku@ananse.com" type="email" name="email" id='email' onChange={handleValueChange} required/>
+                        </span>
+                        <span className="w-full flex flex-col gap-2 mb-2">
+                            <label className="text-sm" htmlFor="password">Password</label>
+                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="superSecretPassword" type="password" id='password' name="password" onChange={handleValueChange} minLength={8} required/>
+                        </span>
+                        <button className="rounded-full w-full mb-4" disabled={submitted || !verified}>
+                            <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
+                            <span style={{display: submitted ? 'none' : 'block'}} >Get Orderly</span>
+                        </button>
+                        <HCaptcha
+                            ref={captchaRef}
+                            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+                            onVerify={() => setVerified(true)}
+                        />
+                        <h3>Already have an account? <a href={`/auth/login?to=${destination || '/s/dashboard' }`}  className=" text-red cursor-pointer underline underline-offset-1 hover:underline-offset-2 duration-150"><span>Login</span></a></h3>
+                        <a href={`/auth/forgot?to=${destination}`} className="cursor-pointer no-underline hover:underline duration-150"><h4>Forgot Password?</h4></a>
+                    </form>
+                </div>
+            </>
+        ) 
+    } else {
+        return (
+            <>
+                <div className="m-auto w-[80%] md:mt-10 lg:mt-16  flex justify-center" >
+                    <div  className="flex flex-col items-center gap-4 w-72 " >
+                        <h6>Almost done.</h6>
+                        <h1 className="text-3xl text-center font-bold">Check your mail</h1>
+                        <p className="text-center mb-4">We've sent you an email!<br />Click on the link in the email to verify your email.</p>
+                    </div>
+                </div>
+            </>
+        )
+    }
 }

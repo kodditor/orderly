@@ -9,7 +9,7 @@ import { RootState } from "@/constants/orderly.store"
 import { SetStateAction, useEffect, useState } from "react"
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import ShopSideBar from "./ShopSidebar.component"
-import { capitalizeAll,  pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils"
+import { addToLocalCart, capitalizeAll,  emptyCart,  getLocalCart,  pesewasToCedis, removeFromLocalCart, styledCedis, updateProductOnLocalCart } from "@/app/utils/frontend/utils"
 import ProductItem from "./ProductItem.component"
 import { Tables } from "@/types/supabase"
 import { useSearchParams } from "next/navigation"
@@ -78,9 +78,16 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
             }
         })
 
-        
-
     }, [selectedShop])
+
+    useEffect(()=>{
+        setCart((prev) => {
+            return ({
+                ...prev,
+                products: getLocalCart()
+            })
+        })
+    }, [])
 
     function ArrayExistsAndHasLengthLargerThanTwo(array : any[] | null){
 
@@ -104,7 +111,6 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
 
         let addedProductIndex = cart.products.findIndex((prodObj)=>prodObj.product_id === product.id)
         
-
         if(addedProductIndex != -1){ // Product already exists in cart
             let addedProduct = cart.products[addedProductIndex]
             addedProduct = {
@@ -112,21 +118,23 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                 quantity: addedProduct.quantity + 1
             }
 
+            updateProductOnLocalCart(addedProduct)
+
             setCart((prev) => { 
                 prev.products.splice(addedProductIndex, 1, addedProduct)
                 return ({
                     ...prev
                 })
-            }
-            )
+            })
 
-        } else { // product does not exist in cart
+        } else { // Product does not exist in cart
 
             let newCartItem:IOrderProducts = {
                 product_id: product.id,
                 price: product.price!,
                 quantity: 1
             }
+            addToLocalCart(newCartItem)
 
             setCart((prev) => { return ({
                     ...prev,
@@ -136,6 +144,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                     ]
                 })
             }
+
             )
         }
         //console.log(cart)
@@ -156,6 +165,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
         }
 
         if (addedProduct.quantity == 0){ // There was only one item
+            removeFromLocalCart(addedProduct)
             setCart((prev) => {
                 return ({
                     ...prev,
@@ -166,7 +176,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
             }
             )
         } else { //There was more than one item
-
+            updateProductOnLocalCart(addedProduct)
             setCart((prev) => { 
                 prev.products.splice(addedProductIndex, 1, addedProduct)
 
@@ -201,8 +211,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                 }
             }
         )
-
-        // cookie implementation as well
+        emptyCart()
 
     }
 

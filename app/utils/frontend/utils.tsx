@@ -2,6 +2,7 @@ import { capitalize } from "lodash";
 import { Ref, RefObject } from "react";
 import { ordersType } from "../db/supabase-client-queries";
 import { Tables } from "@/types/supabase";
+import { IOrderProducts } from "@/models/OrderProducts.model";
 
 export function fadePages(parentRef :RefObject<HTMLDivElement>) {
 
@@ -83,7 +84,6 @@ export function sortByDateUpdated(a: Partial<Tables<'products'>> | Partial<Table
     if(!a.updated_at) return 1
     if(!b.updated_at) return -1
 
-
     let firstDate = new Date(a.updated_at!)
     let nextDate = new Date(b.updated_at!)
 
@@ -92,4 +92,47 @@ export function sortByDateUpdated(a: Partial<Tables<'products'>> | Partial<Table
     if( firstDate == nextDate ) return 0
     
     return 0
+}
+
+export function getLocalCart() : IOrderProducts[]{
+    let ls = localStorage.getItem('o-crt');
+    if (ls == null) {
+        setLocalCart([])
+        return []
+    }
+    return JSON.parse(ls) as IOrderProducts[]
+}
+
+function setLocalCart(products: IOrderProducts[]): void {
+    localStorage.setItem('o-crt',JSON.stringify(products))
+}
+
+export function addToLocalCart(product: IOrderProducts): void{
+    let products = getLocalCart() 
+    products.push(product)
+    setLocalCart(products)
+}
+
+export function removeFromLocalCart(product: IOrderProducts): void{
+    let existing = getLocalCart();
+    let newArr = existing.filter((prod) => {return prod.product_id != product.product_id} ) 
+    localStorage.setItem('o-crt',JSON.stringify(newArr))
+}
+
+export function updateProductOnLocalCart(product: IOrderProducts): void{
+    let existing = getLocalCart();
+    let existingProduct = existing.find((prod) => {return (prod.product_id === product.product_id)})
+    if(existingProduct){
+        let newArr = existing.filter((prod) => {return prod.product_id != product.product_id} )
+        let updatedProduct = {
+            ...existingProduct,
+            ...product
+        }
+        newArr.push(updatedProduct)
+        setLocalCart(newArr)
+    }
+}
+
+export function emptyCart(): void{
+    setLocalCart([])
 }

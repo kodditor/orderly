@@ -177,7 +177,7 @@ export default function EditProduct({product}: {product: Tables<'products'>}){
                             </span>
                             <span className="w-full">
                                 <label className="text-sm mb-2" htmlFor="tags">Search Tags</label>
-                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Search Tags separated by a comma (eg. shops, ghana, orderly)"  defaultValue={product.tags!.join(', ')}  maxLength={50} type="text" id='tags' name="tags" onChange={handleValueChange} required/>
+                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Search Tags separated by a comma (eg. shops, ghana, orderly)"  defaultValue={product.tags?.join(', ') ?? ''}  maxLength={50} type="text" id='tags' name="tags" onChange={handleValueChange} required/>
                             </span>
                             <span className="w-full">
                                 <label className="text-sm mb-2" htmlFor="variations">Variations</label>

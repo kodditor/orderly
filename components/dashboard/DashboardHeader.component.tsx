@@ -43,7 +43,7 @@ export default function DashboardHeader(){
                     </ul>
                 </div>
                 <div className="w-full px-4 flex flex-col gap-3">
-                    <Link href={`/s/${shop.shopNameTag}`}><button className="w-full">Visit My Shop</button></Link>
+                    <Link href={`/s/${shop.shopNameTag}`} target="_blank"><button className="w-full">Visit My Shop</button></Link>
                     <button className="btn-secondary !bg-peach hover:!bg-darkRed !border-peach hover:!border-darkRed" onClick={handleSignOut}>Log Out</button>
                     <p className="text-center">Orderly Ghana &copy; {today.getFullYear()}</p>
                     <div className="flex justify-evenly w-full">

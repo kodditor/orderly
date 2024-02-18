@@ -1,6 +1,8 @@
 "use client"
 
 import { clientSupabase } from "@/app/supabase/supabase-client"
+import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useSearchParams, useRouter } from "next/navigation"
 import { FormEvent, useState } from "react"
 
@@ -20,7 +22,7 @@ export default function SignUpComponent(){
 
     const [email, setEmail ] = useState<string>('')
     const [pass, setPass] = useState<string>('')
-    // const [phone, setPhone] = useState<string>('')
+    const [ showPassword, setShowPassword ] = useState<boolean>(false)
     const [ submitted, setSubmitted ] = useState<boolean>(false)  
 
     const supabase = clientSupabase
@@ -63,8 +65,12 @@ export default function SignUpComponent(){
                         <h6>Welcome.</h6>
                         <h1 className="text-3xl font-bold mb-4">Sign Up</h1>
                         <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Email Address" type="email" id='email' onChange={(e)=>{setEmail(e.target.value)}} required/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Password" type="password" id='pwd' onChange={(e)=>{setPass(e.target.value)}}  minLength={8} required/>
-                        {/* <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Phone Number" type="phone" id='phone' onChange={(e)=>{setPhone(e.target.value)}}  pattern="*.[0-9]" minLength={8} required/> */}
+                        <span className="w-full relative">
+                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="superSecretPassword" type={showPassword ? 'text' : 'password'} id='password' name="password" onChange={(e)=>{setPass(e.target.value)}} minLength={8} required/>
+                            <div className="absolute right-[5px] top-[5px] h-[calc(100%-10px)] aspect-square p-1 rounded-full bg-white hover:bg-gray-50 duration-150 cursor-pointer text-darkRed flex items-center justify-center" onClick={()=>{setShowPassword((prev) => !prev)}}>
+                                <FontAwesomeIcon width={15} height={15} icon={showPassword ? faEyeSlash : faEye} />
+                            </div>
+                        </span>
                         <button className="rounded-full w-full mb-4" disabled={submitted}>
                             <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
                             <span style={{display: submitted ? 'none' : 'block'}} >Get Orderly</span>

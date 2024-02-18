@@ -234,10 +234,10 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                 clearCart={clearCart}     
             />
             
-            <main className="w-[100%] pb-8 md:pl-[20vw] md:min-h-[calc(100vh-138px)]">
+            <main className="w-[100%] pb-8 md:pl-[20vw] xl:pl-[15vw] md:min-h-[calc(100vh-138px)]">
                 <div className="w-full md:w-3/4 overflow-x-hidden h-full p-4 md:p-8">
                     <h1 className="font-bold text-2xl md:text-3xl mb-4 md:mb-8">{products?.length + ' '}Product<span style={{display: (products?.length === 1) ? 'none' : 'inline'}}>s</span></h1>
-                    <section className="bg-gray-100 rounded-lg p-2 md:p-4 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 w-full">
+                    <section className="bg-gray-100 rounded-lg p-2 md:p-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5 w-full">
                         { products.length == 0 && 
                             <>
                                 <p>This shop has no products.</p>

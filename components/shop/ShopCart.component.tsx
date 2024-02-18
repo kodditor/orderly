@@ -197,8 +197,8 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
         return (
             <>
                 <div className="z-[51] top-0 left-0 fixed w-screen flex flex-col md:flex-row h-screen">
-                    <div className="w-full md:w-[50%] h-[30%] md:h-full bg-gray-400 opacity-40" onClick={()=>{setShowCart(false)}}></div>
-                    <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
+                    <div className="w-full md:w-[50%] xl:w-[65%] h-[30%] md:h-full bg-gray-400 opacity-40" onClick={()=>{setShowCart(false)}}></div>
+                    <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] xl:w-[35%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="w-full h-full" ref={parentRef}>
                             { /* Cart Page */}
                             <div ref={cartRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">

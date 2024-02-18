@@ -14,10 +14,12 @@ export default async function ShopDashboard(){
 
         const user = session.user
 
-        if(user.user_metadata.firstName){
+        //console.log(user)
+        if(user.user_metadata.user_metadata){
 
             let { data, error } = await getShopDetails('user_id', user.id)
-            
+            //console.log(data)
+            let shopData = data
             if(error){
                 return (
                     <>
@@ -28,21 +30,36 @@ export default async function ShopDashboard(){
                     </>
                 )
             } else {
-                if (data!.length != 0){
-                    
+            
+                if (data!.length != 0){            
+
+                    //console.log(user.user_metadata)
+
+                    let { data, error } = await serverSupabase
+                                        .from('user_metadata')
+                                        .select(`
+                                            firstName,
+                                            lastName,
+                                            isOrderly,
+                                            phoneNumber,
+                                            shop_id,
+                                            location(*)
+                                        `)
+                                        .eq('id', user.user_metadata.user_metadata)
+
                     let orderlyUser = {
                         id: user.id,
                         email: user.email,
-                        ...user.user_metadata
+                        ...data![0]
                     }
 
-                    //console.log(data)
+                    //console.log(orderlyUser)
 
                     return (
                         <>
                             <div>
                                 {/*@ts-ignore*/}
-                                <ShopDashboardModule orderlyUser={orderlyUser} orderlyShop={data[0]} />
+                                <ShopDashboardModule orderlyUser={orderlyUser} orderlyShop={shopData[0]} />
                             </div>
                         </>
                     )

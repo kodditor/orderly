@@ -3,7 +3,7 @@ import { IOTPPayload } from "@/models/otp.model";
 import { fadePages, getBlobAndURLFromArrayBuffer, getCSV, getExtension } from "@/app/utils/frontend/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, FormEvent } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import { OrderlyPlans } from "@/constants/orderlyPlans.constant";
@@ -12,41 +12,59 @@ import { clientSupabase } from "@/app/supabase/supabase-client";
 import { Tables, TablesInsert } from "@/types/supabase";
 import { v4 as uuidv4 } from 'uuid';
 import { User } from "@supabase/supabase-js";
-import { IShop } from "@/models/shop.model";
 import { popupText } from "./Popup.component";
+import HCaptcha from "@hcaptcha/react-hcaptcha";
+
 
 export default function OnboardingComponent({user}: {user: User}){ //Let's try to avoid prop drilling eh?
-
+//export default function OnboardingComponent(){
     const router = useRouter()
     const searchParams = useSearchParams()
     let destination = searchParams.get('to')
 
     const supabase = clientSupabase
 
-    const [ firstName, setFirst ] = useState<string|null>(null)
-    const [ lastName, setLast ] = useState<string>('')
-
-    const [ shopName, setShopName ] = useState<string>('')
-    const [ shopNameTag, setShopNameTag ] = useState<string>('')
+    const captchaRef = useRef<HCaptcha>(null);
     const [ shopLogo, setShopLogo ] = useState<File| Blob | null>(null)
     const [ shopLogoURL, setShopLogoURL ] = useState<string | null>(null)
-    const [ shopDesc, setShopDesc ] = useState<string>('')
-    const [ shopTags, setShopTags ] = useState<string[]>([])
+
+    const [ newUser, setNewUser ] = useState<TablesInsert<'user_metadata'>>({
+        firstName: "",
+        lastName: "",
+        isOrderly: false,
+        phoneNumber: ""
+    })
+
+    const [ unverifiedPhoneNumber, setUnverifiedPhone ] = useState<string>('')
+
+    const [ newShop, setNewShop ] = useState<TablesInsert<'shops'>>({
+        name: "",
+        shopNameTag: "",
+        imageURL: "",
+        description: "",
+        tags: [],
+        user_id: user.id,
+        location: "",
+        optionalPhone: "",
+        optionalEmail: ""
+    })
+
+    const [ newLocation, setNewLocation ] = useState<TablesInsert<'locations'>>({
+        buildingNum: "",
+        streetAddress: "",
+        region: "",
+        country: ""
+    })
+
+    let locationID = ""
+    let userMetadataID = ""
 
     const [ uploadedFileExt, setFileExt ] = useState<string>('')
 
-    const [ aptNum, setAptNum ] = useState<string>('')
-    const [ streetAddress, setStreetAddress ] = useState<string>('')
-    const [ city, setCity ] = useState<string>('')
-    const [ region, setRegion ] = useState<string>('')
-    const [ country, setCountry ] = useState<string>('')
-
-    const [ phoneNumber, setPhone ] = useState<string>('')
-    const [ isOrderly, setIsOrderly ] = useState<boolean>(false) // Shop user or customer
-    let isOrderlyTemp: boolean| null = null // Because setIsOrderly is slow, so we'll consolidate the two on final page submit
-
     const [ submitted, setSubmitted ] = useState<boolean>(false)
     const [ submissionErr, setSubErr] = useState<boolean>(false)
+    const [ verified, setVerified   ] = useState<boolean>(false)
+    const [ shopNameTagAllowed, setShopNameTagAllowed ] = useState<boolean>(true)
 
     const [ OTP, setOTP ] = useState<string>('')
 
@@ -72,16 +90,19 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
             document.getElementById(next)!.style.display = 'flex'
             
         }, 250);
-
     }
 
     async function generateOTP(){
-        //setSubmitted(true)
-        
-        handleChangeQuestions('page2', 'page4') // Remember to remove!
-        return
+        setSubmitted(true)
 
-        let number = `233${phoneNumber.slice(1)}`
+        let number: string = ""
+        if(unverifiedPhoneNumber.startsWith('0') || unverifiedPhoneNumber.startsWith('+')){
+            number = `233${unverifiedPhoneNumber.slice(1)}`
+        } else if (unverifiedPhoneNumber.startsWith('+233')) {
+            number = `${unverifiedPhoneNumber.slice(1)}`
+        } else {
+            number = `233${unverifiedPhoneNumber}`
+        }
 
         fetch('https://sms.arkesel.com/api/otp/generate',
         {
@@ -102,6 +123,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
         })
         .then((res)=>res.json())
         .then((data: IOTPPayload)=>{
+            console.log(data.code)
             if (data.code === '1000'){
                 setSentOTPSuccess(true)
                 setOTPMessage(`We've sent you a OTP! Check your messages or dial ${data.ussd_code} to get your code`)
@@ -119,13 +141,20 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
             console.log(error)
             setSubmitted(false)
         })
-
-
-
     }
 
     async function verifyOTP() {
         setSubmitted(true)
+
+        let number: string = ""
+        if(unverifiedPhoneNumber.startsWith('0') || unverifiedPhoneNumber.startsWith('+')){
+            number = `233${unverifiedPhoneNumber.slice(1)}`
+        } else if (unverifiedPhoneNumber.startsWith('+233')) {
+            number = `${unverifiedPhoneNumber.slice(1)}`
+        } else {
+            number = `233${unverifiedPhoneNumber}`
+        }
+
         fetch('https://sms.arkesel.com/api/otp/verify',{
             headers: {
                 'api-key': process.env.NEXT_PUBLIC_ARKESEL_API_KEY!,
@@ -134,13 +163,19 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
             method: 'POST',
             body: JSON.stringify({
                 code: OTP,
-                number: `233${phoneNumber.slice(1)}`
+                number: number
             })
         })
         .then((res) => res.json())
         .then((data) =>{
             if(data.code == '1100'){
                 setOTPVerifySuccess(true)
+                setNewUser((prev) => {
+                    return ({
+                        ...prev,
+                        phoneNumber: unverifiedPhoneNumber
+                    })
+                })
                 handleUpdateUserWithBasicInfo()
             } else {
                 setOTPVerifySuccessMessage("You've entered the wrong OTP code. Please verify and try again.")
@@ -160,14 +195,36 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
         switch(selector){
             case 'orderly':
                 orderlyRef.current!.style.borderColor = 'var(--darkRed)'
+                orderlyRef.current!.style.backgroundColor = 'var(--red)'
+                orderlyRef.current!.style.color = 'white'
                 notOrderlyRef.current!.style.borderColor = 'transparent'
-                isOrderlyTemp = true
+                notOrderlyRef.current!.style.backgroundColor = 'rgb(229, 231, 235)'
+                notOrderlyRef.current!.style.color = 'var(--darkRed)'
+
+                setNewUser((prev) =>{
+                    return ({
+                        ...prev,
+                        isOrderly: true
+                    })
+                })
+                
                 break;
 
             case 'notOrderly':
                 orderlyRef.current!.style.borderColor = 'transparent'
+                orderlyRef.current!.style.backgroundColor = 'rgb(229, 231, 235)'
+                orderlyRef.current!.style.color = 'var(--darkRed)'
                 notOrderlyRef.current!.style.borderColor = 'var(--darkRed)'
-                isOrderlyTemp = false
+                notOrderlyRef.current!.style.backgroundColor = 'var(--red)'
+                notOrderlyRef.current!.style.color = 'white'
+                
+                setNewUser((prev) =>{
+                    return ({
+                        ...prev,
+                        isOrderly: false
+                    })
+                })
+                
                 break;
         }
     }
@@ -194,58 +251,80 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
     }
 
     async function handleUpdateUserWithBasicInfo(){
-
-        supabase.auth.updateUser({
-            data: {
-                firstName: firstName,
-                lastName: lastName,
-                phoneNumber: phoneNumber
+        //console.log(newUser, unverifiedPhoneNumber)
+        supabase
+        .from('user_metadata')
+        .insert({
+            ...newUser,
+            phoneNumber: unverifiedPhoneNumber // It's verified now, also the useState is too slow to update it in time for the insert
+        })
+        .select('id')
+        .then(({data, error}) => {
+            if(error){
+                console.log(error)
+                popupText(`SB${error.code}: An error occurred`)
+            } else{
+                let newID = data[0].id
+                userMetadataID = newID
+                supabase.auth.updateUser({
+                    data: {
+                        user_metadata: newID 
+                    }
+                }).then((data) =>{
+                    //console.log(data.data.user!.user_metadata)
+                    setNewUser((prev) => {
+                        return ({
+                            ...prev,
+                            id: newID
+                        })
+                    })
+                    handleChangeQuestions('page3', 'page4')
+                    setTimeout(() => {
+                        setSubmitted(false)
+                    }, 250);
+                })
             }
-        }).then((data)=>{
-            console.log(data.data.user!.user_metadata)
-            handleChangeQuestions('page3', 'page4')
-            setTimeout(() => {
-                setSubmitted(false)
-             }, 250);
         })
     }
 
-    async function handleUpdateUserWithOrderlyStatAndLocation(){
-        setSubmitted(false)
-        if( (streetAddress !== '') && (city !== '')){
-            supabase.auth.updateUser({
-                data: {
-                    isOrderly: isOrderlyTemp,
-                    locationExists: true,
-                    location: {
-                        aptNum: aptNum,
-                        streetAddress: streetAddress,
-                        city: city,
-                        region: region,
-                        country: country
+    async function handleUpdateUserWithOrderlyStatAndLocation(isShopper:boolean){
+        //console.log(newLocation, newUser)
+        setSubmitted(true)
+        supabase
+        .from('locations')
+        .insert(newLocation)
+        .select('id')
+        .then(({data, error}) => {
+            if(error){
+                console.log(error)
+                popupText(`SB${error.code}: An error occurred.`)
+                setSubmitted(false)
+            } else {
+                setNewLocation((prev) => {
+                    return({
+                        ...prev,
+                        id: data[0].id
+                    })
+                })
+                locationID = data[0].id
+                supabase
+                .from('user_metadata')
+                .update({location: data[0].id})
+                .eq('id', newUser.id!)
+                .then(({error}) => {
+                    if(error){
+                        console.log(error)
+                        popupText(`SB${error.code}: An error occurred.`)
+                        setSubmitted(false)
+                    } else {
+                        isShopper ? handleChangeQuestions('page5', 'page6') : handleChangeQuestions('page6', 'page7')
+                        setTimeout(() => {
+                            setSubmitted(false)
+                        }, 250)
                     }
-                }
-            }).then((data)=>{
-                console.log(data.data.user?.user_metadata)
-                handleChangeQuestions('page5c', 'page6c')
-                setTimeout(() => {
-                    setSubmitted(false)
-                 }, 250);
-            })
-        } else {
-            supabase.auth.updateUser({
-                data: {
-                    isOrderly: isOrderlyTemp,
-                    locationExists: false,
-                }
-            }).then((data)=>{
-                console.log(data.data.user?.user_metadata)
-                handleChangeQuestions('page5c', 'page6c')
-                setTimeout(() => {
-                    setSubmitted(false)
-                 }, 250);
-            })
-        }
+                })
+            }
+        })
     }
 
     async function handleCreateShop(){
@@ -257,85 +336,156 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
             upsert: true
         }).then((data)=>{
             let { data: {publicUrl}} = supabase.storage.from('Orderly Shops').getPublicUrl(data.data!.path)
-            console.log('Shop Logo:', publicUrl)
             
-            const locationRes = supabase.from('locations').insert({
-                aptNum: aptNum,
-                streetAddress: streetAddress,
-                city: city,
-                region: region,
-                country: country
-            }).select()
-            .then(({data, error}) =>{
+            let date = new Date()
+            let shopID = uuidv4()
+            let insertObject: TablesInsert<'shops'> = {
+                ...newShop,
+                id: shopID,
+                createdAt: date.toISOString(),
+                imageURL: publicUrl,
+                location: newLocation.id,
+                updatedAt: date.toISOString()
+            }
+            console.log(insertObject)
+            supabase
+            .from('shops')
+            .insert(insertObject)
+            .then(({error}) => {
                 if(error){
                     console.log(error)
-                    popupText(`SB${error.code}: An error occurred when signing up.`)
-                    return
+                    popupText(`SB${error.code}: An error occurred.`)
+                    setSubmitted(false)
                 } else {
-                    let date = new Date()
-                    let shopID = uuidv4()
-                    let insertObject: TablesInsert<'shops'> = {
-                        id: shopID,
-                        createdAt: date.toISOString(),
-                        description: shopDesc,
-                        imageURL: publicUrl,
-                        location: data[0].id,
-                        name: shopName,
-                        optionalEmail: null,
-                        optionalPhone: null,
-                        shopNameTag: shopNameTag,
-                        tags: shopTags,
-                        updatedAt: date.toISOString(),
-                        user_id: user!.id
-                    }
-
                     supabase
-                    .from('shops')
-                    .insert(insertObject).then(()=>{
-                        supabase.auth.updateUser({
-                            data: {
-                                isOrderly: true,
-                                shopID: shopID
-                            }
-                        }).then(()=>{
-                            handleChangeQuestions('page7s', 'page8s')
-                            setTimeout(() => {
-                                setSubmitted(false)
-                            }, 250);
-                        })
+                    .from('user_metadata')
+                    .update({
+                        shop_id: shopID
+                    })
+                    .eq('id', newUser.id!)
+                    .then(()=>{
+                        handleChangeQuestions('page7', 'page8')
+                        setTimeout(() => {
+                            setSubmitted(false)
+                        }, 250);
                     })
                 }
             })
         })
     }
 
-    function handleConfirmPaymentPlan(){ // page8s
+    function handleConfirmPaymentPlan(){ // page8
         setSubmitted(true)
-        supabase.auth.updateUser({
-            data: {
-                plan: {
-                    name: selectedPlan?.name,
-                    isAnnual: isPayingAnnually
-                }
-            }
-        }).then(()=>{
-            handleChangeQuestions('page8s', 'page9s')
+        supabase
+        .from('user_metadata')
+        .update({plan: selectedPlan?.id[(isPayingAnnually) ? 0 : 1]})
+        .eq('id', newUser.id!)
+        .then(()=>{
+            handleChangeQuestions('page8', 'page9')
             setTimeout(()=>{setSubmitted(false)}, 250)
+        })
+        setNewUser((prev) => {
+            return ({
+                ...prev,
+                plan: selectedPlan?.id[(isPayingAnnually) ? 0 : 1]
+            })
         })
     }
 
-    function handleShopUpdate(){
-        // Update shop user with data,
-        // Update shop table with new shop
+    function handleValueChange(e: any){
+        let field = e.target.name
+        let value = e.target.value
+        e.preventDefault()
+
+        switch (field) {
+            case 'firstName':
+            case 'lastName':
+                setNewUser((prev) => {
+                    return ({
+                        ...prev,
+                        [field]: value
+                    })
+                })
+                break;
+            
+            case 'buildingNum':
+            case 'streetAddress':
+            case 'city':
+            case 'region':
+            case 'country':
+                setNewLocation((prev) => {
+                    return ({
+                        ...prev,
+                        [field]: value
+                    })
+                })
+                break;
+
+            case 'name':
+            case 'description':
+            case 'optionalEmail':
+            case 'optionalPhone':
+                setNewShop((prev) =>{
+                    return ({
+                        ...prev,
+                        [field]: value
+                    })
+                })
+                break;
+
+            case 'shopNameTag':
+                clientSupabase
+                .from('shops')
+                .select('shopNameTag')
+                .eq('shopNameTag', value)
+                .then(({ data, error }) =>{
+                    if(error){
+                        console.log(error)
+                        popupText(`SB${error.code}: An error occurred`)
+                    } else {
+                        if( data.length == 0 ){
+                            setShopNameTagAllowed(true)
+                            setNewShop((prev) =>{
+                                return ({
+                                    ...prev,
+                                    shopNameTag: value.split('').filter((s:string) => s != ' ').join('').toLowerCase() // removeSpaces
+                                })
+                            })
+                        } else {
+                            setShopNameTagAllowed(false)
+                            setNewShop((prev) =>{
+                                return ({
+                                    ...prev,
+                                    shopNameTag: '' // reset
+                                })
+                            })
+                        }
+                    }
+                })
+                break;
+
+            case 'tags':
+                setNewShop((prev) =>{
+                    return ({
+                        ...prev,
+                        tags: getCSV(value).slice(0,4)
+                    })
+                })
+                break;
+
+            default:
+                throw Error(`${field} field not implemented`)
+        }
+        //console.log(newShop, newUser, newLocation)
     }
 
     useEffect(()=>{
         handleIsOrderlyChoice('orderly')
-    },)
+    },[router])
 
     return (
         <>
-            <div className="m-auto w-[80%]  md:mt-8 lg:mt-15 max-w-56 flex justify-center">
+            <div className="m-auto w-[80%]  md:mt-8 lg:mt-15 max-w-72 flex justify-center">
                 <dialog ref={planSelectorDialog} className="p-8 w-fit min-w-[30rem] rounded-xl border-2 border-peach">
                     <form className="bg-white flex flex-col gap-2" onSubmit={()=>{}}>
                         <h1 className="text-3xl">{selectedPlan?.name} Plan</h1>
@@ -358,22 +508,36 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                         </span>
                     </form>
                 </dialog>
-                <div ref={parent} className="flex flex-col items-center gap-4 w-80 ">
+                <div ref={parent} className="flex flex-col items-center gap-4 w-72 ">
                     <h6>Ready to get orderly?</h6>
-                    <form className="flex flex-col items-center gap-4" onSubmit={()=>{}} style={{display: 'flex'}} id='page1'>
+                    <form className="flex flex-col items-center gap-4" onSubmit={(e)=>{e.preventDefault(); handleChangeQuestions('page1', 'page2')}} style={{display: 'flex'}} id='page1'>
                         <h1 className="text-3xl text-center font-bold">Let's get to know you!</h1>
-                        <p className="mb-4">What do we call you?</p>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="First Name" pattern="/^\w+$/" type="text" id='firstName' minLength={1} maxLength={30} onChange={(e)=>{setFirst(e.target.value)}} required/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Last Name" type="text" id='lastName' onChange={(e)=>{setLast(e.target.value)}} minLength={8} required/>
-                        <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page1', 'page2')}} className="rounded-full w-full mb-4">Let's Go</button>
+                        <p className="mb-2">What do we call you?</p>
+                        <span className="w-full flex flex-col gap-2">
+                            <label className="text-sm" htmlFor="firstName">First Name <span className="text-red">*</span></label>
+                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Kwaku" type="text" id='firstName' name="firstName" minLength={1} maxLength={30} onChange={handleValueChange} required/>
+                        </span>
+                        <span className="w-full flex flex-col gap-2">
+                            <label className="text-sm" htmlFor="lastName">Last Name <span className="text-red">*</span></label>
+                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Ananse" type="text" id='lastName' name="lastName" onChange={handleValueChange} minLength={1} maxLength={50} required/>
+                        </span>
+                        <HCaptcha
+                            ref={captchaRef}
+                            sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
+                            onVerify={() => setVerified(true)}
+                        />
+                        <button className="rounded-full w-full mb-4" disabled={!verified}>Let's Go</button>
                     </form>
 
-                    <form className="flex flex-col items-center gap-4" onSubmit={()=>{}} style={{display: 'none'}} id='page2'>
+                    <form className="flex flex-col items-center gap-4" onSubmit={(e)=>{e.preventDefault(); generateOTP() }} style={{display: 'none'}} id='page2'>
                         <h1 className="text-3xl text-center font-bold">Enter Your Phone Number</h1>
-                        <p className="mb-4">We need this to verify your identity</p>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full mb-4" placeholder="Phone Number" type="string" id='phoneNumber' pattern="[0-9].*" minLength={8} maxLength={13} onChange={(e)=>{setPhone(e.target.value)}} required/>
+                        <p className="mb-2">We need this to verify your identity</p>
+                        <span className="w-full flex flex-col gap-2">
+                            <label className="text-sm" htmlFor="phoneNumber">Phone Number</label>
+                            <input className="p-2 pl-4 bg-peach rounded-full w-full mb-4" placeholder="0207007007" type="text" id='phoneNumber' pattern="[0-9].*" minLength={8} maxLength={13} onChange={(e)=>{setUnverifiedPhone(e.target.value)}} required/>
+                        </span>
                         <span className="w-full mb-4">
-                            <button className="rounded-full w-full mb-2" disabled={submitted}  onClick={(e)=>{e.preventDefault(); generateOTP() } } >
+                            <button className="rounded-full w-full mb-2" disabled={submitted || !verified}>
                                 <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
                                 <span style={{display: submitted ? 'none' : 'block'}} >Verify Your Phone Number</span>
                             </button>
@@ -381,13 +545,16 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                         </span>
                     </form>
 
-                    <form className="flex flex-col items-center gap-4" onSubmit={()=>{}} style={{display: 'none'}} id='page3'>
+                    <form className="flex flex-col items-center gap-4" onSubmit={(e)=>{e.preventDefault(); verifyOTP() }} style={{display: 'none'}} id='page3'>
                         { sentOTPSuccess /* If the OTP was sent successfully */ && <>
-                            <h1 className="text-3xl text-center font-bold">Enter Your OTP Code</h1>
-                            <p className="mb-4">{OTPMessage}</p>
-                            <input className="p-2 pl-4 bg-peach rounded-full w-full mb-4" placeholder="OTP Code" type="text" id='otp' pattern="[0-9].*" minLength={6} maxLength={6} onChange={(e)=>{setOTP(e.target.value)}} required/>
+                            <h1 className="text-3xl text-center font-bold">Enter Your One Time Password</h1>
+                            <p className="mb-4 text-center">{OTPMessage}</p>
+                            <span className="w-full flex flex-col gap-2">
+                                <label className="text-sm" htmlFor="otp">OTP Code</label>
+                                <input className="p-2 pl-4 bg-peach rounded-full w-full mb-4" placeholder="123456" type="text" id='otp' name="otp" pattern="[0-9].*" minLength={6} maxLength={6} onChange={(e)=>{setOTP(e.target.value)}} required/>
+                            </span>
                             <span className="mb-4 w-full">
-                                <button className="rounded-full w-full" disabled={submitted}  onClick={(e)=>{e.preventDefault(); verifyOTP() } } >
+                                <button className="rounded-full w-full" disabled={submitted || !verified} >
                                     <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
                                     <span style={{display: submitted ? 'none' : 'block'}} >Verify Your OTP</span>
                                 </button>
@@ -396,12 +563,12 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                         </>
                         }
 
-                        { !sentOTPSuccess && <>
-                            <h1 className="text-3xl text-center font-bold text-red">Oh no!</h1>
-                            <p className="mb-4">We've encountered an error.<br />Please try again in five minutes</p>
-                            <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page3', 'page2') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
-                            
-                        </>
+                        { !sentOTPSuccess && 
+                            <>
+                                <h1 className="text-3xl text-center font-bold text-red">Oh no!</h1>
+                                <p className="mb-4 text-center">We've encountered an error.<br />Please try again in five minutes</p>
+                                <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page3', 'page2') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>    
+                            </>
                         }
 
                     </form>
@@ -410,149 +577,213 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                         <h1 className="text-3xl text-center font-bold mb-4">I am a..</h1>
                         <div className="mb-8">
                             <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-                                <span className="group w-full duration-150 md:w-[250px] border-[3px] border-transparent cursor-pointer h-12 md:h-48 flex flex-col-reverse p-8 bg-red hover:bg-darkRed rounded-xl" ref={orderlyRef} onClick={()=>{handleIsOrderlyChoice('orderly')}}>
-                                    <h2 className="text-white w-[90%] text-right text-3xl">A Shop Owner</h2>
-                                    </span>
-                                <span className="group w-full md:w-[250px] duration-150 border-[3px] border-transparent cursor-pointer h-12 md:h-48 p-8  flex flex-col-reverse bg-gray-200 hover:bg-darkRed rounded-xl" ref={notOrderlyRef} onClick={()=>{handleIsOrderlyChoice('notOrderly')}}>
-                                    <h2 className=" text-black w-[90%] group-hover:text-white text-3xl text-right">A Shopper</h2>
+                                <span className="group w-full duration-150 md:w-[300px] border-[3px] border-transparent cursor-pointer h-12 md:h-72 flex flex-col-reverse gap-8 p-8 bg-red hover:bg-darkRed rounded-xl" ref={orderlyRef} onClick={()=>{handleIsOrderlyChoice('orderly')}}>
+                                    <img src="/img/shop_owner_option.svg" width={150} />
+                                    <h2 className="text-center text-3xl">A Shop Owner</h2>
+                                </span>
+                                <span className="group w-full md:w-[300px] duration-150 border-[3px] border-transparent cursor-pointer h-12 md:h-72 p-8  flex flex-col-reverse gap-8 bg-gray-200 hover:bg-darkRed rounded-xl" ref={notOrderlyRef} onClick={()=>{handleIsOrderlyChoice('notOrderly')}}>
+                                    <img src="/img/shopper_option.svg" width={150} />
+                                    <h2 className="text-3xl text-center">A Shopper</h2>
                                 </span>
                             </div>
                         </div>
-                        <button onClick={(e)=>{e.preventDefault(); isOrderlyTemp ? handleChangeQuestions('page4', 'page5s') : handleChangeQuestions('page4','page5c') }} className="rounded-full w-full mb-4">Next &rarr;</button>
+                        <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page4', 'page5')}} className="rounded-full w-full mb-4">Next &rarr;</button>
                     </div>
 
-                    <form className="flex flex-col items-center gap-4 w-72" style={{display: 'none'}} id='page5c'>
-                        <h1 className="text-3xl text-center font-bold">Where are you located?</h1>
-                        <p className="mb-4">This is optional, but it helps us save your location for any future orders</p>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Apt. Number/House Number" type="string" id='aptNumber' maxLength={20} onChange={(e)=>{setAptNum(e.target.value)}}/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Street Address" type="string" id='streetAddr' maxLength={50} onChange={(e)=>{setStreetAddress(e.target.value)}}/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="City" type="string" id='city' maxLength={30} onChange={(e)=>{setCity(e.target.value)}}/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Region" type="string" id='region' maxLength={30} onChange={(e)=>{setRegion(e.target.value)}} required/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full mb-4" placeholder="Country" type="string" id='country' maxLength={30} onChange={(e)=>{setCountry(e.target.value)}}/>
-                        <span className="mb-4 w-full">
-                            <button className="rounded-full w-full mb-2" disabled={submitted} onClick={(e)=>{e.preventDefault(); handleUpdateUserWithOrderlyStatAndLocation() } } >
-                                <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
-                                <span style={{display: submitted ? 'none' : 'block'}} >Save Location</span>
-                            </button>
-                            <span onClick={(e)=>{e.preventDefault(); handleUpdateUserWithOrderlyStatAndLocation() }} className="text-center cursor-pointer font-medium hover:font-black flex justify-center rounded-full w-full mb-8">Skip</span>
-                            <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page5c', 'page4') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
-                        </span>
-                    </form>
-
-                    <div className="flex flex-col items-center gap-4 w-72" style={{display: 'none'}} id='page5s'>
-                        <h1 className="text-3xl text-center font-bold">Where is your shop located?</h1>
-                        <p className="mb-4 text-center">This information can be seen by your customers</p>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Building Number (not required)" type="string" id='buildingNumber' maxLength={20} onChange={(e)=>{setAptNum(e.target.value)}}/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Street Address" type="string" id='streetAddr' maxLength={50} onChange={(e)=>{setStreetAddress(e.target.value)}} required/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="City" type="string" id='city' maxLength={30} onChange={(e)=>{setCity(e.target.value)}} required/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Region" type="string" id='region' maxLength={30} onChange={(e)=>{setRegion(e.target.value)}} required/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full mb-4" placeholder="Country" type="string" id='country' maxLength={30} onChange={(e)=>{setCountry(e.target.value)}} required />
-                        <span className="mb-4 w-full">
-                            <button className="rounded-full w-full mb-2" onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page5s', 'page6s') } } >Save Location</button>
-                            <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page5s', 'page4') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
-                        </span>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-4 w-72" style={{display: 'none'}} id='page6c'>
-                        <h1 className="text-3xl text-center font-bold">All done, {firstName}.</h1>
-                        <p className="mb-4">Welcome to Orderly!</p>
-                        <span className="mb-4 w-full">
-                            <Link href={`/${destination || ''}`} prefetch={false}><button className="rounded-full w-full mb-2" onClick={(e)=>{e.preventDefault()} } >Let's Go!</button></Link>
-                        </span>
-                    </div>
-
-                    <div className="flex flex-col items-center gap-4 w-72" style={{display: 'none'}} id='page6s'>
-                        <h1 className="text-3xl text-center font-bold">Let's set up your shop.</h1>
-                        <p className="mb-4 text-center">This step just takes a couple seconds!</p>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Full Name (eg. Orderly Ghana)" type="string" id='shopFullName' maxLength={50} onChange={(e)=>{setShopName(e.target.value)}}/>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Nametag (eg. orderlyghana)" type="string" id='shopNameTag' maxLength={50} onChange={(e)=>{setShopNameTag(e.target.value)}} required/>
-                        <span className="w-full"> 
-                            {shopLogoURL && <>
-                                <span className="w-16 h-16 m-auto border-2 border-gray-400 overflow-hidden flex items-center justify-center rounded-full">
-                                        <img className="w-full" src={ shopLogoURL ?? ''}/>
+                    { !newUser.isOrderly &&  // Shopper View
+                        <>
+                            <form className="flex flex-col items-center gap-4 w-72" onSubmit={(e)=>{e.preventDefault(); handleUpdateUserWithOrderlyStatAndLocation(true)} } style={{display: 'none'}} id='page5'>
+                                <h1 className="text-3xl text-center font-bold">Where are you located?</h1>
+                                <p className="text-center">This is optional, but it helps us save your location for any future orders</p>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor="buildingNum">Apt. Number/House Number</label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="8" type="text" id='buildingNum' name="buildingNum" maxLength={20} onChange={handleValueChange}/>
                                 </span>
-                            </> 
-                            }
-
-                            <label className="bg-peach group rounded-xl hover:bg-darkRed flex w-full p-3 font-bold text-black hover:text-white duration-150 cursor-pointer justify-center items-center gap-3 my-4" htmlFor="logo">
-                                Upload your shop logo <FontAwesomeIcon icon={faUpload} />
-                            </label>
-                            <input className="p-2 pl-4 bg-peach rounded-full w-full hidden"   accept="image/*" type="file" multiple={false} id='logo' maxLength={30} onChange={(e)=>{handleImageChange(e.target.files![0])}} required/>
-                            <p className="text-red font-medium text-center" style={{display: (submissionErr)? 'block': 'none' }}>File size is too large. Please upload files less than 2MB.<br />You can use <a href="https://tinypng.com/" className=" underline">tinyPNG</a> to reduce your file size.</p>
-                        </span>
-                        <span className="mb-4 w-full">
-                            <button className="rounded-full w-full mb-2" disabled={submissionErr} onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page6s', 'page7s') } } >Set Up Shop</button>
-                            <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page6s', 'page5s') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
-                        </span>
-                    </div>
-
-                    <form className="flex flex-col items-center gap-4 w-72" onSubmit={()=>{}} style={{display: 'none'}} id='page7s'>
-                        <h1 className="text-3xl text-center font-bold">Your profile's looking good.</h1>
-                        <p className="mb-4 text-center w-[95%]">Add a few more details to complete it!</p>
-                        <div className="w-full flex mb-4 rounded-2xl bg-gray-100 p-4">
-                            <div className="flex items-center gap-4">
-                                <span className="w-16 h-16 border-2 border-gray-400 overflow-hidden flex items-center justify-center rounded-full">
-                                        <img className="w-full" src={ shopLogoURL ?? ''}/>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor="streetAddress">Street Address <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Freedom Avenue" type="text" id='streetAddress' name="streetAddress" maxLength={50} onChange={handleValueChange} required/>
                                 </span>
-                                <span className="flex flex-col gap-0">
-                                    <h1 className="text-xl">{shopName}</h1>
-                                    <h3 className="text-md font-semibold">@{shopNameTag}</h3>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor="city">City <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Accra" type="text" id='city' name="city" maxLength={30} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor="region">Region <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Greater Accra" type="text" id='region' name="region" maxLength={30} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor="country">Country <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full mb-4" placeholder="Ghana" type="text" id='country' name="country" maxLength={30} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="mb-4 w-full">
+                                    <button className="rounded-full w-full mb-2" disabled={submitted} >
+                                        <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
+                                        <span style={{display: submitted ? 'none' : 'block'}} >Save Location</span>
+                                    </button>
+                                    <span onClick={(e)=>{e.preventDefault(); handleUpdateUserWithOrderlyStatAndLocation(true) }} className="text-center cursor-pointer duration-150 font-medium hover:text-red flex justify-center rounded-full w-full mb-8">Skip</span>
+                                    <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page5', 'page4') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
+                                </span>
+                            </form>
+
+                            <div className="flex flex-col items-center gap-4 w-72" style={{display: 'none'}} id='page6'>
+                                <h1 className="text-3xl text-center font-bold">All done, {newUser.firstName}.</h1>
+                                <p className="mb-4">Welcome to Orderly!</p>
+                                <span className="mb-4 w-full">
+                                    <Link href={`/${destination || ''}`} prefetch={false}><button className="rounded-full w-full mb-2" onClick={(e)=>{e.preventDefault()} } >Let's Go!</button></Link>
                                 </span>
                             </div>
-                        </div>
-                        <textarea className="p-2 pl-4 bg-peach rounded-xl w-full" rows={3} placeholder="A short description of your shop." id='shopDesc' maxLength={100} onChange={(e)=>{setShopDesc(e.target.value)}} />
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full mb-4" placeholder="Descriptive tags separated by commas (eg. tag1, tag2)" type="string" id='shopTags' maxLength={70} onChange={(e)=>{setShopTags(getCSV(e.target.value).slice(0,4))}} required />
-                        <span className="mb-4 w-full">
-                            <button className="rounded-full w-full mb-2" disabled={submitted} onClick={(e)=>{e.preventDefault(); handleCreateShop() } } >
-                                <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
-                                <span style={{display: submitted ? 'none' : 'block'}} >One more to go!</span>
-                            </button>
-                            <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page7s', 'page6s') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
-                        </span>
-                    </form>
+                            
 
-                    <form className="flex flex-col items-center gap-4 w-72"  onSubmit={()=>{}} style={{display: 'none'}} id='page8s'>
-                        <h1 className="text-3xl text-center font-bold">Choose your payment plan</h1>
-                        <p className="mb-4 text-center">Last step! Paying for Orderly give you more features like increased shop inventory and a custom logo on your shop!</p>
-                        <div className="flex gap-2 mb-4">
-                            <button className={`${(isPayingAnnually) ? '' : 'btn-secondary'}`} onClick={(e)=>{ e.preventDefault(); handleChangeQuestions('page8s', 'page8s'); setTimeout(()=>setPayingAnnually(true),250)} }>Paid Annually</button>
-                            <button className={`${(isPayingAnnually) ? 'btn-secondary' : ''}`} onClick={(e)=>{ e.preventDefault(); handleChangeQuestions('page8s', 'page8s'); setTimeout(()=>setPayingAnnually(false),250)} }>Paid Monthly</button>
-                        </div>
-                        <div className={`flex flex-col gap-4 rounded-md ${isPayingAnnually ? 'w-[39rem]' :  'w-[35rem]'} mb-4`}>
-                            { OrderlyPlans.map((plan:IPlan, idx :number) => {
-                                return (
-                                    <div className={`w-full flex flex-row items-center gap-4 ${(plan.recommended)? 'bg-darkRed text-white' : 'bg-peach'} hover:shadow-md duration-150 justify-between px-6 py-4 ${(selectedPlan?.name == plan.name) ? 'border-darkRed' : 'border-peach'}`} key={idx} >
-                                        <span>
-                                            <h2 className="inline text-xl">{plan.name}</h2> • <h2 className="inline font-semibold text-lg">GHS{plan.cost[(isPayingAnnually) ? 0 : 1]}.00/{(isPayingAnnually) ? 'month for 12 months' : 'month'}</h2>
+                        </>
+                    }
+
+                    { newUser.isOrderly &&  // Shop Owner View
+
+                        <>
+
+                            <form className="flex flex-col items-center gap-4 w-72" onSubmit={(e)=>{e.preventDefault(); handleChangeQuestions('page5', 'page6') }} style={{display: 'none'}} id='page5'>
+                                <h1 className="text-3xl text-center font-bold">Let's set up your shop.</h1>
+                                <p className="text-center">This step just takes a minute!</p>
+                                <span className="w-full flex flex-col gap-2">
+                                    <label className="text-sm" htmlFor="shopNameTag">Full name <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="eg. Orderly Ghana" type="text" id='name' name="name" maxLength={50} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="w-full flex flex-col gap-2">
+                                    <label className="text-sm" htmlFor="shopNameTag">Name Tag (without spaces) <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="eg. orderlyghana" type="text" id='shopNameTag' name='shopNameTag' maxLength={50} onChange={handleValueChange} required/>
+                                    <span className="text-red font-medium text-sm" style={{display: (shopNameTagAllowed ? 'none' : 'block')}}>Name Tag already taken.</span>
+                                </span>
+                                <span className="w-full flex flex-col gap-2">
+                                    <label className="text-sm" htmlFor="optionalPhone">Business Phone Number <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder='0207007007' type="telephone" id='optionalPhone' name='optionalPhone' maxLength={13} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="w-full flex flex-col gap-2">
+                                    <label className="text-sm" htmlFor="optionalEmail">Business Email Address <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder='support@orderlygh.shop' type="email" id='optionalEmail' name='optionalEmail' maxLength={30} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="w-full"> 
+                                    {shopLogoURL && <>
+                                        <span className="w-16 h-16 m-auto border-2 border-gray-400 overflow-hidden flex items-center justify-center rounded-full">
+                                                <img className="w-full" src={ shopLogoURL ?? ''}/>
                                         </span>
-                                        <span >
-                                            <button className={`${( plan.recommended) ? 'btn-no-shadow' : 'btn-secondary'}`} onClick={(e)=>{e.preventDefault(); showPaymentPlan(plan)}}>Choose Plan</button>
+                                    </> 
+                                    }
+
+                                    <label className="bg-peach group rounded-xl hover:bg-darkRed flex w-full p-3 font-bold text-black hover:text-white duration-150 cursor-pointer justify-center items-center gap-3 my-4" htmlFor="logo">
+                                        Upload your shop logo <FontAwesomeIcon icon={faUpload} />
+                                    </label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full hidden"   accept="image/*" type="file" multiple={false} id='logo' onChange={(e)=>{handleImageChange(e.target.files![0])}} required/>
+                                    <p className="text-red font-medium text-center" style={{display: (submissionErr)? 'block': 'none' }}>File size is too large. Please upload files less than 2MB.<br />You can use <a href="https://tinypng.com/" className=" underline">tinyPNG</a> to reduce your file size.</p>
+                                </span>
+                                <span className="mb-4 w-full">
+                                    <button className="rounded-full w-full mb-2" disabled={submissionErr || !shopNameTagAllowed}>Set Up Shop</button>
+                                    <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page5', 'page4') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
+                                </span>
+                            </form>
+
+                            <form className="flex flex-col items-center gap-4 w-72" onSubmit={(e)=>{e.preventDefault(); handleUpdateUserWithOrderlyStatAndLocation(false) }} style={{display: 'none'}} id='page6'>
+                                <h1 className="text-3xl text-center font-bold">Where is your shop located?</h1>
+                                <p className="mb-2 text-center">This information can be seen by your customers</p>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor="buildingNum">Building Number</label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="No. 8" type="string" id='buildingNumber' name="buildingNum" maxLength={20} onChange={handleValueChange}/>
+                                </span>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor='streetAddress'>Street Address <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Freedom Avenue" type="string" id='streetAddress' name='streetAddress' maxLength={50} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor='city'>City <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Accra" type="string" id='city' name='city' maxLength={30} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor='region'>Region <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Greater Accra" type="string" id='region' name='region' maxLength={30} onChange={handleValueChange} required/>
+                                </span>
+                                <span className="w-full flex flex-col gap-1">
+                                    <label className="text-sm" htmlFor="country">Country <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full mb-2" placeholder="Ghana" type="string" id='country' name="country" maxLength={30} onChange={handleValueChange} required />
+                                </span>
+                                <span className="mb-4 w-full">
+                                    <button className="rounded-full w-full mb-2" >Save Location</button>
+                                    <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page6', 'page5') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
+                                </span>
+                            </form>
+
+                            <form className="flex flex-col items-center gap-4 w-72" onSubmit={(e)=>{e.preventDefault(); handleCreateShop()}} style={{display: 'none'}} id='page7'>
+                                <h1 className="text-3xl text-center font-bold">Your profile's looking good.</h1>
+                                <p className="mb-2 text-center w-[95%]">Add a few more details to complete it!</p>
+                                <div className="w-full flex mb-2 rounded-2xl bg-gray-100 p-4">
+                                    <div className="flex items-center gap-4">
+                                        <span className="w-16 h-16 border-2 border-gray-400 overflow-hidden flex items-center justify-center rounded-full">
+                                                <img className="w-full" src={ shopLogoURL ?? ''}/>
+                                        </span>
+                                        <span className="w-[calc(100%-4rem)]flex flex-col gap-0">
+                                            <h1 className="text-xl">{newShop.name}</h1>
+                                            <h3 className="text-md font-semibold">@{newShop.shopNameTag}</h3>
                                         </span>
                                     </div>
-                                )
-                            })
-                            }
-                        </div>
-                        <span className="mb-4 w-full">
-                             <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page8s', 'page7s') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
-                        </span>
-                    </form>
+                                </div>
+                                <span className="w-full flex flex-col gap-2">
+                                    <label className="text-sm" htmlFor="description">Description <span className="text-red">*</span></label>
+                                    <textarea className="p-2 pl-4 bg-peach rounded-xl w-full" rows={3} placeholder={`Why ${newShop.name}? What do you offer?`} id='description' name="description" maxLength={100} onChange={handleValueChange} />
+                                </span>
+                                <span className="w-full flex flex-col gap-2">
+                                    <label className="text-sm" htmlFor="tags">Descriptive tags separated by commas <span className="text-red">*</span></label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full mb-2" placeholder="(eg. shoes, ghana, nike)" type="text" id='tags' name="tags" maxLength={70} onChange={handleValueChange} required />
+                                </span>
+                                <span className="mb-4 w-full">
+                                    <button className="rounded-full w-full mb-2" disabled={submitted} >
+                                        <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
+                                        <span style={{display: submitted ? 'none' : 'block'}} >One more to go!</span>
+                                    </button>
+                                    <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page7', 'page6') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
+                                </span>
+                            </form>
 
-                    <div className="flex flex-col items-center gap-4 w-72" style={{display: 'none'}} id='page9s'>
-                        <h1 className="text-3xl text-center font-bold">All done, {( firstName ?? ( user?.user_metadata.firstName) ) ?? "What's next?" }</h1>
-                        <p className="">Show orderly to the <span className="text-red">world.</span></p>
-                        <div className="flex flex-col mb-4 text-center gap-3 p-8 bg-peach rounded-xl shadow-sm w-72">
-                            <h3 className="font-bold text-xl">You can do all this - and more - with Orderly</h3>
-                            <p>Take client orders</p>
-                            <p>Manage order fulfillment</p>
-                            <p>Showcase you products</p>
-                            <p>Manage your inventory</p>
-                        </div>
-                        <span className="mb-4 w-full">
-                            <Link href={`/s/dashboard`} prefetch={false}><button className="rounded-full w-full mb-2" >Access Your Dashboard</button></Link>
-                        </span>
-                    </div>
+                            <form className="flex flex-col items-center gap-4 w-72"  onSubmit={()=>{}} style={{display: 'none'}} id='page8'>
+                                <h1 className="text-3xl text-center font-bold">Choose your payment plan</h1>
+                                <p className="mb-4 text-center">Last step! Paying for Orderly give you more features like increased shop inventory and a custom logo on your shop!</p>
+                                <div className="flex gap-2 mb-4">
+                                    <button className={`${(isPayingAnnually) ? '' : 'btn-secondary'}`} onClick={(e)=>{ e.preventDefault(); handleChangeQuestions('page8', 'page8'); setTimeout(()=>setPayingAnnually(true),250)} }>Paid Annually</button>
+                                    <button className={`${(isPayingAnnually) ? 'btn-secondary' : ''}`} onClick={(e)=>{ e.preventDefault(); handleChangeQuestions('page8', 'page8'); setTimeout(()=>setPayingAnnually(false),250)} }>Paid Monthly</button>
+                                </div>
+                                <div className={`flex flex-col gap-4 rounded-md ${isPayingAnnually ? 'w-[39rem]' :  'w-[35rem]'} mb-4`}>
+                                    { OrderlyPlans.map((plan:IPlan, idx :number) => {
+                                        return (
+                                            <div className={`w-full flex flex-row items-center gap-4 ${(plan.recommended)? 'bg-darkRed text-white' : 'bg-peach'} hover:shadow-md duration-150 justify-between px-6 py-4 ${(selectedPlan?.name == plan.name) ? 'border-darkRed' : 'border-peach'}`} key={idx} >
+                                                <span>
+                                                    <h2 className="inline text-xl">{plan.name}</h2> • <h2 className="inline font-semibold text-lg">GHS{plan.cost[(isPayingAnnually) ? 0 : 1]}.00/{(isPayingAnnually) ? 'month for 12 months' : 'month'}</h2>
+                                                </span>
+                                                <span >
+                                                    <button className={`${( plan.recommended) ? 'btn-no-shadow' : 'btn-secondary'}`} onClick={(e)=>{e.preventDefault(); showPaymentPlan(plan)}}>Choose Plan</button>
+                                                </span>
+                                            </div>
+                                        )
+                                    })
+                                    }
+                                </div>
+                                <span className="mb-4 w-full">
+                                    <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page8', 'page7') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
+                                </span>
+                            </form>
 
+                            <div className="flex flex-col items-center gap-4 w-72" style={{display: 'none'}} id='page9'>
+                                <h1 className="text-3xl text-center font-bold">All done, {( newUser.firstName ) ?? "What's next?" }</h1>
+                                <p className="">Show orderly to the <span className="text-red">world.</span></p>
+                                <div className="flex flex-col mb-4 text-center gap-3 p-8 bg-peach rounded-xl shadow-sm w-72">
+                                    <h3 className="font-bold text-xl">You can do all this - and more - with Orderly</h3>
+                                    <p>Take client orders</p>
+                                    <p>Manage order fulfillment</p>
+                                    <p>Showcase you products</p>
+                                    <p>Manage your inventory</p>
+                                </div>
+                                <span className="mb-4 w-full">
+                                    <Link href={`/s/dashboard`} prefetch={false}><button className="rounded-full w-full mb-2" >Access Your Dashboard</button></Link>
+                                </span>
+                            </div>
+                        </>
+                    }
                 </div>
             </div>
         </>

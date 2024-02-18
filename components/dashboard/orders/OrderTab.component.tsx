@@ -14,6 +14,7 @@ import { popupText } from "@/components/Popup.component"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import { sendConfirmationText, sendDeclinedText } from "@/app/utils/notifications/phone"
+import sendConfirmationEmail from "@/app/utils/notifications/email"
 
 function convertDate(dateString: string){
     let date = new Date(dateString)
@@ -67,29 +68,56 @@ function convertDate(dateString: string){
             updated_at: new Date().toISOString()
         }
 
-        accessOrders
-        .update(updateObject)
-        .eq('id', selectedOrder!.id)
-        .select()
-        .then(({data, error}) => {
-            //console.log(data)
-            if(error){
-                console.error(error)
-                popupText(`SB${error.code}: An error occurred when confirming the order.`)
-            } else {
-                //@ts-expect-error
-                sendConfirmationText(selectedOrder!.shopper.phone, selectedOrder!.id, shop.name)
-                .then(({data, error}) =>{
-                    if(error){
-                        popupText(`ARK${error.code}: An error occurred when confirming the order`)
-                        confirmationRef.current?.close()
-                    } else {
-                        popupText('Order confirmed! The shopper has been notified.')
-                        confirmationRef.current?.close()
-                    }
-                })
-            } 
-        })
+        if(selectedOrder){
+
+            accessOrders
+            .update(updateObject)
+            .eq('id', selectedOrder!.id)
+            .select()
+            .then(({data, error}) => {
+                //console.log(data)
+                if(error){
+                    console.error(error)
+                    popupText(`SB${error.code}: An error occurred when confirming the order.`)
+                } else {
+                    //@ts-expect-error
+                    sendConfirmationText(selectedOrder.shopper.phone, selectedOrder.id, shop.name)
+                    .then(({data, error}) =>{
+                        if(error){
+                            popupText(`ARK${error.code}: An error occurred when confirming the order`)
+                            confirmationRef.current?.close()
+                        } else {
+                            sendConfirmationEmail(
+                                //@ts-ignore
+                                selectedOrder.shopper.email, 
+                                {
+                                    //@ts-ignore
+                                    products: selectedOrder.order_products,
+                                    shopName: shop.name,
+                                    //@ts-ignore
+                                    firstName: selectedOrder.shopper.firstName,
+                                    //@ts-ignore
+                                    order_id: selectedOrder.id,
+                                    //@ts-ignore
+                                    location: selectedOrder.shopper.location
+                                })
+                                .then(({data, error}) => {
+                                    if(error){
+                                        console.log(error)
+                                        popupText(`RS: An error occurred when confirming the order`)
+                                        confirmationRef.current?.close()
+                                    } else {
+                                        popupText('Order confirmed! The shopper has been notified.')
+                                        confirmationRef.current?.close()
+                                    }
+                                })
+                        }
+                    })
+                } 
+            })
+        } else {
+            popupText('No order selected!')
+        }
     }
 
     function handleDeclineOrder(): void{        

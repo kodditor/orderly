@@ -94,13 +94,29 @@ export function sortByDateUpdated(a: Partial<Tables<'products'>> | Partial<Table
     return 0
 }
 
-export function getLocalCart() : IOrderProducts[]{
+export function getLocalShop(): string{
+    let shopNameTag = localStorage.getItem('o-shopNT');
+    if (shopNameTag == null) {
+        setLocalCart([])
+        return ''
+    }
+    return JSON.parse(shopNameTag)
+}
+
+// Todo: Check if shopNameTag is the same
+
+export function getLocalCart(shopNameTag: string) : IOrderProducts[]{
     let ls = localStorage.getItem('o-crt');
-    if (ls == null) {
+    if (ls == null || getLocalShop() != shopNameTag) {
+        setLocalShop(shopNameTag)
         setLocalCart([])
         return []
     }
     return JSON.parse(ls) as IOrderProducts[]
+}
+
+function setLocalShop(shopNameTag: string): void {
+    localStorage.setItem('o-shopNT',JSON.stringify(shopNameTag))
 }
 
 function setLocalCart(products: IOrderProducts[]): void {
@@ -108,19 +124,19 @@ function setLocalCart(products: IOrderProducts[]): void {
 }
 
 export function addToLocalCart(product: IOrderProducts): void{
-    let products = getLocalCart() 
+    let products = getLocalCart(getLocalShop()) 
     products.push(product)
     setLocalCart(products)
 }
 
 export function removeFromLocalCart(product: IOrderProducts): void{
-    let existing = getLocalCart();
+    let existing = getLocalCart(getLocalShop());
     let newArr = existing.filter((prod) => {return prod.product_id != product.product_id} ) 
     localStorage.setItem('o-crt',JSON.stringify(newArr))
 }
 
 export function updateProductOnLocalCart(product: IOrderProducts): void{
-    let existing = getLocalCart();
+    let existing = getLocalCart(getLocalShop());
     let existingProduct = existing.find((prod) => {return (prod.product_id === product.product_id)})
     if(existingProduct){
         let newArr = existing.filter((prod) => {return prod.product_id != product.product_id} )

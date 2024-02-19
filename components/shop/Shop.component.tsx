@@ -6,20 +6,21 @@ import { IShop } from "@/models/shop.model"
 import Header from "../Header.component"
 import Footer from "../Footer.component"
 import { RootState } from "@/constants/orderly.store"
-import { SetStateAction, useEffect, useState } from "react"
+import {  useEffect, useState } from "react"
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import ShopSideBar from "./ShopSidebar.component"
-import { addToLocalCart, capitalizeAll,  emptyCart,  getLocalCart,  pesewasToCedis, removeFromLocalCart, styledCedis, updateProductOnLocalCart } from "@/app/utils/frontend/utils"
+import { addToLocalCart, capitalizeAll,  emptyCart,  getLocalCart, removeFromLocalCart, styledCedis, updateProductOnLocalCart } from "@/app/utils/frontend/utils"
 import ProductItem from "./ProductItem.component"
 import { Tables } from "@/types/supabase"
 import { useSearchParams } from "next/navigation"
-import { IOrderProducts, IOrderResponse, IShopCart } from "@/models/OrderProducts.model"
+import { IOrderProducts, IShopCart } from "@/models/OrderProducts.model"
 import { v4 } from "uuid"
 import ShopCart from "./ShopCart.component"
 import { faMinus, faPlus, faShoppingCart } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { signedInUser } from "@/models/user.model"
 
-export default function Shop({selectedShop}: {selectedShop: IShop})
+export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop, signedInUser: signedInUser | null})
 {
     const {shop, user, products} = useSelector((state: RootState) => state.shopAndUser) 
 
@@ -32,23 +33,22 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
     const [ showProduct, setShowProduct          ] = useState<boolean>(false)
     const [ showCart, setShowCart                ] = useState<boolean>(false)
 
-    
     const [ cart, setCart                        ] = useState<IShopCart>({
                                                                             id: v4(),
                                                                             products: [],
                                                                             shopper: {
-                                                                                shopperFirstName: user?.firstName,
-                                                                                shopperLastName: user?.lastName,
-                                                                                location: {
-                                                                                    city: user.location?.city ?? "",
-                                                                                    buildingNum: user.location?.buildingNum ?? "",
-                                                                                    region: user.location?.region ?? "",
-                                                                                    country: user.location?.country ?? "",
-                                                                                    streetAddress: user.location?.streetAddress ?? ""
+                                                                                shopperFirstName: signedInUser?.firstName ?? '',
+                                                                                shopperLastName: signedInUser?.lastName ?? '',
+                                                                                location: signedInUser?.location ?? {
+                                                                                    buildingNum: "",
+                                                                                    streetAddress: "",
+                                                                                    city: "",
+                                                                                    region: "",
+                                                                                    country: ""
                                                                                 },
-                                                                                phone: user.phoneNumber ?? "",
-                                                                                email: "",
-                                                                                shopper_user_id: user?.id ?? null
+                                                                                phone: signedInUser?.phoneNumber ?? '',
+                                                                                email: signedInUser?.email ?? '',
+                                                                                shopper_user_id: signedInUser?.id ?? ''
                                                                             }
                                                                         })
 
@@ -84,7 +84,7 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
         setCart((prev) => {
             return ({
                 ...prev,
-                products: getLocalCart()
+                products: getLocalCart(selectedShop.shopNameTag)
             })
         })
     }, [])
@@ -186,7 +186,6 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
             }
             )
         }   
-        //console.log(cart.products)
     }
 
     function clearCart(){
@@ -196,18 +195,18 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                 id: v4(),
                 products: [],
                 shopper: {
-                    shopperFirstName: user?.firstName,
-                    shopperLastName: user?.lastName,
-                    location: {
-                        city: user.location?.city ?? "",
-                        buildingNum: user.location?.buildingNum ?? "",
-                        region: user.location?.region ?? "",
-                        country: user.location?.country ?? "",
-                        streetAddress: user.location?.streetAddress ?? ""
+                    shopperFirstName: signedInUser?.firstName ?? '',
+                    shopperLastName: signedInUser?.lastName ?? '',
+                    location: signedInUser?.location ?? {
+                        buildingNum: "",
+                        streetAddress: "",
+                        city: "",
+                        region: "",
+                        country: ""
                     },
-                    phone: user.phoneNumber ?? "",
-                    shopper_user_id: user?.id ?? null,
-                    email: ""
+                    phone: signedInUser?.phoneNumber ?? '',
+                    email: signedInUser?.email ?? '',
+                    shopper_user_id: signedInUser?.id ?? ''
                 }
             }
         )
@@ -247,12 +246,17 @@ export default function Shop({selectedShop}: {selectedShop: IShop})
                 <div className="w-full md:w-3/4 overflow-x-hidden h-full p-4 md:p-8">
                     <h1 className="font-bold text-2xl md:text-3xl mb-4 md:mb-8">{products?.length + ' '}Product<span style={{display: (products?.length === 1) ? 'none' : 'inline'}}>s</span></h1>
                     <section className="bg-gray-100 rounded-lg p-2 md:p-4 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 w-full">
-                        { products.length == 0 && 
+                        { dataLoading &&  
+                            <>
+                                <p className="animate-pulse">Loading products...</p>
+                            </> 
+                        }
+                        { !dataLoading && products.length == 0 && 
                             <>
                                 <p>This shop has no products.</p>
                             </> 
                         }
-                        { products.length != 0 && products.map((product, idx) =>{
+                        { !dataLoading && products.length != 0 && products.map((product, idx) =>{
 
                             let productIndexInCart: number | null = null
                             if( cart.products.length == 0){null}

@@ -156,7 +156,7 @@ export default function DashboardTabComponent (){
                                         <div className="border-b-peach border-b-2 last:border-b-transparent items-start md:items-center grid grid-cols-activeOrdersMob md:grid-cols-activeOrders gap-2 p-2 md:p-4" key={idx}>
                                             <p className="hidden md:flex justify-center"># {order.id}</p>
                                             {/* @ts-ignore */}
-                                            <p className="font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phone}
+                                            <p className="font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phoneNumber}
                                                 <br />
                                                 <span className="font-medium text-gray-500">{order.order_products.length } Products</span>
                                                 <span className="md:hidden text-red font-bold"> - GHS{styledCedis(total)}</span></p>

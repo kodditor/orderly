@@ -3,6 +3,7 @@ import { getShopDetails } from "@/app/utils/db/supabase-server-queries"
 import Footer from "@/components/Footer.component"
 import Header from "@/components/Header.component"
 import ShopModule from "@/components/shop/ShopModule.component"
+import { signedInUser } from "@/models/user.model"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Link from "next/link"
@@ -13,6 +14,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     const shopNameTag = params.shopNameTag
 
     const {data, error} = await getShopDetails('shopNameTag',shopNameTag)
+    let shopData = data
 
     if (error != null){
         return (
@@ -30,7 +32,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
                 <Footer />
             </>
         )
-    } else if(data.length == 0){
+    } else if(shopData?.length == 0){
         return(
             <>
                 <Header />
@@ -47,9 +49,31 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
             </>
         )
     } else {
+        const { data: { session }} = await supabase.auth.getSession()
+        const user = session?.user ?? null
+        let signedInUser: signedInUser | null = null
+
+        if(user){
+            let user_metadataQuery = await serverSupabase
+                                            .from('user_metadata')
+                                            .select(`
+                                                firstName,
+                                                lastName,
+                                                phoneNumber,
+                                                location(*)
+                                            `)
+                                            .eq('id', user.id)
+            //console.log(user_metadataQuery.data, user)
+            //@ts-ignore
+            signedInUser = {
+                id: user.id,
+                email: user.email!,
+                ...user_metadataQuery.data![0]
+            }
+        }
         return(
             <>
-                <ShopModule selectedShop={data![0]}/>
+                <ShopModule signedInUser={signedInUser} selectedShop={shopData![0]}/>
             </>
         )
     }

@@ -28,3 +28,19 @@ export interface IUserMetadata {
 export interface IUser extends User {
     user_metadata: IUserMetadata
 }
+
+export interface signedInUser {
+    id: string,
+    email: string,
+    firstName: string,
+    lastName: string | null,
+    location: {
+        id: string,
+        buildingNum: string,
+        city: string,
+        country: string,
+        region: string,
+        streetAddress: string
+    },
+    phoneNumber: string | null,
+}

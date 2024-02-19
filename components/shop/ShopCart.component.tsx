@@ -20,11 +20,12 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
             addToCart: (product: Tables<'products'>) => void,
             setCart: Dispatch<SetStateAction<IShopCart>>,
             shop: IShop,
-            clearCart: ()=>void,
+            clearCart: ()=> void,
         }){
 
     const cartRef = useRef<HTMLDivElement>(null)
     const checkoutRef = useRef<HTMLDivElement>(null)
+    const signInRef = useRef<HTMLDivElement>(null)
     const confirmationRef = useRef<HTMLDivElement>(null)
     const orderedRef = useRef<HTMLDivElement>(null)
     const parentRef = useRef<HTMLDivElement>(null)
@@ -48,10 +49,62 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
 
         if(cart.shopper.shopper_user_id){ // The person is already an orderly user.
             
+            let orderObj: TablesInsert<'orders'> = {
+                shopper: cart.shopper.shopper_user_id!,
+                location: cart.shopper.location.id!,
+                shop_id: shop.id,
+                status: "SENT",
+                isActive: true,
+            }
+            console.log(orderObj)
             clientSupabase
-            .from
+            .from('orders')
+            .insert(orderObj)
+            .select('*')
+            .then(({data, error}) =>{
+                if(error){
+                    console.log(error)
+                    setIsSendingOrder(false)
+                    popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`)
+                } else {
+                    //@ts-ignore
+                    let orderDetails = data[0] as IOrderResponse
+                    
+                    let insertProducts: TablesInsert<'order_products'>[] = cart.products.map((prodObj) =>{
+                        return {
+                            product: prodObj.product_id,
+                            price: prodObj.price,
+                            quantity: prodObj.quantity,
+                            order: orderDetails.id
+                        }
+                    })
+                    
+                    clientSupabase
+                    .from('order_products')
+                    .insert(insertProducts)
+                    .select('*')
+                    .then(({ data, error }) =>{
+                        if(error){
+                            console.log(error)
+                            setIsSendingOrder(false)
+                            popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`)
+                        } else {
+                            orderDetails.products = data
+                            setOrderResponse(orderDetails)
+                            setIsSendingOrder(false)
+                            clearCart()
+                            popupText('Order submitted!')
+                            //console.log(orderDetails)
+                        } 
+                    })
+                }
+            })
 
         } else { // The person is not an orderly user.
+            // This will never happen now
+            popupText('Please sign in to continue.')
+            return
+            /*
             clientSupabase
             .from('locations')
             .insert(cart.shopper.location)
@@ -74,6 +127,8 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                     })
                     .select()
                     .then(({data, error}) =>{
+                        
+                        
                         if(error){
                             console.log(error)
                             setIsSendingOrder(false)
@@ -137,6 +192,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                     })
                 }
             })
+            */
         }
     }
 
@@ -201,9 +257,9 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                     <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="w-full h-full" ref={parentRef}>
                             { /* Cart Page */}
-                            <div ref={cartRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
+                            <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-full">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
-                                    <h1 className="text-2xl md:text-3xl font-bold">My Cart <span className="text-gray-400 ml-1 md:ml-1 md:pb-2 text-xl">({cart.products.length} items)</span></h1>
+                                    <h1 className="text-2xl md:text-3xl font-bold">My Cart <div className="text-gray-400 inline-block ml-1 md:ml-1 md:pb-2 text-xl">({cart.products.length})</div></h1>
                                     <div className="mt-4 rounded-lg w-full p-2 h-fit max-h-[calc(100%-2rem)] overflow-y-auto flex flex-col bg-gray-100">
 
                                         { 
@@ -273,7 +329,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                     </span>
                                     <div className="w-full flex gap-2 md:gap-4 mb-4 mt-2 md:mt-0 md:mb-0 items-center md:items-end" >
                                         <span  className="w-1/2" >
-                                            <button className="w-full" disabled={cart.products.length === 0} onClick={()=>{changePageTo(cartRef, checkoutRef)}}>Checkout</button>
+                                            <button className="w-full" disabled={cart.products.length === 0} onClick={()=>{ cart.shopper.shopper_user_id ? changePageTo(cartRef, checkoutRef) : changePageTo(cartRef, signInRef)}}>Checkout</button>
                                         </span>
                                         <span  className="w-1/2" >
                                             <button className=" btn-secondary w-full" onClick={()=>{setShowCart(false)}}>Close</button>
@@ -281,14 +337,22 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                     </div>
                                 </div>
                             </div>
+                            {/* Sign In Page */}
+                            <div ref={signInRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
+                                <div className="h-full flex flex-col gap-4 items-center justify-center ">
+                                    <h1 className="text-center text-xl font-semibold">Sign up to complete your order.</h1>
+                                    <a href={`/auth/signup?to=s/${shop.shopNameTag}`}><button>Sign Up</button></a>
+                                </div>
+                            </div>
                             { /* Checkout Page */}
-                            <div ref={checkoutRef} style={{display: 'flex'}} className="flex flex-col justify-between h-full">
+                            <div ref={checkoutRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
                                 <div className="h-fit max-h-full overflow-auto md:max-h-[calc(70vh)] mb-8 md:mb-10">
                                     <span className="w-fit group mb-3 md:mb-4 flex gap-1 cursor-pointer items-center p-2 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" onClick={()=>{changePageTo(checkoutRef, cartRef)}}>
                                         <FontAwesomeIcon className="w-7 flex items-center justify-center duration-150 mr-0" icon={faArrowLeft} />
                                     </span>
-                                    <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-3">Enter your delivery details</h1>
+                                    <h1 className="text-2xl md:text-3xl font-bold mb-4">Enter your delivery details</h1>
                                     <form onSubmit={(e)=>{e.preventDefault(); changePageTo(checkoutRef, confirmationRef)}} className="flex flex-col gap-2 mb-4 md:mb-2 md:gap-4">
+                                        {/*
                                         <span className="flex flex-row gap-2 md:gap-4 ">
                                             <span className="flex flex-col w-1/2">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="shopperFirstName">First Name</label>
@@ -309,6 +373,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                                 <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="kwaku@ananse.com" type="text" id='email' name="email" defaultValue={cart.shopper.email}  maxLength={50} onChange={handleValueChange}/>
                                             </span>
                                         </span>
+                                        */}
                                         <span className="flex flex-row gap-2 md:gap-4 ">
                                             <span className="flex flex-col w-1/3 md:w-3/12">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="buildingNum">Building Number</label>

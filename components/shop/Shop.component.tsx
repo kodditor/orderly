@@ -33,6 +33,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
     const [ showProduct, setShowProduct          ] = useState<boolean>(false)
     const [ showCart, setShowCart                ] = useState<boolean>(false)
 
+
     const [ cart, setCart                        ] = useState<IShopCart>({
                                                                             id: v4(),
                                                                             products: [],
@@ -242,10 +243,10 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 clearCart={clearCart}     
             />
             
-            <main className="w-[100%] pb-8 md:pl-[20vw] md:min-h-[calc(100vh-138px)]">
+            <main className="w-[100%] pb-8 md:pl-[20vw] xl:pl-[15vw] md:min-h-[calc(100vh-138px)]">
                 <div className="w-full md:w-3/4 overflow-x-hidden h-full p-4 md:p-8">
                     <h1 className="font-bold text-2xl md:text-3xl mb-4 md:mb-8">{products?.length + ' '}Product<span style={{display: (products?.length === 1) ? 'none' : 'inline'}}>s</span></h1>
-                    <section className="bg-gray-100 rounded-lg p-2 md:p-4 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5 w-full">
+                    <section className="bg-gray-100 rounded-lg p-2 md:p-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5 w-full">
                         { dataLoading &&  
                             <>
                                 <p className="animate-pulse">Loading products...</p>

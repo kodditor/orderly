@@ -2,10 +2,11 @@
 
 import { useSearchParams, useRouter } from "next/navigation"
 import { FormEvent, useRef, useState } from "react"
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import { popupText } from "../Popup.component"
 import HCaptcha from "@hcaptcha/react-hcaptcha"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"
 
 
 /*
@@ -29,6 +30,8 @@ export default function LoginComponent(){
     const [ failedLoginCounter, setFailedLogins ] = useState<number>(0)
 
     const captchaRef = useRef<HCaptcha>(null);
+    const [ showPassword, setShowPassword ] = useState<boolean>(false)
+
 
     const [ loginDetails, setLoginDetails] = useState<loginDetails>({
         email: "",
@@ -114,7 +117,12 @@ export default function LoginComponent(){
                     </span>
                     <span className="w-full flex flex-col gap-2 mb-2">
                         <label className="text-sm" htmlFor="password">Password</label>
-                        <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="superSecretPassword" type="password" id='password' name="password" onChange={handleValueChange} minLength={8} required/>
+                        <span className="w-full relative">
+                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="superSecretPassword" type={showPassword ? 'text' : 'password'} id='password' name="password" onChange={handleValueChange} minLength={8} required/>
+                            <div className="absolute right-[5px] top-[5px] h-[calc(100%-10px)] aspect-square p-1 rounded-full bg-white hover:bg-gray-50 duration-150 cursor-pointer text-darkRed flex items-center justify-center" onClick={()=>{setShowPassword((prev) => !prev)}}>
+                                <FontAwesomeIcon width={15} height={15} icon={showPassword ? faEyeSlash : faEye} />
+                            </div>
+                        </span>
                     </span>
                     <button className="rounded-full w-full mb-4" disabled={submitted || !verified}>
                         <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>

@@ -1,6 +1,6 @@
 'use client'
 import { IOTPPayload } from "@/models/otp.model";
-import { fadePages, getBlobAndURLFromArrayBuffer, getCSV, getExtension } from "@/app/utils/frontend/utils";
+import { fadePages, getBlobAndURLFromArrayBuffer, getCSV, getExtension, getLocalShop } from "@/app/utils/frontend/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect, FormEvent } from 'react'
@@ -14,6 +14,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { User } from "@supabase/supabase-js";
 import { popupText } from "./Popup.component";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { CreateContact } from "@getbrevo/brevo/dist/model/createContact";
+import { brevoApiResponse } from "@/models/notification.model";
 
 
 export default function OnboardingComponent({user}: {user: User}){ //Let's try to avoid prop drilling eh?
@@ -29,6 +31,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
     const [ shopLogoURL, setShopLogoURL ] = useState<string | null>(null)
 
     const [ newUser, setNewUser ] = useState<TablesInsert<'user_metadata'>>({
+        id: user.id,
         firstName: "",
         lastName: "",
         isOrderly: false,
@@ -256,6 +259,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
         .from('user_metadata')
         .insert({
             ...newUser,
+            email: user.email,
             phoneNumber: unverifiedPhoneNumber // It's verified now, also the useState is too slow to update it in time for the insert
         })
         .select('id')
@@ -264,25 +268,14 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                 console.log(error)
                 popupText(`SB${error.code}: An error occurred`)
             } else{
-                let newID = data[0].id
-                userMetadataID = newID
-                supabase.auth.updateUser({
-                    data: {
-                        user_metadata: newID 
-                    }
-                }).then((data) =>{
-                    //console.log(data.data.user!.user_metadata)
-                    setNewUser((prev) => {
-                        return ({
-                            ...prev,
-                            id: newID
-                        })
-                    })
+                if(data[0].id != newUser.id){
+                    throw('An ids in users table and user_metadata table are not equal')
+                } else {
                     handleChangeQuestions('page3', 'page4')
                     setTimeout(() => {
                         setSubmitted(false)
                     }, 250);
-                })
+                }
             }
         })
     }
@@ -317,10 +310,34 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                         popupText(`SB${error.code}: An error occurred.`)
                         setSubmitted(false)
                     } else {
-                        isShopper ? handleChangeQuestions('page5', 'page6') : handleChangeQuestions('page6', 'page7')
-                        setTimeout(() => {
-                            setSubmitted(false)
-                        }, 250)
+
+                        let brevoApiBody: CreateContact = {
+                            email: user.email,
+                            extId: user.id,
+                            updateEnabled: true,
+                            smsBlacklisted: false,
+                            attributes: {
+                                'isOrderly': newUser.isOrderly
+                            }
+                        }
+    
+                        fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/brevo/contact`, {
+                            method: 'POST',
+                            body: JSON.stringify(brevoApiBody)
+                        })
+                        .then(res => res.json())
+                        .then(({data, error}: brevoApiResponse) => {
+                            if(error != null){
+                                console.log(error)
+                                popupText(`BR${error.code}: An error occurred, please try again later`)
+                                setSubmitted(false)
+                            } else {
+                                isShopper ? handleChangeQuestions('page5', 'page6') : handleChangeQuestions('page6', 'page7')
+                                setTimeout(() => {
+                                    setSubmitted(false)
+                                }, 250)
+                            }
+                        })
                     }
                 })
             }
@@ -593,8 +610,8 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                     { !newUser.isOrderly &&  // Shopper View
                         <>
                             <form className="flex flex-col items-center gap-4 w-72" onSubmit={(e)=>{e.preventDefault(); handleUpdateUserWithOrderlyStatAndLocation(true)} } style={{display: 'none'}} id='page5'>
-                                <h1 className="text-3xl text-center font-bold">Where are you located?</h1>
-                                <p className="text-center">This is optional, but it helps us save your location for any future orders</p>
+                                <h1 className="text-3xl text-center font-bold">What's you location?</h1>
+                                <p className="text-center">We'll save this for any future orders</p>
                                 <span className="w-full flex flex-col gap-1">
                                     <label className="text-sm" htmlFor="buildingNum">Apt. Number/House Number</label>
                                     <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="8" type="text" id='buildingNum' name="buildingNum" maxLength={20} onChange={handleValueChange}/>
@@ -620,7 +637,6 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                                         <div style={{display: submitted ? 'block' : 'none'}} id="loading"></div>
                                         <span style={{display: submitted ? 'none' : 'block'}} >Save Location</span>
                                     </button>
-                                    <span onClick={(e)=>{e.preventDefault(); handleUpdateUserWithOrderlyStatAndLocation(true) }} className="text-center cursor-pointer duration-150 font-medium hover:text-red flex justify-center rounded-full w-full mb-8">Skip</span>
                                     <button onClick={(e)=>{e.preventDefault(); handleChangeQuestions('page5', 'page4') }} className="btn-secondary rounded-full w-full mb-4">Go Back</button>
                                 </span>
                             </form>
@@ -629,7 +645,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                                 <h1 className="text-3xl text-center font-bold">All done, {newUser.firstName}.</h1>
                                 <p className="mb-4">Welcome to Orderly!</p>
                                 <span className="mb-4 w-full">
-                                    <Link href={`/${destination || ''}`} prefetch={false}><button className="rounded-full w-full mb-2" onClick={(e)=>{e.preventDefault()} } >Let's Go!</button></Link>
+                                    <a href={`/${destination || `s/${getLocalShop()}/`}`}><button className="rounded-full w-full mb-2" >Let's Go!</button></a>
                                 </span>
                             </div>
                             

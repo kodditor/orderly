@@ -22,3 +22,14 @@ export type emailConfirmationParameters = {
     order_id: string,
     location: ILocation
 }
+
+export type brevoApiResponse = {
+    data: {
+        status: string
+        msg: string
+    } | null
+    error: {
+        code: string,
+        msg: string
+    } | null
+}

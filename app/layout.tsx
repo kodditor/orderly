@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import Popup from '@/components/Popup.component'
-
+import { Analytics } from '@vercel/analytics/react'
 
 const metadata: Metadata = {
   title: 'Orderly Ghana',
@@ -24,6 +24,7 @@ export default function RootLayout({
       <body>
         <Popup />
         {children}
+        <Analytics />
       </body>
     </html>
   )

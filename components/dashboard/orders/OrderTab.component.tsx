@@ -29,6 +29,8 @@ function convertDate(dateString: string){
     const [ selectedOrder, setSelectedOrder ] = useState<ordersType[0] | null>(null)
     const [ dataLoading, setLoading ] = useState<boolean>(true)
 
+    const [orderActionProcessing, setOrderActionProcessing ] = useState<boolean>(false)
+
     const searchParams = useSearchParams()
     const section = searchParams.get('section')
     const router = useRouter()
@@ -69,7 +71,7 @@ function convertDate(dateString: string){
         }
 
         if(selectedOrder){
-
+            setOrderActionProcessing(true)
             accessOrders
             .update(updateObject)
             .eq('id', selectedOrder!.id)
@@ -81,7 +83,7 @@ function convertDate(dateString: string){
                     popupText(`SB${error.code}: An error occurred when confirming the order.`)
                 } else {
                     //@ts-expect-error
-                    sendConfirmationText(selectedOrder.shopper.phone, selectedOrder.id, shop.name)
+                    sendConfirmationText(selectedOrder.shopper.phoneNumber, selectedOrder.id, shop.name)
                     .then(({data, error}) =>{
                         if(error){
                             popupText(`ARK${error.code}: An error occurred when confirming the order`)
@@ -99,7 +101,7 @@ function convertDate(dateString: string){
                                     //@ts-ignore
                                     order_id: selectedOrder.id,
                                     //@ts-ignore
-                                    location: selectedOrder.shopper.location
+                                    location: selectedOrder.location
                                 })
                                 .then(({data, error}) => {
                                     if(error){
@@ -110,6 +112,7 @@ function convertDate(dateString: string){
                                         popupText('Order confirmed! The shopper has been notified.')
                                         confirmationRef.current?.close()
                                     }
+                                    setOrderActionProcessing(false)
                                 })
                         }
                     })
@@ -176,22 +179,14 @@ function convertDate(dateString: string){
                             <div className="p-6 flex flex-col gap-3">
                                 <h1 className="text-xl font-semibold">Confirm order #{selectedOrder?.id}?</h1>
                                 <p>This will send a notification to the customer confirming their order.</p>
-                                <div className="max-h-[300px]">
-                                    {
-                                        selectedOrder?.order_products.length != 0 && selectedOrder?.order_products.map((product, idx) => { 
-                                            let specificProduct = products.find((prod) => prod.id == product.product) as Tables<'products'> // I'm sorry
-                                            return (
-                                                <div className="flex p-1 gap-1 items-center border-2 border-gray-200 border-b-0 last:border-b-2 first:rounded-t-md last:rounded-b-md " key={idx}>
-                                                    <span className="w-1/12 text-xs text-gray-400">x{product.quantity}</span>
-                                                    <span className="w-7/12">{specificProduct.name}</span>
-                                                    <span className="w-4/12 font-bold">GHS{pesewasToCedis(product.price).toFixed(2)}</span>
-                                                </div>
-                                            )
-                                        })
-                                    }
+                                <div className="text-lg">
+                                    Total: <span className="font-bold ">GHS{styledCedis(total)}</span>
                                 </div>
                                 <div className="flex gap-2 mt-2">
-                                    <button className="w-1/2" onClick={handleConfirmOrder}>Confirm Order</button>
+                                    <button className="w-1/2" disabled={orderActionProcessing} onClick={handleConfirmOrder}>
+                                        <div style={{display: orderActionProcessing ? 'block' : 'none'}} id="loading"></div>
+                                        <span style={{display: orderActionProcessing ? 'none' : 'block'}} >Confirm Order</span>
+                                    </button>
                                     <button className="btn-secondary w-1/2" onClick={()=>{confirmationRef.current?.close()}}>Cancel</button>
                                 </div>
                             </div>
@@ -224,9 +219,9 @@ function convertDate(dateString: string){
                                         {/* @ts-ignore */}
                                         <p className="border-b-2 border-b-peach px-4 py-2" >Name: <span className="font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName}</span></p>
                                         {/* @ts-ignore */}
-                                        <p  className="border-b-2 border-b-peach px-4 py-2" >Phone Number: <span className="font-semibold">{order.shopper.phone}</span></p>
+                                        <p  className="border-b-2 border-b-peach px-4 py-2" >Phone Number: <span className="font-semibold">{order.shopper.phoneNumber}</span></p>
                                         {/* @ts-ignore */}
-                                        <p  className=" px-4 py-2" >Location: <span className="font-semibold">{order.shopper.location.buildingNum} {order.shopper.location.streetAddress}, {order.shopper.location.city}, {order.shopper.location.region}, {order.shopper.location.country}</span></p>
+                                        <p  className=" px-4 py-2" >Location: <span className="font-semibold">{order.location.buildingNum} {order.location.streetAddress}, {order.location.city}, {order.location.region}, {order.location.country}</span></p>
                                     
                                     </div>
                                 </div>
@@ -347,6 +342,7 @@ function convertDate(dateString: string){
                                         orders.map((order, idx) => {
 
                                             let total = getOrderTotal(order)
+                                            
 
                                             return(
                                                 <Link href={`/s/dashboard?tab=orders&section=order&id=${order.id}`} key={idx}>
@@ -355,9 +351,9 @@ function convertDate(dateString: string){
                                                         <p className="flex justify-center items-center">#{order.id}</p>
                                                         <p  className="flex justify-center items-center" >{ convertDate(order.created_at)}</p>
                                                         <span className="flex flex-col truncate justify-center">
-                                                            { order.shopper && (order.shopper_user_id == null) && 
+                                                            { order.shopper && 
                                                                 /* @ts-ignore */
-                                                                <h1 className="font-semibold text-lg">{order.shopper.firstName + ' ' + order.shopper.lastName} - {order.shopper.phone}</h1>
+                                                                <h1 className="font-semibold text-lg">{order.shopper.firstName + ' ' + order.shopper.lastName} - {order.shopper.phoneNumber}</h1>
                                                             }
                                                             <h2 className="text-gray-400">{order.order_products?.length} Products</h2>
                                                         </span>

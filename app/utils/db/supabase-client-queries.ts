@@ -5,7 +5,8 @@ export const getOrdersWithProductsAndShopperDetails = clientSupabase
                 .from('orders')
                 .select(`
                     *, 
-                    shopper(*, location(*)), 
+                    shopper(*),
+                    location(*), 
                     order_products(*)
                 `)
     

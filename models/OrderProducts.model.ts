@@ -18,7 +18,7 @@ export interface IOrderResponse {
     created_at: string,
     updated_at: string,
     status: Database["public"]["Enums"]["order_status"],
-    shopper: Tables<'shopper_details'>
-    shopper_user_id: string,
-    products: Tables<'order_products'>[]
+    shopper: Tables<'user_metadata'>,
+    products: Tables<'order_products'>[],
+    location: Tables<'locations'>
 }

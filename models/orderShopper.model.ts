@@ -8,6 +8,7 @@ export interface IShopperDetails {
 }
 
 export interface ILocation {
+    id?: string,
     city: string,
     buildingNum: string,
     streetAddress: string,

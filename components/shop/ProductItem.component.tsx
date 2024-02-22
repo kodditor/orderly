@@ -26,8 +26,8 @@ export default function ProductItem({product, allProducts, isOpen, setIsOpen, ad
         return (
             <>
                 <div className="fixed top-0 flex flex-col md:flex-row w-full h-screen z-[51]">
-                    <div className=" bg-gray-400 opacity-40 w-full h-[30%] md:h-full md:w-[50%] xl:w-[65%]" onClick={()=>{setIsOpen(false)}}></div>
-                    <div className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] xl:w-[35%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
+                    <div className=" bg-gray-400 opacity-40 w-full h-[30%] md:h-full md:w-[50%] 2xl:w-[65%]" onClick={()=>{setIsOpen(false)}}></div>
+                    <div className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] 2xl:w-[35%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="flex flex-col justify-between h-[calc(100%-4rem)]">
                             <div>
                                 <div className="w-full flex flex-col md:flex-row gap-2 md:gap-8">
@@ -38,7 +38,7 @@ export default function ProductItem({product, allProducts, isOpen, setIsOpen, ad
                                     <div className="w-full md:w-3/5 md:pt-3">
                                         <small className="text-gray-400">#{product.id.slice(0,7)}</small>
                                         <h1 className="text-3xl mb-4 mt-2">{product.name}</h1>
-                                        <div className="flex overflow-x-auto md:flex-wrap mb-3 gap-1">
+                                        <div className="flex overflow-x-auto flex-wrap mb-3 gap-1">
                                         {
                                             ( product.variations?.length != 0) && ( product.variations?.at(0) != '' ) && product.variations?.map((variation, idx) =>{
                                             return(
@@ -47,7 +47,7 @@ export default function ProductItem({product, allProducts, isOpen, setIsOpen, ad
                                             )
                                         }
                                         </div>
-                                        <div className="flex overflow-x-auto md:flex-wrap gap-1">
+                                        <div className="flex overflow-x-auto flex-wrap gap-1">
                                         {
                                             ( product.tags?.length != 0) && ( product.tags?.at(0) != '' ) && product.tags?.map((tag, idx) =>{
                                             return(

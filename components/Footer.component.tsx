@@ -9,7 +9,7 @@ export default function Footer(){
     return (
         <>
             <footer className="flex flex-col gap-8 md:gap-0 md:flex-row items-center justify-between p-5 z-50 relative bg-black w-[100%]">
-                <div><Image src={'/img/logo-white.png'} width={150} height={30} alt="The Orderly Logo" /> </div>
+                <div className="relative w-[120px] sm:w-[150px] h-[15px] sm:h-[20px]"><Image src={'/img/logo-white.png'} fill alt="The Orderly Logo" /> </div>
                 <div className="flex flex-col-reverse md:flex-row gap-8 md:gap-4 items-center">
                     <p className="text-center text-white md:pr-5 md:border-r-white md:border-r-[1.5px]">Orderly Ghana &copy; {today.getFullYear()}</p>
                     <div className="flex gap-4 items-center">

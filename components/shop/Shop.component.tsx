@@ -243,10 +243,10 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 clearCart={clearCart}     
             />
             
-            <main className="w-[100%] pb-8 md:pl-[20vw] xl:pl-[15vw] md:min-h-[calc(100vh-138px)]">
+            <main className="w-[100%] pb-8 md:pl-[20vw] 2xl:pl-[15vw] md:min-h-[calc(100vh-138px)]">
                 <div className="w-full md:w-3/4 overflow-x-hidden h-full p-4 md:p-8">
                     <h1 className="font-bold text-2xl md:text-3xl mb-4 md:mb-8">{products?.length + ' '}Product<span style={{display: (products?.length === 1) ? 'none' : 'inline'}}>s</span></h1>
-                    <section className="bg-gray-100 rounded-lg p-2 md:p-4 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-5 w-full">
+                    <section className="bg-gray-100 rounded-lg p-2 md:p-4 grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-4 gap-3 md:gap-5 w-full">
                         { dataLoading &&  
                             <>
                                 <p className="animate-pulse">Loading products...</p>
@@ -311,7 +311,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                                             <div className="flex flex-col md:flex-row mt-1 gap-3 md:gap-0 relative justify-between">
                                                 <span className="flex gap-1 items-baseline">
                                                     <small className="text-sm">GHS</small>
-                                                    <h2 className="text-xl mb-0 font-bold">{styledCedis(product.price!) }</h2>
+                                                    <h2 className="text-xl mb-0 font-bold">{styledCedis(product.price!)}</h2>
                                                 </span>
                                                 <span className={`bg-gray-200 flex ${productIndexInCart == null ? 'w-fit md:ml-0 p-0 md:p-1' : 'p-1' } gap-2 justify-between md:justify-normal items-center rounded-full`}>
                                                     <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className={`text-gray-400 rounded-full w-7 md:w-5 h-7 md:h-5 flex items-center justify-center duration-150 ${(productIndexInCart == null) ? '' : 'hover:bg-white'}`} onClick={(e)=>{e.stopPropagation(); (productIndexInCart == null) ? null : removeFromCart(product)} }><FontAwesomeIcon width={12} height={12} icon={faMinus} /></span>

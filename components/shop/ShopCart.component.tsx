@@ -253,8 +253,8 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
         return (
             <>
                 <div className="z-[51] top-0 left-0 fixed w-screen flex flex-col md:flex-row h-screen">
-                    <div className="w-full md:w-[50%] xl:w-[65%] h-[30%] md:h-full bg-gray-400 opacity-40" onClick={()=>{setShowCart(false)}}></div>
-                    <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] xl:w-[35%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
+                    <div className="w-full md:w-[50%] 2xl:w-[65%] h-[30%] md:h-full bg-gray-400 opacity-40" onClick={()=>{setShowCart(false)}}></div>
+                    <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] 2xl:w-[35%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="w-full h-full" ref={parentRef}>
                             { /* Cart Page */}
                             <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-full">
@@ -340,8 +340,8 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                             {/* Sign In Page */}
                             <div ref={signInRef} style={{display: 'none'}} className="flex flex-col justify-between h-full">
                                 <div className="h-full flex flex-col gap-4 items-center justify-center ">
-                                    <h1 className="text-center text-xl font-semibold">Sign up to complete your order.</h1>
-                                    <a href={`/auth/signup?to=s/${shop.shopNameTag}`}><button>Sign Up</button></a>
+                                    <h1 className="text-center text-xl font-semibold">Sign in to complete your order.</h1>
+                                    <a href={`/auth/login?to=s/${shop.shopNameTag}`}><button>Sign In</button></a>
                                 </div>
                             </div>
                             { /* Checkout Page */}
@@ -376,7 +376,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                         */}
                                         <span className="flex flex-row gap-2 md:gap-4 ">
                                             <span className="flex flex-col w-1/3 md:w-3/12">
-                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="buildingNum">Building Number</label>
+                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="buildingNum">Building <span className="hidden md:inline">Number</span><span className="inline md:hidden">No.</span></label>
                                                 <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="No. 8" type="text" id="buildingNum" name="buildingNum" defaultValue={cart.shopper.location.buildingNum}  maxLength={50} onChange={handleValueChange} />
                                             </span>
                                             <span className="flex flex-col w-2/3 md:w-9/12">
@@ -398,7 +398,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                             <label className="mb-1 md:mb-2 text-sm" htmlFor="country">Country</label>
                                             <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Ghana" type="text" id='country' name="country" defaultValue={cart.shopper.location.country}  maxLength={50} onChange={handleValueChange} required/>
                                         </span>
-                                        <div className="flex flex-col md:flex-row gap-2 md:gap-4 md:items-end mt-3 md:mt-2 mb-4 md:mb-0" >
+                                        <div className="flex flex-row gap-2 md:gap-4 md:items-end mt-3 md:mt-2 mb-4 md:mb-0" >
                                             <span  className="w-full md:w-1/2" >
                                                 <button className="w-full">Confirm Details</button>
                                             </span>

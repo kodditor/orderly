@@ -66,6 +66,7 @@ export default function LoginComponent(){
         } else {
             if(( failedLoginCounter + 1 ) === 5){
                 captchaRef.current!.resetCaptcha()
+                setVerified(false)
                 setSubmitted(false)
                 setFailedLogins(0)
             } else {

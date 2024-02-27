@@ -1,12 +1,10 @@
 import { clientSupabase } from "@/app/supabase/supabase-client"
-import { fadePages, pesewasToCedis, styledCedis} from "@/app/utils/frontend/utils"
+import { fadePages, styledCedis} from "@/app/utils/frontend/utils"
 import { IOrderResponse, IShopCart } from "@/models/OrderProducts.model"
-import { IUserMetadataWithIDAndEmail } from "@/models/user.model"
 import { Tables, TablesInsert } from "@/types/supabase"
 import { faArrowLeft, faMinus, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { toNumber } from "lodash"
-import { Dispatch,  FormEvent,  RefObject, SetStateAction, useRef, useState } from "react"
+import { Dispatch,   RefObject, SetStateAction, useRef, useState } from "react"
 import { popupText } from "../Popup.component"
 import { IShop } from "@/models/shop.model"
 
@@ -104,95 +102,6 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
             // This will never happen now
             popupText('Please sign in to continue.')
             return
-            /*
-            clientSupabase
-            .from('locations')
-            .insert(cart.shopper.location)
-            .select()
-            .then(({data, error}) => {
-                if(error){
-                    console.log(error)
-                    setIsSendingOrder(false)
-                    popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`)
-                } else {
-                    let location = data[0]
-                    clientSupabase
-                    .from('shopper_details')
-                    .insert({
-                        firstName: cart.shopper.shopperFirstName,
-                        lastName: cart.shopper.shopperLastName,
-                        phone:cart.shopper.phone,
-                        shopper_user_id: null,
-                        location: location.id
-                    })
-                    .select()
-                    .then(({data, error}) =>{
-                        
-                        
-                        if(error){
-                            console.log(error)
-                            setIsSendingOrder(false)
-                            popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`)
-                        } else {
-                            let shopper= data[0]
-                            //@ts-ignore
-                            shopper.location = location
-                            let orderObj: TablesInsert<'orders'> = {
-                                shop_id: shop.id,
-                                shopper: data[0].id,
-                                shopper_user_id: null,
-                                status: "SENT",
-                                isActive: true,
-                            }
-
-                            clientSupabase
-                            .from('orders')
-                            .insert(orderObj)
-                            .select()
-                            .then(({data, error}) =>{
-                                if(error){
-                                    console.log(error)
-                                    setIsSendingOrder(false)
-                                    popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`)
-                                } else {
-                                    //@ts-ignore
-                                    let orderDetails = data[0] as IOrderResponse
-                                    orderDetails.shopper = shopper
-
-                                    let insertProducts: TablesInsert<'order_products'>[] = cart.products.map((prodObj) =>{
-                                        return {
-                                            product: prodObj.product_id,
-                                            price: prodObj.price,
-                                            quantity: prodObj.quantity,
-                                            order: orderDetails.id
-                                        }
-                                    })
-                                    
-                                    clientSupabase
-                                    .from('order_products')
-                                    .insert(insertProducts)
-                                    .select()
-                                    .then(({ data, error }) =>{
-                                        if(error){
-                                            console.log(error)
-                                            setIsSendingOrder(false)
-                                            popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`)
-                                        } else {
-                                            orderDetails.products = data
-                                            setOrderResponse(orderDetails)
-                                            setIsSendingOrder(false)
-                                            clearCart()
-                                            popupText('Order submitted!')
-                                            //console.log(orderDetails)
-                                        } 
-                                    })
-                                }
-                            })
-                        }
-                    })
-                }
-            })
-            */
         }
     }
 
@@ -259,7 +168,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                             { /* Cart Page */}
                             <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-full">
                                 <div className="h-fit max-h-[calc(45vh)] md:max-h-[calc(70vh)] mb-8 md:mb-10">
-                                    <h1 className="text-2xl md:text-3xl font-bold">My Cart <div className="text-gray-400 inline-block ml-1 md:ml-1 md:pb-2 text-xl">({cart.products.length})</div></h1>
+                                    <h1 className="text-2xl md:text-3xl font-bold">My Cart ({cart.products.length})</h1>
                                     <div className="mt-4 rounded-lg w-full p-2 h-fit max-h-[calc(100%-2rem)] overflow-y-auto flex flex-col bg-gray-100">
 
                                         { 
@@ -276,11 +185,11 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                                 let specificProduct = allProducts.find((prod) => prod.id == product.product_id) as Tables<'products'>
 
                                                 return (
-                                                    <div className="group rounded-lg duration-150 relative bg-white p-2 md:p-4 mb-4 last:mb-0 gap-4 flex items-center" key={idx}>
-                                                        <span className="h-[120px] md:h-[100px] w-[120px] md:w-[100px] aspect-square rounded-xl border-2 border-gray-200 overflow-hidden flex justify-center items-center">
+                                                    <div className="group rounded-lg duration-150 relative bg-white mb-4 last:mb-0 border-2 border-white overflow-hidden flex items-center" key={idx}>
+                                                        <span className="h-[120px] md:h-[100px] w-[120px] md:w-[100px] aspect-square border-r-2 border-gray-200 overflow-hidden flex justify-center items-center">
                                                             <img src={specificProduct?.imageURL!} />
                                                         </span>
-                                                        <div className="w-[calc(100%-100px)] flex flex-col md:flex-row md:justify-between gap-0 md:gap-2">
+                                                        <div className="w-[calc(100%-100px)] flex flex-col md:flex-row md:justify-between p-2 md:p-4 gap-0 md:gap-2">
                                                             <h1 className="text-lg leading-5 md:leading-normal -mb-1 md:mb-0">{specificProduct?.name}</h1>
                                                             <span className="flex flex-col md:flex-row md:items-center gap-0 md:gap-4">
                                                                 <small className="text-gray-500">x{product.quantity}</small>
@@ -352,28 +261,6 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                     </span>
                                     <h1 className="text-2xl md:text-3xl font-bold mb-4">Enter your delivery details</h1>
                                     <form onSubmit={(e)=>{e.preventDefault(); changePageTo(checkoutRef, confirmationRef)}} className="flex flex-col gap-2 mb-4 md:mb-2 md:gap-4">
-                                        {/*
-                                        <span className="flex flex-row gap-2 md:gap-4 ">
-                                            <span className="flex flex-col w-1/2">
-                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="shopperFirstName">First Name</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Kwaku" type="text" id='shopperFirstName' name="shopperFirstName" defaultValue={cart.shopper.shopperFirstName}  maxLength={50} onChange={handleValueChange} required/>
-                                            </span>
-                                            <span className="flex flex-col w-1/2">
-                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="shopperLastName">Last Name</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="Ananse" type="text" id='shopperLastName' name="shopperLastName" defaultValue={cart.shopper.shopperLastName}  maxLength={50} onChange={handleValueChange} required/>
-                                            </span>
-                                        </span>
-                                        <span className="flex flex-row gap-2 md:gap-4">
-                                            <span className="flex flex-col w-1/2">
-                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="phone">Telephone Number</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="0207007007" type="text" id='country' name="phone" defaultValue={cart.shopper.phone}  maxLength={50} onChange={handleValueChange} required/>
-                                            </span>
-                                            <span className="flex flex-col w-1/2">
-                                                <label className="mb-1 md:mb-2 text-sm" htmlFor="email">Email Address</label>
-                                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="kwaku@ananse.com" type="text" id='email' name="email" defaultValue={cart.shopper.email}  maxLength={50} onChange={handleValueChange}/>
-                                            </span>
-                                        </span>
-                                        */}
                                         <span className="flex flex-row gap-2 md:gap-4 ">
                                             <span className="flex flex-col w-1/3 md:w-3/12">
                                                 <label className="mb-1 md:mb-2 text-sm" htmlFor="buildingNum">Building <span className="hidden md:inline">Number</span><span className="inline md:hidden">No.</span></label>
@@ -418,12 +305,12 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                                     <h1 className="text-2xl md:text-3xl font-bold mb-3">Order Confirmation</h1>
                                     <div className="bg-gray-200 border-2 mb-4 border-gray-200 rounded-lg">
                                         <div className="p-2 pl-4 text-gray-700 text-sm">DELIVERY DETAILS</div>
-                                        <div className="bg-white p-2 pl-4">
-                                            <p>Name: <span className="font-bold text-darkRed" >{cart.shopper.shopperFirstName} {cart.shopper.shopperLastName}</span></p>
-                                            <p>Telephone: <span className="font-bold text-darkRed" >{cart.shopper.phone}</span></p>
-                                            <p>Email Address: <span className="font-bold text-darkRed" >{cart.shopper.email}</span></p>
-                                            <p>Address: <span className="font-bold text-darkRed">{cart.shopper.location.buildingNum} {cart.shopper.location.streetAddress}, {cart.shopper.location.city}</span></p>
-                                            <p>Region and Country: <span className="font-bold text-darkRed">{cart.shopper.location.region} {cart.shopper.location.country}</span></p>
+                                        <div className="bg-white p-2">
+                                            <p className="flex justify-between"><span className="font-semibold">Name:</span> <span className="text-right" >{cart.shopper.shopperFirstName} {cart.shopper.shopperLastName}</span></p>
+                                            <p className="flex justify-between"><span className="font-semibold">Telephone:</span> <span className="text-right" >{cart.shopper.phone}</span></p>
+                                            <p className="flex justify-between"><span className="font-semibold">Email Address:</span> <span className="text-right" >{cart.shopper.email}</span></p>
+                                            <p className="flex justify-between"><span className="font-semibold">Address:</span> <span className="text-right">{cart.shopper.location.buildingNum} {cart.shopper.location.streetAddress}, {cart.shopper.location.city}</span></p>
+                                            <p className="flex justify-between"><span className="font-semibold">Region and Country:</span> <span className="text-right">{cart.shopper.location.region}, {cart.shopper.location.country}</span></p>
                                         </div>
                                     </div>
                                     <div className="bg-gray-200 border-2 border-gray-200 rounded-lg">

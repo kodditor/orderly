@@ -54,28 +54,44 @@ export default function DashboardHeader(){
                     </div>
                 </div>    
             </nav>
-            <nav className="flex md:hidden shadow-sm bg-white fixed top-0 w-screen h-[50px] z-40 border-2 border-peach px-4 py-2 justify-between">
+            <nav className="flex md:hidden shadow-sm bg-white fixed top-0 w-screen h-[50px] z-50 border-2 border-peach px-4 py-2 justify-between">
                 <Link href={`/`} className="w-full flex items-center"><Image src={'/img/logo.png'} width={170} height={50} alt="The Orderly Logo"/></Link>
                 <div className="flex items-center gap-4">
-                    <Link href={`/s/${shop.shopNameTag}`} className="w-[30px] h-[30px] rounded-full overflow-hidden border-1 border-black"><Image src={shop.imageURL!} alt="Visit your shop" width={50} height={50} /></Link>
-                    <FontAwesomeIcon className="cursor-pointer" onClick={()=>{setClickedOpenNav(true)}} icon={faBars} />
+                    <Link href={`/s/${shop.shopNameTag}`} className="w-[30px] h-[30px] rounded-full overflow-hidden border-1 border-black"><Image src={shop.imageURL!} alt="Visit your shop" width={30} height={30} /></Link>
+                    <FontAwesomeIcon className="cursor-pointer" onClick={()=>{clickedOpenNav ? setClickedOpenNav(false) :setClickedOpenNav(true)}} width={12} height={12} icon={ clickedOpenNav ? faClose : faBars} />
                 </div>
-                <div className={`w-screen h-screen top-0 left-0 fixed bg-black text-white ${(clickedOpenNav) ? 'flex flex-col' : 'hidden'}`}>
-                    <ul className="flex flex-col w-2/3 min-w-[175px] m-auto gap-6">
-                        <span className="flex justify-center text-2xl mb-2 " onClick={()=>{setClickedOpenNav(false)}}><FontAwesomeIcon icon={faClose} /></span>
-                        <Link href={'/s/dashboard'} onClick={()=>{setClickedOpenNav(false)}}><li className="flex items-center justify-center hover:bg-peach p-3 border-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faHome} />My Dashboard</li></Link>
-                        <Link href={'?tab=products'} onClick={()=>{setClickedOpenNav(false)}} className="w-full "><li className="flex justify-center items-center hover:bg-peach p-3 border-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faShoppingBag} />My Products</li></Link>
-                        <Link href={'?tab=orders'} onClick={()=>{setClickedOpenNav(false)}} className="w-full "><li className="flex items-center justify-center hover:bg-peach p-3 border-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faReceipt} />My Orders</li></Link>
-                        <Link href={'?tab=settings'} onClick={()=>{setClickedOpenNav(false)}} className="w-full "><li className="flex items-center justify-center hover:bg-peach p-3 border-2 border-b-peach rounded-full duration-150"><FontAwesomeIcon className="mr-3" icon={faCog} />My Settings</li></Link>
+                <div className={`w-fit h-fit top-12 right-3 fixed p-2 rounded-3xl border-2 border-gray-300 overflow-hidden bg-gray-50 text-black ${(clickedOpenNav) ? 'flex flex-col' : 'hidden'}`}>
+                    <ul className="flex flex-col m-auto gap-2">
                         <Link href={`/s/${shop.shopNameTag}`} onClick={()=>{setClickedOpenNav(false)}}><button className="w-full btn-no-shadow">Visit My Shop</button></Link>
-                        <button className="btn-secondary btn-no-shadow" onClick={handleSignOut}>Log Out</button>
-                        <p className="text-center">Orderly Ghana &copy; {today.getFullYear()}</p>
-                        <div className="flex justify-evenly w-full">
-                            <a href="https://instagram.com/orderlyghana" className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon icon={faInstagram} /></a>
-                            <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon icon={faFacebook} /></a>
-                            <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon icon={faXTwitter} /></a>
-                            <a  className="bg-black hover:bg-peach hover:text-black duration-150 cursor-pointer w-8 h-8 rounded-full flex items-center justify-center text-white" ><FontAwesomeIcon icon={faTiktok} /></a>
-                        </div>
+                        <button className="btn-secondary" onClick={handleSignOut}>Log Out</button>
+                    </ul>
+                </div>
+                <div className="fixed md:hidden border-t-peach border-t-2 z-50 bg-white -bottom-1 p-2 grid place-items-center left-0 w-full h-[70px]">
+                    <ul className="w-full flex justify-evenly text-darkRed">
+                        <Link href={'/s/dashboard'}>
+                            <li className="flex flex-col justify-center items-center gap-1 hover:text-red duration-150" >
+                                <FontAwesomeIcon width={70} height={70} icon={faHome} />
+                                <span>Home</span>
+                            </li>
+                        </Link>
+                        <Link href={'?tab=products'}>
+                            <li className="flex flex-col justify-center gap-1 items-center hover:text-red duration-150" >
+                                <FontAwesomeIcon width={70} height={70} icon={faShoppingBag} />
+                                <span>Products</span>
+                            </li>
+                        </Link>
+                        <Link href={'?tab=orders'}>
+                            <li className="flex flex-col justify-center gap-1 items-center hover:text-red duration-150" >
+                                <FontAwesomeIcon width={70} height={70} icon={faReceipt} />
+                                <span>Orders</span>
+                            </li>
+                        </Link>
+                        <Link href={'?tab=settings'}>
+                            <li className="flex flex-col justify-center gap-1 items-center hover:text-red duration-150" >
+                                <FontAwesomeIcon width={70} height={70} icon={faCog} />
+                                <span>Settings</span>
+                            </li>
+                        </Link>
                     </ul>
                 </div>
             </nav>

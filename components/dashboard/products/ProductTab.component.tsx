@@ -129,7 +129,7 @@ export default function ProductTabComponent(){
 
                 <section className="w-full md:w-[calc(75%+8rem)]">
                     <div className="flex justify-between mb-4 md:mb-8">
-                        <h1 className="font-bold text-2xl">My Products - { products.length ?? 0}</h1>
+                        <h1 className="font-bold text-2xl">My Products ({ products.length ?? 0})</h1>
                         <span>
                             <Link href={'/s/dashboard?tab=products&section=add'}><button><FontAwesomeIcon style={{width: '15px', height: '15px'}} icon={faAdd} /> Add<span className="hidden md:inline"> New Product</span></button></Link>
                         </span>

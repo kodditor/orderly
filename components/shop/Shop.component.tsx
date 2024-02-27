@@ -270,12 +270,12 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                             }
 
                             return (
-                                <div className="bg-white cursor-pointer text-black rounded-xl flex flex-col p-2 md:p-4 w-full duration-150 hover:shadow-md" key={idx} onClick={()=>showProductItem(product)}>
-                                    <div className="flex gap-2 md:gap-4 h-full flex-col">
-                                        <span className="w-full aspect-square rounded-xl overflow-hidden flex justify-center items-center">
+                                <div className="bg-white cursor-pointer border-2 overflow-hidden border-white text-black rounded-xl flex flex-col w-full duration-150 hover:shadow-md" key={idx} onClick={()=>showProductItem(product)}>
+                                    <div className="flex h-full flex-col">
+                                        <span className="w-full aspect-square overflow-hidden flex justify-center items-center">
                                             <img src={product.imageURL!} />
                                         </span>
-                                        <div className="h-1/3 flex flex-col gap-2 justify-between">
+                                        <div className="h-1/3 p-2 md:p-4  flex flex-col gap-2 justify-between">
                                             <div>
                                                 <h2 className="text-lg mb-2">{product.name}</h2>
                                                 <div className="w-full overflow-auto hidden md:flex gap-1">

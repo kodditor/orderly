@@ -87,36 +87,36 @@ export default function DashboardTabComponent (){
 
     return (
         <>
-            <h1 className="font-bold text-2xl mb-4 md:mb-8">Good {timeOfDay}, {user.firstName}</h1>
+            <h1 className="font-bold text-lg md:text-2xl mb-4 md:mb-8">Good {timeOfDay}, {user.firstName}</h1>
             <section>
                 <h3 className="text-gray-500 mb-4">METRICS</h3>
                 <div className="flex flex-col md:flex-row gap-4 md:gap-16 mb-8">
                     <div className="bg-red w-full md:w-1/4 text-white p-4 md:p-8 rounded-xl" >
-                        <small className="text-lg" >Shop Balance</small>
+                        <small className="text-md md:text-lg" >Shop Balance</small>
                         <span className="flex mt-1 md:mt-2 mb-2 items-baseline" >
                             <h4 className="font-bold mr-2">GHS</h4>
                             <h1 className="font-bold text-4xl">{styledCedis(totalRevenue).slice(0, -3)}</h1>
                             <h4 className="font-bold">.{styledCedis(totalRevenue).slice(-2)}</h4>
                         </span>
-                        <small className=" font-light" >{/*this month*/}as of now</small>
+                        <small className=" font-normal" >{/*this month*/}as of now</small>
                     </div>
                     <span className="w-full md:w-[calc(50%+4rem)] flex gap-4 md:gap-16">
                         <div className="bg-peach w-1/2 text-darkRed p-4 md:p-8 rounded-xl" >
-                            <small className="text-lg" >Active Orders</small>
+                            <small className="text-md md:text-lg" >Active Orders</small>
                             <span className="flex gap-2 mt-1 md:mt-2 mb-2 items-baseline" >
                                 <h1 className="font-bold text-4xl" >{ordersNum}</h1>
                                 <h4 className="font-bold hidden md:block">order(s)</h4>
                             </span>
-                            <small className=" font-light" >{/*this month*/}at the moment</small>
+                            <small className=" font-normal" >{/*this month*/}at the moment</small>
                         </div>
 
                         <div className="bg-darkRed w-1/2 text-white p-4 md:p-8 rounded-xl" >
-                            <small  className="text-lg"  >Total Products</small>
+                            <small  className="text-md md:text-lg"  >Total Products</small>
                             <span className="flex gap-2 mt-1 md:mt-2 mb-2 items-baseline" >
                                 <h1 className="font-bold text-4xl" >{productsNum}</h1>
                                 <h4 className="font-bold hidden md:block">product(s)</h4>
                             </span>
-                            <small className=" font-light" >listed publicly</small>
+                            <small className=" font-normal" >listed publicly</small>
                         </div>
                     </span>
                 </div>
@@ -125,9 +125,9 @@ export default function DashboardTabComponent (){
                     <div className="w-full border-2 border-peach rounded-xl">
                         <div className="bg-peach grid grid-cols-activeOrdersMob md:grid-cols-activeOrders gap-2 md:gap-4 p-2 md:p-4">
                             <p className="hidden md:flex justify-center">No.</p>
-                            <p>Order Items</p>
+                            <p className="text-sm">Order Items</p>
                             <p className="hidden md:flex justify-center">Amount</p>
-                            <p className="flex justify-center">Details</p>
+                            <p className="flex text-sm justify-center">Details</p>
                         </div>
                         <div className="max-h-[270px] overflow-auto">
                             { 
@@ -156,7 +156,7 @@ export default function DashboardTabComponent (){
                                         <div className="border-b-peach border-b-2 last:border-b-transparent items-start md:items-center grid grid-cols-activeOrdersMob md:grid-cols-activeOrders gap-2 p-2 md:p-4" key={idx}>
                                             <p className="hidden md:flex justify-center"># {order.id}</p>
                                             {/* @ts-ignore */}
-                                            <p className="font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phoneNumber}
+                                            <p className="font-medium md:font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName + ' - ' + order.shopper.phoneNumber}
                                                 <br />
                                                 <span className="font-medium text-gray-500">{order.order_products.length } Products</span>
                                                 <span className="md:hidden text-red font-bold"> - GHS{styledCedis(total)}</span></p>

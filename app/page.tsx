@@ -9,10 +9,10 @@ export default function Home() {
 		<>
 			<Header />
 			<main className="w-full h-[100%-4rem]">
-				<section className="flex bg-peach flex-col gap-4 justify-center py-6 md:py-16 w-[100%] px-[5%] md:px-[10%]  items-center">
+				<section className="flex bg-peach flex-col gap-4 justify-center pt-6 md:pt-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] items-center">
 					<h1 className="text-3xl md:text-6xl text-center font-black w-[80%] md:w-[60%] text-darkRed">Discover the easiest way to sell online</h1>
-					<h3 className="text-xl md:text-2xl text-center w-[80%] md:w-[55%] text-darkRed">Orderly is the digital storefront solution that enables businesses to list their products and receive orders from online customers. Start selling or buying today!</h3>
-					<span className="flex items-center flex-row gap-2 md:gap-3">
+					<h3 className="text-xl md:text-2xl text-center w-[80%] md:w-[55%] text-darkRed mb-2">Orderly is the digital storefront solution that enables businesses to list their products and receive orders from online customers. Start selling or buying today!</h3>
+					<span className="flex items-center flex-row gap-2 md:gap-3 mb-4">
 						<a className="" href="https://getwaitlist.com/waitlist/12417">
 							<button className="">Join the Waitlist</button>
 						</a>
@@ -20,8 +20,12 @@ export default function Home() {
 							<button className="btn-secondary" >Learn More</button>
 						</a>
 					</span>
+					<div className="relative w-[90%] md:w-full h-96 md:h-80">
+						<Image className="hidden md:block" src={'/img/desktop-dashboard.png'} alt="The Orderly Dashboard page" fill  />
+						<Image className="md:hidden" src={'/img/mobile-dashboard.png'} alt="The Orderly Dashboard page" fill  />
+					</div>
 				</section>
-				<section className="flex flex-col-reverse md:flex-row gap-4 py-16 w-[100%] px-[5%] md:px-[10%] xl:px-[20%] m-auto justify-center items-center">
+				<section className="flex flex-col-reverse md:flex-row gap-4 py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto justify-center items-center">
 					<div className="w-full md:w-1/2 flex gap-8 flex-col">
 						<div>
 							<div className="w-full flex justify-center md:justify-start">
@@ -49,16 +53,17 @@ export default function Home() {
 						</div>
 					</div>
 					<div className="w-full max-w-[300px] md:max-w-none md:w-1/2">
-						<div className="relative h-full w-full">
-							<img alt="" src={'/img/online_shopping.png'}/>
+						<div className="relative w-full h-[450px] md:h-[500px] md:w-[350px] m-auto">
+							<Image alt="" fill src={'/img/mobile-products.png'}/>
 						</div>
 					</div>
 				</section>
 
-				<section className="flex flex-col bg-peach md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] xl:px-[20%] m-auto justify-center items-center">
+				<section className="flex flex-col bg-peach md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto justify-center items-center">
 					<div className="w-full max-w-[300px] rounded-lg overflow-hidden md:max-w-none md:w-1/2">
-						<div className="relative h-full w-full">
-							<img alt="" src={'/img/shop_view.png'}/>
+						<div className="relative w-full h-[450px] md:h-[350px]">
+							<Image className="hidden md:block" fill alt="" src={'/img/desktop-shop.png'}/>
+							<Image className="block md:hidden" fill alt="" src={'/img/mobile-shop.png'}/>
 						</div>
 					</div>
 					<div className="w-full md:w-1/2 flex gap-8 flex-col">
@@ -90,7 +95,7 @@ export default function Home() {
 					
 				</section>
 
-				<section className="flex flex-col-reverse md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] xl:px-[20%] m-auto justify-center items-center">
+				<section className="flex flex-col-reverse md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto justify-center items-center">
 					<div className="w-full md:w-1/2 flex gap-8 flex-col">
 						<div className="w-full">
 							<div className="w-full flex justify-center md:justify-start">
@@ -114,7 +119,7 @@ export default function Home() {
 					</div>
 				</section>
 
-				<section className="bg-peach py-16 w-[100%] px-[5%] md:px-[10%] xl:px-[20%] m-auto">
+				<section className="bg-peach py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto">
 					<div className="w-full max-w-[300px] m-auto md:max-w-none md:w-1/2">
 						<div className="w-full flex justify-center">
 							<small className="text-sm text-center">SIMPLIFIED</small>
@@ -155,7 +160,7 @@ export default function Home() {
 						</div>
 					</div>				
 				</section>
-				<section className="bg-red text-white py-16 w-[100%] px-[5%] md:px-[10%] xl:px-[20%] m-auto">
+				<section className="bg-red text-white py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto">
 					<div className="w-3/4 md:w-1/2 m-auto flex flex-col">
 						<h1 className="leading-snug md:leading-normal mb-0 text-4xl font-bold text-center">Create Your Digital Storefront</h1>
 						<h4 className="text-center text-xl mt-2">Join Orderly and start selling your products online today.</h4>

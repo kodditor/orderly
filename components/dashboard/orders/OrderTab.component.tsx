@@ -2,18 +2,17 @@
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
-import { getOrderTotal, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils"
+import { getOrderTotal, styledCedis } from "@/app/utils/frontend/utils"
 import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState } from "@/constants/orderly.store"
 import { Tables, TablesUpdate } from "@/types/supabase"
-import { setOrders, removeOrder, setProducts } from "@/constants/orderly.slice"
-import { User } from "@supabase/auth-helpers-nextjs"
+import { setOrders, setProducts } from "@/constants/orderly.slice"
 import { accessOrders, getAllProducts, getOrdersWithProductsAndShopperDetails, ordersType } from "@/app/utils/db/supabase-client-queries"
 import { popupText } from "@/components/Popup.component"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
-import { sendConfirmationText, sendDeclinedText } from "@/app/utils/notifications/phone"
+import { sendText } from "@/app/utils/notifications/phone"
 import sendConfirmationEmail from "@/app/utils/notifications/email"
 
 function convertDate(dateString: string){
@@ -37,6 +36,7 @@ function convertDate(dateString: string){
 
     const confirmationRef = useRef<HTMLDialogElement>(null)
     const declineRef = useRef<HTMLDialogElement>(null)
+    const deliverRef = useRef<HTMLDialogElement>(null)
 
     useEffect(()=>{
         orders.length == 0 && getOrdersWithProductsAndShopperDetails
@@ -83,7 +83,7 @@ function convertDate(dateString: string){
                     popupText(`SB${error.code}: An error occurred when confirming the order.`)
                 } else {
                     //@ts-expect-error
-                    sendConfirmationText(selectedOrder.shopper.phoneNumber, selectedOrder.id, shop.name)
+                    sendText(selectedOrder.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} has been confirmed!`)
                     .then(({data, error}) =>{
                         if(error){
                             popupText(`ARK${error.code}: An error occurred when confirming the order`)
@@ -141,13 +141,46 @@ function convertDate(dateString: string){
                 popupText(`SB${error.code}: An error occurred when confirming the order.`)
             } else {
                 //@ts-expect-error
-                sendDeclinedText(selectedOrder!.shopper.phone, selectedOrder!.id, shop.name)
+                sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} has been declined.`)
                 .then(({data, error}) =>{
                     if(error){
                         popupText(`ARK${error.code}: An error occurred when cdeclining the order`)
                         declineRef.current?.close()
                     } else {
                         popupText('Order Declined. The shopper has been notified.')
+                        declineRef.current?.close()
+                        router.push('/s/dashboard?tab=orders')
+                    }
+                })
+            }
+        })
+    }
+
+    function handleDeliverOrder(): void{
+        const updateObject: TablesUpdate<'orders'> = {
+            status: "ON_DELIVERY",
+            isActive: false,
+            updated_at: new Date().toISOString()
+        }
+
+        accessOrders
+        .update(updateObject)
+        .eq('id', selectedOrder!.id)
+        .select()
+        .then(({data, error}) => {
+            //console.log(data)
+            if(error){
+                console.error(error)
+                popupText(`SB${error.code}: An error occurred when notifying the customer of your delivery.`)
+            } else {
+                //@ts-expect-error
+                sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} is out for delivery!\nYou can verify the delivery at https://orderlygh.shop/order/${selectedOrder!.id}`)
+                .then(({data, error}) =>{
+                    if(error){
+                        popupText(`ARK${error.code}: An error occurred when notifying the customer of your delivery.`)
+                        declineRef.current?.close()
+                    } else {
+                        popupText('Order sent out for delivery. The customer has been notified.')
                         declineRef.current?.close()
                         router.push('/s/dashboard?tab=orders')
                     }
@@ -202,6 +235,16 @@ function convertDate(dateString: string){
                                 </div>
                             </div>
                         </dialog>
+                        <dialog ref={deliverRef} className="w-[90%] md:max-w-[400px] rounded-xl overflow-hidden">
+                            <div className="p-6 flex flex-col gap-3">
+                                <h1 className="text-xl font-semibold">Deliver order #{selectedOrder?.id}?</h1>
+                                <p>This will notify the customer that their order is out for delivery.</p>
+                                <div className="flex gap-2 mt-2">
+                                    <button className="w-1/2" onClick={handleDeliverOrder}>Deliver Order</button>
+                                    <button className="btn-secondary w-1/2" onClick={()=>{deliverRef.current?.close()}}>Cancel</button>
+                                </div>
+                            </div>
+                        </dialog>
                         <section className="w-full md:w-[calc(75%+8rem)]">
                             <span className="mb-4 flex gap-4 items-center">
                                 <Link href={'/s/dashboard?tab=orders'} className="group p-4 flex h-10 rounded-full items-center justify-center bg-gray-100 hover:bg-gray-300 duration-150"><FontAwesomeIcon className="mr-3 group-hover:mr-2 duration-150" icon={faArrowLeft} /> Back to Orders</Link>
@@ -217,11 +260,11 @@ function convertDate(dateString: string){
                                     <div className="text-sm bg-peach px-4 py-2">DELIVERY DETAILS</div>
                                     <div className="flex flex-col gap-2">
                                         {/* @ts-ignore */}
-                                        <p className="border-b-2 border-b-peach px-4 py-2" >Name: <span className="font-semibold">{order.shopper.firstName + ' ' + order.shopper.lastName}</span></p>
+                                        <p className="border-b-2 flex justify-between border-b-peach px-4 py-2" ><span className="font-semibold">Name:</span> <span className="text-right">{order.shopper.firstName + ' ' + order.shopper.lastName}</span></p>
                                         {/* @ts-ignore */}
-                                        <p  className="border-b-2 border-b-peach px-4 py-2" >Phone Number: <span className="font-semibold">{order.shopper.phoneNumber}</span></p>
+                                        <p  className="border-b-2 flex justify-between border-b-peach px-4 py-2" ><span className="font-semibold">Phone Number:</span> <span className="text-right">{order.shopper.phoneNumber}</span></p>
                                         {/* @ts-ignore */}
-                                        <p  className=" px-4 py-2" >Location: <span className="font-semibold">{order.location.buildingNum} {order.location.streetAddress}, {order.location.city}, {order.location.region}, {order.location.country}</span></p>
+                                        <p  className=" px-4 py-2 flex justify-between" ><span className="font-semibold">Location:</span> <span className="text-right">{order.location.buildingNum} {order.location.streetAddress}, {order.location.city}, {order.location.region}, {order.location.country}</span></p>
                                     
                                     </div>
                                 </div>
@@ -261,7 +304,7 @@ function convertDate(dateString: string){
                                             <button className="w-full" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); confirmationRef.current?.showModal()}}>Confirm Order</button>
                                         }
                                         { order.status == "CONFIRMED" &&
-                                            <button className="w-full" disabled>Deliver Order</button>
+                                            <button className="w-full"  onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); deliverRef.current?.showModal()}}>Deliver Order</button>
                                         }
                                         { order.status == "ON_DELIVERY" &&
                                             <button className="w-full">Contact Delivery Rider</button>
@@ -317,6 +360,16 @@ function convertDate(dateString: string){
                             </div>
                         </div>
                     </dialog>
+                    <dialog ref={deliverRef} className="w-[90%] md:max-w-[400px] rounded-xl overflow-hidden">
+                            <div className="p-6 flex flex-col gap-3">
+                                <h1 className="text-xl font-semibold">Deliver order #{selectedOrder?.id}?</h1>
+                                <p>This will notify the customer that their order is out for delivery.</p>
+                                <div className="flex gap-2 mt-2">
+                                    <button className="w-1/2" onClick={handleDeliverOrder}>Deliver Order</button>
+                                    <button className="btn-secondary w-1/2" onClick={()=>{deliverRef.current?.close()}}>Cancel</button>
+                                </div>
+                            </div>
+                        </dialog>
                     <section className="w-full md:w-[calc(75%+8rem)]">
                             <h1 className="font-bold text-2xl mb-8">My Orders ({orders?.length})</h1>
                             <div>
@@ -364,10 +417,10 @@ function convertDate(dateString: string){
                                                                 <button className="mr-2 btn-secondary" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); confirmationRef.current?.showModal()}}>Confirm Order</button>
                                                             }
                                                             { order.status == "CONFIRMED" &&
-                                                                <button className="mr-2 btn-secondary" disabled>Deliver Order</button>
+                                                                <button className="mr-2 btn-secondary" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); deliverRef.current?.showModal()}}>Deliver Order</button>
                                                             }
                                                             { order.status == "ON_DELIVERY" &&
-                                                                <button className="mr-2 btn-secondary">Contact Delivery Rider</button>
+                                                                <button className="mr-2 btn-secondary">Contact Rider</button>
                                                             }
                                                             { order.status == "FULFILLED" &&
                                                                 <button className="mr-2 btn-secondary" disabled>Unavailable</button>
@@ -394,7 +447,7 @@ function convertDate(dateString: string){
                                                             {/* @ts-ignore */}
                                                             <p className="text-xl">{order.shopper.firstName + ' ' + order.shopper.lastName}</p>
                                                             {/* @ts-ignore */}
-                                                            <p className="mb-1">{order.shopper.phone}</p>
+                                                            <p className="mb-1">{order.shopper.phoneNumber}</p>
                                                             <p className="text-gray-400">{order.order_products?.length} Products</p>
                                                             <span className="text-black font-bold">GHS{styledCedis(total)}</span>
                                                         </span>
@@ -405,10 +458,10 @@ function convertDate(dateString: string){
                                                             <span className="w-1/2">
             
                                                                 { order.status == "SENT" &&
-                                                                    <button className="w-full md:w-fit btn-secondary" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); confirmationRef.current?.showModal()}}>Confirm Order</button>
+                                                                    <button className="w-full btn-secondary" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); confirmationRef.current?.showModal()}}>Confirm Order</button>
                                                                 }
                                                                 { order.status == "CONFIRMED" &&
-                                                                    <button className="w-full md:w-fit btn-secondary" disabled>Deliver Order</button>
+                                                                    <button className="w-full  btn-secondary" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); deliverRef.current?.showModal()}}>Deliver Order</button>
                                                                 }
                                                                 { order.status == "ON_DELIVERY" &&
                                                                     <button className="w-full md:w-fit btn-secondary">Contact Delivery Rider</button>

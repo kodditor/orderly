@@ -26,13 +26,13 @@ export default function ForgotPasswordComponent(){
         if(!verified) return
         e.preventDefault()
         setSubmitted(true)
-        let redirectURL: string = location.origin + `/auth/update-password?to=s/dashboard`
+        let redirectURL: string = process.env.NEXT_PUBLIC_BASE_URL + `/auth/update-password?to=s/dashboard`
 
         if(destination && destination.length != 0){
             if(destination.startsWith('/')){
-                redirectURL = location.origin + `/auth/update-password?to=${destination}`
+                redirectURL = process.env.NEXT_PUBLIC_BASE_URL + `/auth/update-password?to=${destination}`
             } else {
-                redirectURL = location.origin + `/auth/update-password?to=${( '/' + destination )}`
+                redirectURL = process.env.NEXT_PUBLIC_BASE_URL + `/auth/update-password?to=${( '/' + destination )}`
             }
         } 
 
@@ -77,7 +77,7 @@ export default function ForgotPasswordComponent(){
                             sitekey={process.env.NEXT_PUBLIC_HCAPTCHA_SITE_KEY!}
                             onVerify={() => setVerified(true)}
                         />
-                    <h3>Already have an account? <a href={`/auth/login?to=${destination || '/s/dashboard' }`}  className=" text-red cursor-pointer underline underline-offset-1 hover:underline-offset-2 duration-150">Login</a></h3>
+                    <h3>Already have an account? <a href={`/auth/login?to=${destination || '/' }`}  className=" text-red cursor-pointer underline underline-offset-1 hover:underline-offset-2 duration-150">Login</a></h3>
                     
                     </form>
                 </div>

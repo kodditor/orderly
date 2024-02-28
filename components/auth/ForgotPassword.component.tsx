@@ -59,7 +59,7 @@ export default function ForgotPasswordComponent(){
     {
         return(
             <>
-                <div className="m-auto w-[80%]  md:mt-10 lg:mt-16 flex justify-center" >
+                <div className="m-auto w-[80%] mt-6 md:mt-10 lg:mt-16 flex justify-center" >
                     <form onSubmit={handleEmailSubmit} className="flex flex-col items-center gap-4 w-72 " >
                         <h6>Forgot your password?</h6>
                         <h1 className="text-3xl text-center font-bold mb-[-10px]">Enter your email</h1>

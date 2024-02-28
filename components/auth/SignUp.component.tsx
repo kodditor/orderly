@@ -99,7 +99,7 @@ export default function SignUpComponent(){
     if(!sentEmail){
         return(
             <>
-                <div className="m-auto w-[80%] max-w-48 md:mt-10 lg:mt-16 flex justify-center">
+                <div className="m-auto w-[80%] max-w-48 mt-6 md:mt-10 lg:mt-16 flex justify-center">
                     <form onSubmit={handleSignUpSubmit} className="flex flex-col items-center gap-4 w-72 ">
                         <h6>Welcome.</h6>
                         <h1 className="text-3xl font-bold mb-4">Sign Up</h1>

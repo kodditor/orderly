@@ -47,6 +47,10 @@ export default async function ShopDashboard(){
                                         `)
                                         .eq('id', user.user_metadata.user_metadata)
 
+                    if(data![0].isOrderly == false){
+                        redirect(`${process.env.NEXT_PUBLIC_BASE_URL}`)
+                    }
+
                     let orderlyUser = {
                         id: user.id,
                         email: user.email,

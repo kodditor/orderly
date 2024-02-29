@@ -144,7 +144,7 @@ function convertDate(dateString: string){
                 sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} has been declined.`)
                 .then(({data, error}) =>{
                     if(error){
-                        popupText(`ARK${error.code}: An error occurred when cdeclining the order`)
+                        popupText(`ARK${error.code}: An error occurred when declining the order`)
                         declineRef.current?.close()
                     } else {
                         popupText('Order Declined. The shopper has been notified.')
@@ -174,7 +174,7 @@ function convertDate(dateString: string){
                 popupText(`SB${error.code}: An error occurred when notifying the customer of your delivery.`)
             } else {
                 //@ts-expect-error
-                sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} is out for delivery!\nYou can verify the delivery at https://orderlygh.shop/order/${selectedOrder!.id}`)
+                sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} is out for delivery!\nYou can verify the delivery at https://orderlygh.shop/orders/${selectedOrder!.id}`)
                 .then(({data, error}) =>{
                     if(error){
                         popupText(`ARK${error.code}: An error occurred when notifying the customer of your delivery.`)

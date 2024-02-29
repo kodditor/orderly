@@ -22,3 +22,17 @@ export interface IOrderResponse {
     products: Tables<'order_products'>[],
     location: Tables<'locations'>
 }
+
+export interface IOrderDetails {
+    id: number,
+    status: Database["public"]["Enums"]["order_status"],
+    isActive: boolean,
+    location: Tables<'locations'>,
+    shop_id: Tables<'shops'>,
+    shopper: Tables<'user_metadata'>,
+    order_products:  {
+        price: number,
+        quantity: number,
+        product: Tables<'products'>,
+    }[]
+}

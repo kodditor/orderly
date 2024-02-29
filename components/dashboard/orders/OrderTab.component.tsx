@@ -210,7 +210,7 @@ function convertDate(dateString: string){
                     <>
                         <dialog ref={confirmationRef} className="w-[90%] md:max-w-[400px] rounded-xl overflow-hidden">
                             <div className="p-6 flex flex-col gap-3">
-                                <h1 className="text-xl font-semibold">Confirm order #{selectedOrder?.id}?</h1>
+                                <h1 className="text-lg font-semibold">Confirm order #{selectedOrder?.id}?</h1>
                                 <p>This will send a notification to the customer confirming their order.</p>
                                 <div className="text-lg">
                                     Total: <span className="font-bold ">GHS{styledCedis(total)}</span>
@@ -227,7 +227,7 @@ function convertDate(dateString: string){
 
                         <dialog ref={declineRef} className="w-[90%] md:max-w-[400px] rounded-xl overflow-hidden">
                             <div className="p-6 flex flex-col gap-3">
-                                <h1 className="text-xl font-semibold">Decline order #{selectedOrder?.id}?</h1>
+                                <h1 className="text-lg font-semibold">Decline order #{selectedOrder?.id}?</h1>
                                 <p>This will send a notification to the customer declining their order.</p>
                                 <div className="flex gap-2 mt-2">
                                     <button className="w-1/2" onClick={handleDeclineOrder}>Decline Order</button>
@@ -338,7 +338,7 @@ function convertDate(dateString: string){
                 <>  
                     <dialog ref={confirmationRef} className="w-[90%] md:max-w-[400px] rounded-xl overflow-hidden">
                         <div className="p-6 flex flex-col gap-3">
-                            <h1 className="text-xl font-medium">Confirm order #{selectedOrder?.id}?</h1>
+                            <h1 className="text-lg font-medium">Confirm order #{selectedOrder?.id}?</h1>
                             <p>This will send a notification to the customer confirming their order.</p>
                             <div className="max-h-[300px]">
                                 {
@@ -361,15 +361,15 @@ function convertDate(dateString: string){
                         </div>
                     </dialog>
                     <dialog ref={deliverRef} className="w-[90%] md:max-w-[400px] rounded-xl overflow-hidden">
-                            <div className="p-6 flex flex-col gap-3">
-                                <h1 className="text-xl font-semibold">Deliver order #{selectedOrder?.id}?</h1>
-                                <p>This will notify the customer that their order is out for delivery.</p>
-                                <div className="flex gap-2 mt-2">
-                                    <button className="w-1/2" onClick={handleDeliverOrder}>Deliver Order</button>
-                                    <button className="btn-secondary w-1/2" onClick={()=>{deliverRef.current?.close()}}>Cancel</button>
-                                </div>
+                        <div className="p-6 flex flex-col gap-3">
+                            <h1 className="text-lg font-semibold">Deliver order #{selectedOrder?.id}?</h1>
+                            <p>This will notify the customer that their order is out for delivery.</p>
+                            <div className="flex gap-2 mt-2">
+                                <button className="w-1/2" onClick={handleDeliverOrder}>Deliver Order</button>
+                                <button className="btn-secondary w-1/2" onClick={()=>{deliverRef.current?.close()}}>Cancel</button>
                             </div>
-                        </dialog>
+                        </div>
+                    </dialog>
                     <section className="w-full md:w-[calc(75%+8rem)]">
                             <h1 className="font-bold text-2xl mb-8">My Orders ({orders?.length})</h1>
                             <div>

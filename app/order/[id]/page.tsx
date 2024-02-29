@@ -5,7 +5,7 @@ import Header from "@/components/Header.component"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { signedInUser } from "@/models/user.model"
-import {  IOrderResponse } from "@/models/OrderProducts.model"
+import {  IOrderDetails } from "@/models/OrderProducts.model"
 import OrderDetailsComponent from "@/components/OrderDetails"
 
 export default async function OrderDetailPage({ params }: { params: { id: string } }){
@@ -63,10 +63,14 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                                     isActive,
                                     location(*),
                                     shop_id(*),
-                                    shopper(*)
+                                    shopper(*),
+                                    order_products(
+                                        *,
+                                        product(*)
+                                        )
                                 `)
                                 .eq('id', orderID)
-                                .returns<IOrderResponse[]>()
+                                .returns<IOrderDetails[]>()
 
     //console.log(orderQuery.data)
     
@@ -115,10 +119,10 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             <>
                 <Header />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
-                    <div className="flex flex-col gap-4 items-center justify-center">
-                        <h1 className="font-extrabold text-6xl">403</h1>
-                        <p className="font-medium text-lg">You are not authorized to view this order</p>
-                        <p className="text-sm">If you're coming from the login page, please refresh.</p>
+                    <div className="flex flex-col items-center justify-center">
+                        <h1 className="font-extrabold mb-4 text-6xl">403</h1>
+                        <p className="font-medium mb-1 text-lg">You are not authorized to view this order</p>
+                        <p className="text-sm mb-4">Kindly refresh if you're coming from the login page.</p>
                         <Link href={`/`}>
                             <button>Back to Home</button>
                         </Link>

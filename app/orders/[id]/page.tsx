@@ -22,7 +22,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col gap-4 items-center justify-center">
                         <p className="font-medium text-lg">Please sign in to continue</p>
-                        <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login?to=/order/${orderID}`}>
+                        <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login?to=/orders/${orderID}`}>
                             <button>Sign In</button>
                         </Link>
                     </div>

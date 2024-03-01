@@ -23,14 +23,16 @@ export default function Header({signedInUser}:{signedInUser: signedInUser | null
                             </div>
                             <p className="hidden md:block text-sm">Hi, {signedInUser.firstName}</p>
                             <div className="absolute hidden group-hover:flex rounded-lg w-full min-w-[100px] top-[100%] p-1 flex-col bg-gray-100">
-                                <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/favs`}><div className="bg-white p-2 border-b-2 border-gray-100 duration-150 hover:bg-peach">Favourites</div></Link>
-                                <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/orders`}><div  className="bg-white p-2 border-b-2 border-gray-100 hover:bg-peach">Orders</div></Link>
-                                <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/settings`}><div className="bg-white p-2 hover:bg-peach">Settings</div></Link>
+                                <Link href={`/favs`}><div className="bg-white p-2 border-b-2 border-gray-100 duration-150 hover:bg-peach">Favourites</div></Link>
+                                <Link href={`/orders`}><div  className="bg-white p-2 border-b-2 border-gray-100 hover:bg-peach">Orders</div></Link>
+                                <Link href={`/settings`}><div className="bg-white p-2 hover:bg-peach">Settings</div></Link>
                             </div>
                         </div>
                     </>
                 }
-                <button>Get Orderly</button>
+                <Link href={'/s/onboarding'}>
+                    <button>Get Orderly</button>
+                </Link>
             </span>
         </nav>
     )

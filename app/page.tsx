@@ -20,12 +20,12 @@ export default function Home() {
 							<button className="btn-secondary" >Learn More</button>
 						</a>
 					</span>
-					<div className="relative w-[90%] md:w-full h-96 md:h-80">
+					<div className="relative w-[90%] md:w-full h-[25rem] md:h-80">
 						<Image className="hidden md:block" src={'/img/desktop-dashboard.png'} alt="The Orderly Dashboard page" fill  />
 						<Image className="md:hidden" src={'/img/mobile-dashboard.png'} alt="The Orderly Dashboard page" fill  />
 					</div>
 				</section>
-				<section className="flex flex-col-reverse md:flex-row gap-4 py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto justify-center items-center">
+				<section className="flex flex-col-reverse md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto justify-center items-center">
 					<div className="w-full md:w-1/2 flex gap-8 flex-col">
 						<div>
 							<div className="w-full flex justify-center md:justify-start">
@@ -52,17 +52,17 @@ export default function Home() {
 							</div>
 						</div>
 					</div>
-					<div className="w-full max-w-[300px] md:max-w-none md:w-1/2">
-						<div className="relative w-full h-[450px] md:h-[500px] md:w-[350px] m-auto">
-							<Image alt="" fill src={'/img/mobile-products.png'}/>
+					<div className="w-full hidden md:block md:max-w-none md:w-1/2">
+						<div className="relative w-full h-[26rem] md:h-[22rem] md:w-[38rem] m-auto">
+							<Image className="hidden md:block" fill alt="" src={'/img/desktop-shop.png'}/>
 						</div>
 					</div>
 				</section>
 
 				<section className="flex flex-col bg-peach md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto justify-center items-center">
-					<div className="w-full max-w-[300px] rounded-lg overflow-hidden md:max-w-none md:w-1/2">
-						<div className="relative w-full h-[450px] md:h-[350px]">
-							<Image className="hidden md:block" fill alt="" src={'/img/desktop-shop.png'}/>
+					<div className="w-full rounded-lg overflow-hidden md:max-w-none md:w-1/2">
+						<div className="relative w-full md:w-[300px] h-[34rem] m-auto md:h-[520px]">
+							<Image className="hidden md:block" alt="" fill src={'/img/mobile-products.png'}/>
 							<Image className="block md:hidden" fill alt="" src={'/img/mobile-shop.png'}/>
 						</div>
 					</div>

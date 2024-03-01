@@ -27,10 +27,10 @@ export default function ShopSideBar({ showCart, setShowCart, cart, signedInUser_
     const reportRef = useRef<HTMLDialogElement>(null)
     const captchaRef = useRef<HCaptcha>(null);
 
-    const [ reportReason, setReportReason] = useState<string>("")
-    const [ reportCount, setReportCount] = useState<number>(0)
-    const [ submitted, setSubmitted ] = useState<boolean>(false) 
-    const [ verified, setVerified   ] = useState<boolean>(false)
+    const [ reportReason, setReportReason ] = useState<string>("")
+    const [ reportCount, setReportCount   ] = useState<number>(0)
+    const [ submitted, setSubmitted       ] = useState<boolean>(false) 
+    const [ verified, setVerified         ] = useState<boolean>(false)
 
 
     //console.log(shop)
@@ -161,7 +161,7 @@ export default function ShopSideBar({ showCart, setShowCart, cart, signedInUser_
                                         </div>
                                     </div>
                                 </div>
-                                <span className="md:hidden h-[30px] w-[30px] grid place-items-center text-gray-600 rounded-full bg-gray-100 hover:bg-gray-200">
+                                <span className="md:hidden h-[30px] w-[30px] grid place-items-center text-gray-600 rounded-full bg-gray-100 hover:bg-gray-200" onClick={()=>{copyToClipboard(`${process.env.NEXT_PUBLIC_BASE_URL}/s/${shop.shopNameTag}`) ? popupText('Link copied!'): null}}>
                                     <FontAwesomeIcon width={12} height={12} icon={faShareNodes} />
                                 </span>
                                 <p className="md:hidden text-gray-600 font-medium" onClick={()=>{reportRef.current?.show()}}>

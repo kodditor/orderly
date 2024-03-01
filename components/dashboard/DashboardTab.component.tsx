@@ -95,8 +95,8 @@ export default function DashboardTabComponent (){
                         <small className="text-md md:text-lg" >Shop Balance</small>
                         <span className="flex mt-1 md:mt-2 mb-2 items-baseline" >
                             <h4 className="font-bold mr-2">GHS</h4>
-                            <h1 className="font-bold text-4xl">{styledCedis(totalRevenue).slice(0, -3)}</h1>
-                            <h4 className="font-bold">.{styledCedis(totalRevenue).slice(-2)}</h4>
+                            <h1 className="font-bold text-4xl">{ 5683 ??styledCedis(totalRevenue).slice(0, -3)}</h1>
+                            <h4 className="font-bold">.{'00' ?? styledCedis(totalRevenue).slice(-2)}</h4>
                         </span>
                         <small className=" font-normal" >{/*this month*/}as of now</small>
                     </div>
@@ -104,7 +104,7 @@ export default function DashboardTabComponent (){
                         <div className="bg-peach w-1/2 text-darkRed p-4 md:p-8 rounded-xl" >
                             <small className="text-md md:text-lg" >Active Orders</small>
                             <span className="flex gap-2 mt-1 md:mt-2 mb-2 items-baseline" >
-                                <h1 className="font-bold text-4xl" >{ordersNum}</h1>
+                                <h1 className="font-bold text-4xl" >{24 ??ordersNum}</h1>
                                 <h4 className="font-bold hidden md:block">order(s)</h4>
                             </span>
                             <small className=" font-normal" >{/*this month*/}at the moment</small>
@@ -113,7 +113,7 @@ export default function DashboardTabComponent (){
                         <div className="bg-darkRed w-1/2 text-white p-4 md:p-8 rounded-xl" >
                             <small  className="text-md md:text-lg"  >Total Products</small>
                             <span className="flex gap-2 mt-1 md:mt-2 mb-2 items-baseline" >
-                                <h1 className="font-bold text-4xl" >{productsNum}</h1>
+                                <h1 className="font-bold text-4xl" >{42??productsNum}</h1>
                                 <h4 className="font-bold hidden md:block">product(s)</h4>
                             </span>
                             <small className=" font-normal" >listed publicly</small>

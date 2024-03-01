@@ -276,7 +276,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                     })
                 })
                 fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/db/user`, {
-                    method: 'UPDATE',
+                    method: 'PATCH',
                     body: JSON.stringify({
                         id: newUser.id!,
                         location: data[0].id

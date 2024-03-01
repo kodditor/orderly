@@ -16,7 +16,7 @@ export async function POST(req: NextRequest){
     return NextResponse.json({data, error})
 }
 
-export async function UPDATE(req: NextRequest){
+export async function PATCH(req: NextRequest){
     const body = await req.json() as TablesInsert<'user_metadata'>
 
     const { id, ...updateObject } = body

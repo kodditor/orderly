@@ -95,6 +95,7 @@ export function sortByDateUpdated(a: Partial<Tables<'products'>> | Partial<Table
 }
 
 export function getLocalShop(): string{
+    if (typeof window == 'undefined') return ''
     let shopNameTag = localStorage.getItem('o-shopNT');
     if (shopNameTag == null) {
         setLocalCart([])
@@ -106,6 +107,7 @@ export function getLocalShop(): string{
 // Todo: Check if shopNameTag is the same
 
 export function getLocalCart(shopNameTag: string) : IOrderProducts[]{
+    if (typeof window == 'undefined') return []
     let ls = localStorage.getItem('o-crt');
     if (ls == null || getLocalShop() != shopNameTag) {
         setLocalShop(shopNameTag)
@@ -151,4 +153,20 @@ export function updateProductOnLocalCart(product: IOrderProducts): void{
 
 export function emptyCart(): void{
     setLocalCart([])
+}
+
+
+export function copyToClipboard(s: string): boolean {
+    if (!navigator.clipboard){
+        return false
+    }
+
+    try {
+        navigator.clipboard.writeText(s)
+        return true
+    }
+    catch(e){
+        console.warn('Copy to clipboard failed')
+        return false
+    }
 }

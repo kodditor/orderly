@@ -5,7 +5,7 @@ import UpdatePasswordComponent from "@/components/auth/UpdatePassword.component"
 export default function UpdatePassword(){
     return(
         <>
-            <Header />
+            <Header signedInUser={null}/>
             <UpdatePasswordComponent />
         </>
     )

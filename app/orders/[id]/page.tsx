@@ -18,7 +18,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     if (!session?.user.user_metadata.user_metadata){
         return (
             <>
-                <Header />
+                <Header signedInUser={null} />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col gap-4 items-center justify-center">
                         <p className="font-medium text-lg">Please sign in to continue</p>
@@ -77,7 +77,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     if(orderQuery.error != null){
         return (
             <>
-                <Header />
+                <Header signedInUser={null} />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col gap-4 items-center justify-center">
                         <h1 className="font-extrabold text-6xl">500</h1>
@@ -98,7 +98,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     
         return (
             <>
-                <Header />
+                <Header signedInUser={null} />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col gap-4 items-center justify-center">
                         <h1 className="font-extrabold text-6xl">404</h1>
@@ -117,7 +117,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     if(`${orderQuery.data[0].shopper.id}` != signedInUser.id ){
         return (
             <>
-                <Header />
+                <Header signedInUser={null} />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col items-center justify-center">
                         <h1 className="font-extrabold mb-4 text-6xl">403</h1>

@@ -6,7 +6,7 @@ export default function SignUp(){
     
     return(
         <>
-            <Header />
+            <Header signedInUser={null} />
             <SignUpComponent />
         </>
     )

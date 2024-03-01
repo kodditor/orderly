@@ -11,14 +11,15 @@ import { clientSupabase } from "@/app/supabase/supabase-client"
 import ShopSideBar from "./ShopSidebar.component"
 import { addToLocalCart, capitalizeAll,  emptyCart,  getLocalCart, removeFromLocalCart, styledCedis, updateProductOnLocalCart } from "@/app/utils/frontend/utils"
 import ProductItem from "./ProductItem.component"
-import { Tables } from "@/types/supabase"
+import { Tables, TablesInsert } from "@/types/supabase"
 import { useSearchParams } from "next/navigation"
 import { IOrderProducts, IShopCart } from "@/models/OrderProducts.model"
 import { v4 } from "uuid"
 import ShopCart from "./ShopCart.component"
-import { faMinus, faPlus, faShoppingCart } from "@fortawesome/free-solid-svg-icons"
+import { faHeart, faMinus, faPlus, faShoppingCart } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { signedInUser } from "@/models/user.model"
+import { popupText } from "../Popup.component"
 
 export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop, signedInUser: signedInUser | null})
 {
@@ -32,6 +33,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
     const [ selectedProduct , setSelectedProduct ] = useState<Tables<'products'> | null>(null)
     const [ showProduct, setShowProduct          ] = useState<boolean>(false)
     const [ showCart, setShowCart                ] = useState<boolean>(false)
+    const [ favourites, setFavourites            ] = useState<string[]>([])
 
 
     const [ cart, setCart                        ] = useState<IShopCart>({
@@ -79,7 +81,21 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
             }
         })
 
-    }, [selectedShop])
+        signedInUser && supabase
+        .from('favourites')
+        .select('product')
+        .eq('user', signedInUser.id)
+        .then(({data, error}) => {
+            if( error != null){
+                console.log(error)
+                popupText(`SB${error.code}: An error occurred while loading your favourites`)
+            }
+            else {
+                setFavourites(data.map((fav) => fav.product!))
+            }
+        })
+
+    }, [selectedShop, favourites])
 
     useEffect(()=>{
         setCart((prev) => {
@@ -148,7 +164,6 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
 
             )
         }
-        //console.log(cart)
     }
 
     function removeFromCart(product: Tables<'products'>, removeAll? :boolean){
@@ -212,16 +227,77 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
             }
         )
         emptyCart()
+    }
 
+    function addToFavourites(product_id: string){
+
+        if(!signedInUser){
+            popupText('Sign in to add favourites!')
+            return
+        }
+
+        if(favourites.includes(product_id)) return
+        const insertObject: TablesInsert<'favourites'> = {
+            user: signedInUser.id,
+            product: product_id,
+        }
+
+        clientSupabase
+        .from('favourites')
+        .insert(insertObject)
+        .select('product(*)')
+        .returns< {product: Tables<'products'>}[]>()
+        .then(({data, error}) => {
+            if(error != null){
+                console.log(error)
+                popupText(`SB${error.code}: An error occured while trying to add the product to your favourites`)
+                return
+            }
+            setFavourites((prev) => {
+                prev.push(product_id)
+                return prev
+            })
+            //console.log(favourites)
+            popupText(`Added ${data[0].product.name} to your favourites!`)
+        
+        })
+
+    }
+
+    function removeFromFavourites(product_id: string){
+        if(!signedInUser){
+            popupText('Sign in to remove from favourites!')
+            return
+        }
+        if(!favourites.includes(product_id)) return
+
+        clientSupabase
+        .from('favourites')
+        .delete()
+        .eq('product', product_id)
+        .then(({error}) => {
+            if(error != null){
+                console.log(error)
+                popupText(`SB${error.code}:An error occurred while trying to remove the product from your favourites`)
+                return
+            }
+
+            setFavourites((prev) =>{
+                return prev.filter((fav) => fav != product_id)
+            })
+            //console.log(favourites)
+            popupText(`Removed from your favourites.`)
+        })
     }
 
     return(
         <>
-            <Header />
+            <Header signedInUser={signedInUser ?? null} />
             <ShopSideBar
                 showCart={showCart}
                 setShowCart={setShowCart} 
                 cart={cart}
+                signedInUser_id={signedInUser?.id}
             />
             <ProductItem 
                 isOpen={showProduct} 
@@ -229,7 +305,10 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 allProducts={cart.products}
                 removeFromCart={removeFromCart}
                 addToCart={addToCart} 
+                addToFavourites={addToFavourites}
+                removeFromFavourites={removeFromFavourites}
                 setIsOpen={setShowProduct} 
+                favourites={favourites}
             />
             <ShopCart 
                 showCart={showCart} 
@@ -270,7 +349,10 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                             }
 
                             return (
-                                <div className="bg-white cursor-pointer border-2 overflow-hidden border-white text-black rounded-xl flex flex-col w-full duration-150 hover:shadow-md" key={idx} onClick={()=>showProductItem(product)}>
+                                <div className="bg-white relative cursor-pointer border-2 overflow-hidden border-white text-black rounded-xl flex flex-col w-full duration-150 hover:shadow-md" key={idx} onClick={()=>showProductItem(product)}>
+                                    <div className={`absolute top-2 right-2 hover:shadow-md shadow w-[30px] h-[30px] bg-white overflow-hidden rounded-full ${ favourites.includes(product.id) ? 'text-red': 'text-gray-700'} hover:bg-gray-200 duration-150 grid place-items-center`} onClick={(e) => { e.stopPropagation(); favourites.includes(product.id) ? removeFromFavourites(product.id) : addToFavourites(product.id)}}>
+                                        <FontAwesomeIcon width={12} height={12} icon={faHeart} />
+                                    </div>
                                     <div className="flex h-full flex-col">
                                         <span className="w-full aspect-square overflow-hidden flex justify-center items-center">
                                             <img src={product.imageURL!} />

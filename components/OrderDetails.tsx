@@ -37,7 +37,7 @@ export default function OrderDetailsComponent({order}: {order: IOrderDetails}){
                 </div>
             </dialog>
 
-            <Header />
+            <Header signedInUser={null} />
             <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] bg-gray-50 grid place-items-center">
                 <div className="w-full bg-white p-4 md:p-8 md:shadow-md md:rounded-xl md:max-w-[800px] md:overflow-auto h-full md:max-h-[550px]">
                     <div className="h-fit">

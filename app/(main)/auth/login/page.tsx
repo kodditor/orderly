@@ -5,7 +5,7 @@ import LoginComponent from "@/components/auth/Login.component";
 export default function Login(){
     return(
         <>
-            <Header />
+            <Header signedInUser={null} />
             <LoginComponent />
         </>
     )

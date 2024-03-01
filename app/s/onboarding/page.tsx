@@ -13,11 +13,11 @@ export default async function Onboarding(){
     if(session){
         return (
             <>
-                <Header />
+                <Header signedInUser={null} />
                 <OnboardingComponent user={session.user} />
             </>
         )
-    } else {
-        redirect( process.env.NEXT_PUBLIC_BASE_URL + '/auth/login?to=s/onboarding')
     }
+    
+    redirect( process.env.NEXT_PUBLIC_BASE_URL + '/auth/login?to=s/onboarding')
 }

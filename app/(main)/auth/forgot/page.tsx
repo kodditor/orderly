@@ -5,7 +5,7 @@ import ForgotPasswordComponent from "@/components/auth/ForgotPassword.component"
 export default function Login(){
     return(
         <>
-            <Header />
+            <Header signedInUser={null} />
             <ForgotPasswordComponent />
         </>
     )

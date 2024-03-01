@@ -1,17 +1,27 @@
-import { capitalizeAll, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils";
+import { capitalizeAll, copyToClipboard, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils";
 import { IOrderProducts } from "@/models/OrderProducts.model";
 import { Tables } from "@/types/supabase";
-import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faMinus, faPlus, faShareNodes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Image from "next/image";
 import { Dispatch, SetStateAction } from "react";
+import { popupText } from "../Popup.component";
 
 
-export default function ProductItem({product, allProducts, isOpen, setIsOpen, addToCart, removeFromCart} :{product:Tables<'products'> | null, isOpen:boolean, allProducts: IOrderProducts[],  setIsOpen:Dispatch<SetStateAction<boolean>>, addToCart:Function, removeFromCart: (product:Tables<'products'>)=>void}){
+export default function ProductItem({product, allProducts, isOpen, setIsOpen, addToCart, favourites, addToFavourites, removeFromFavourites, removeFromCart
+} :{
+    product:Tables<'products'> | null, 
+    isOpen:boolean, 
+    allProducts: IOrderProducts[],  
+    setIsOpen:Dispatch<SetStateAction<boolean>>, 
+    addToCart:Function,
+    addToFavourites: (product_id: string) => void,
+    removeFromFavourites: (product_id: string) => void, 
+    favourites: string[],
+    removeFromCart: (product:Tables<'products'>)=>void,
+}){
     
     if(isOpen && ( product != null ))
     {
-
         let productIndexInCart: number | null = null
         if( allProducts.length == 0){null}
         else {
@@ -22,6 +32,7 @@ export default function ProductItem({product, allProducts, isOpen, setIsOpen, ad
             }
         }
 
+        const isAFavourite = favourites.includes(product.id)
 
         return (
             <>
@@ -62,6 +73,14 @@ export default function ProductItem({product, allProducts, isOpen, setIsOpen, ad
                                     <div>
                                         <small className="text-red">Description</small>
                                         <p className="text-xl">{product.description}</p>
+                                    </div>
+                                </div>
+                                <div className="mt-2 flex gap-2">
+                                    <div title="Add to your favourites!" className={`w-[30px] h-[30px] border-2 ${ isAFavourite ? 'bg-red text-white' : 'border-gray-200 bg-gray-200' } hover:bg-red hover:text-white duration-150 cursor-pointer rounded-full grid place-items-center text-darkRed`} onClick={() => isAFavourite ? removeFromFavourites(product.id) : addToFavourites(product.id) }>
+                                        <FontAwesomeIcon width={11} height={11} icon={faHeart} />
+                                    </div>
+                                    <div title="Share this product!" className="w-[30px] h-[30px] border-2 border-gray-200 bg-gray-200 hover:bg-darkRed hover:text-white duration-150 cursor-pointer rounded-full grid place-items-center text-darkRed"   onClick={()=>{ copyToClipboard(`${location.href}?product=${product.id}`) ? popupText('Product link copied!') : null}}>
+                                        <FontAwesomeIcon width={11} height={11} icon={faShareNodes} />
                                     </div>
                                 </div>
                             </div>

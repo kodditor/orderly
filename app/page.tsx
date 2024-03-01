@@ -7,7 +7,7 @@ import Footer from "@/components/Footer.component";
 export default function Home() {
 	return (
 		<>
-			<Header />
+			<Header signedInUser={null} />
 			<main className="w-full h-[100%-4rem]">
 				<section className="flex bg-peach flex-col gap-4 justify-center pt-6 md:pt-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] items-center">
 					<h1 className="text-3xl md:text-6xl text-center font-black w-[80%] md:w-[60%] text-darkRed">Discover the easiest way to sell online</h1>

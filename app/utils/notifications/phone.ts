@@ -110,27 +110,16 @@ export async function sendText(number:string, message: string): Promise<notifica
 
     let response: notificationResponse
 
-    if(number.startsWith('0')){
-        number = '233' + number.slice(1)
-    }
-
-    const data = {
-        "sender": "Orderly GH",
-        "message": `${message}`,
-        "recipients": [number],
-        //"sandbox": true
-    }
-
-    let res = await fetch('https://sms.arkesel.com/api/v2/sms/send',
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/notify/phone/send-sms`,
     {
-        method: 'post',
-        headers: {
-            'api-key': process.env.NEXT_PUBLIC_ARKESEL_API_KEY!,
-            'content-type': 'application/json',
-        },
-        body: JSON.stringify(data)
+        method: 'POST',
+        body: JSON.stringify({
+            number: number,
+            message: message
+        })
     })
-    let resData = await res.json()
+
+    const resData = await res.json()
     if(resData.status == 'success'){
         response = {
             data: {
@@ -141,10 +130,7 @@ export async function sendText(number:string, message: string): Promise<notifica
         }
     } else {
         response = { 
-            data: {
-                status: '200',
-                msg: 'Message sent successfully'
-            },
+            data: null,
             error: {
                 code: '402',
                 msg: 'An error occurred'

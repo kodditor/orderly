@@ -19,7 +19,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     if (error != null){
         return (
             <>
-                <Header />
+                <Header signedInUser={null}/>
                 <main>
                     <div className="w-screen h-[calc(100vh-137px)] p-8 md:p-12">
                         <div className="flex gap-8 items-center flex-col">
@@ -35,7 +35,7 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     } else if(shopData?.length == 0){
         return(
             <>
-                <Header />
+                <Header signedInUser={null}/>
                 <main>
                     <div className="w-screen h-[calc(100vh-137px)] p-8 md:p-12">
                         <div className="flex gap-8 items-center flex-col">

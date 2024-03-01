@@ -10,7 +10,7 @@ export default function Header({signedInUser}:{signedInUser: signedInUser | null
                 { 
                     !signedInUser && 
                     <>
-                        <Link className="text-darkRed text-md font-semibold hover:text-red" href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/sign${ location != undefined && '?to=' + location.pathname}`}>Sign in</Link>
+                        <Link className="text-darkRed text-md font-semibold hover:text-red" href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/sign${ location && '?to=' + location.pathname}`}>Sign in</Link>
                     </>
 
                 }

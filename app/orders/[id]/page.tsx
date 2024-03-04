@@ -35,6 +35,8 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     let { data, error } = await serverSupabase
                                         .from('user_metadata')
                                         .select(`
+                                            id,
+                                            email,
                                             firstName,
                                             lastName,
                                             isOrderly,
@@ -42,7 +44,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                                             shop_id
                                         `)
                                         .eq('id', session.user.user_metadata.user_metadata)
-
+                                        .returns<signedInUser[]>()
     if( !data || data?.length == 0){
         console.log(error)
         redirect('/')
@@ -50,8 +52,6 @@ export default async function OrderDetailPage({ params }: { params: { id: string
 
     //@ts-ignore
     const signedInUser: signedInUser = {
-        id: session.user.id,
-        email: session.user.email!,
         ...data[0]
     }
 
@@ -77,7 +77,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     if(orderQuery.error != null){
         return (
             <>
-                <Header signedInUser={null} />
+                <Header signedInUser={signedInUser} />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col gap-4 items-center justify-center">
                         <h1 className="font-extrabold text-6xl">500</h1>
@@ -98,7 +98,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     
         return (
             <>
-                <Header signedInUser={null} />
+                <Header signedInUser={signedInUser} />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col gap-4 items-center justify-center">
                         <h1 className="font-extrabold text-6xl">404</h1>
@@ -117,7 +117,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     if(`${orderQuery.data[0].shopper.id}` != signedInUser.id ){
         return (
             <>
-                <Header signedInUser={null} />
+                <Header signedInUser={signedInUser} />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col items-center justify-center">
                         <h1 className="font-extrabold mb-4 text-6xl">403</h1>
@@ -135,7 +135,7 @@ export default async function OrderDetailPage({ params }: { params: { id: string
     }
 
     return (
-        <OrderDetailsComponent order={orderQuery.data[0]} />
+        <OrderDetailsComponent signedInUser={signedInUser} order={orderQuery.data[0]} />
     )
 
 }

@@ -1,4 +1,5 @@
 import { serverSupabase } from "@/app/supabase/supabase-server"
+import { getUser } from "@/app/utils/backend/utils"
 import { getShopDetails } from "@/app/utils/db/supabase-server-queries"
 import Footer from "@/components/Footer.component"
 import Header from "@/components/Header.component"
@@ -13,10 +14,9 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
     const supabase = serverSupabase
     const shopNameTag = params.shopNameTag
 
-    const {data, error} = await getShopDetails('shopNameTag',shopNameTag)
-    let shopData = data
+    const shopDataQuery = await getShopDetails('shopNameTag',shopNameTag)
 
-    if (error != null){
+    if (shopDataQuery.error != null){
         return (
             <>
                 <Header signedInUser={null}/>
@@ -32,7 +32,9 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
                 <Footer />
             </>
         )
-    } else if(shopData?.length == 0){
+    }
+    
+    if(shopDataQuery == null || shopDataQuery.data.length == 0){
         return(
             <>
                 <Header signedInUser={null}/>
@@ -48,33 +50,11 @@ export default async function Shop({ params }: { params: { shopNameTag: string }
                 <Footer />
             </>
         )
-    } else {
-        const { data: { session }} = await supabase.auth.getSession()
-        const user = session?.user ?? null
-        let signedInUser: signedInUser | null = null
-
-        if(user){
-            let user_metadataQuery = await serverSupabase
-                                            .from('user_metadata')
-                                            .select(`
-                                                firstName,
-                                                lastName,
-                                                phoneNumber,
-                                                location(*)
-                                            `)
-                                            .eq('id', user.id)
-            //console.log(user_metadataQuery.data, user)
-            //@ts-ignore
-            signedInUser = {
-                id: user.id,
-                email: user.email!,
-                ...user_metadataQuery.data![0]
-            }
-        }
-        return(
-            <>
-                <ShopModule signedInUser={signedInUser} selectedShop={shopData![0]}/>
-            </>
-        )
     }
+    const { user } = await getUser() 
+    return(
+        <>
+            <ShopModule signedInUser={user} selectedShop={shopDataQuery.data[0]}/>
+        </>
+    )
 }

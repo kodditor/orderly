@@ -35,7 +35,7 @@ interface IShopAndUser {
       shopNameTag: '',
       tags: [],
       updatedAt: '',
-      user_id: null
+      user_id: ''
     },
     user: {
       id: '',

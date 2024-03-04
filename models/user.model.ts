@@ -9,7 +9,7 @@ export interface IUserMetadata {
     firstName: string,
     isOrderly: boolean,
     lastName: string,
-    location?: {
+    location: {
         buildingNum: string,
         city: string,
         country: string,
@@ -18,17 +18,17 @@ export interface IUserMetadata {
     },
     phoneNumber: string,
     plan?: { 
-        isAnnual: boolean, 
+        isAnnual: boolean,
         name: string 
     },
     shop_id: string
-
 }
 
 export interface IUser extends User {
     user_metadata: IUserMetadata
 }
 
+//It's the same thing lol.
 export interface signedInUser {
     id: string,
     email: string,
@@ -43,4 +43,6 @@ export interface signedInUser {
         streetAddress: string
     },
     phoneNumber: string | null,
+    isOrderly: boolean,
+    shop_id?: string
 }

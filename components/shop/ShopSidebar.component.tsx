@@ -32,7 +32,6 @@ export default function ShopSideBar({ showCart, setShowCart, cart, signedInUser_
     const [ submitted, setSubmitted       ] = useState<boolean>(false) 
     const [ verified, setVerified         ] = useState<boolean>(false)
 
-
     //console.log(shop)
 
     function handleReportStore(e: any){
@@ -149,7 +148,7 @@ export default function ShopSideBar({ showCart, setShowCart, cart, signedInUser_
                         </small> */} 
                         <span className="flex flex-col gap-4 mt-4">
                             <span className="mt-3 md:mt-0 w-full flex items-center md:items-baseline gap-4 md:gap-2">
-                                <a className="w-fit md:w-[calc(100%-30px-0.5rem)]" href={`telephone:${ shop.optionalPhone}`}>
+                                <a className="w-fit md:w-[calc(100%-30px-0.5rem)]" href={`tel:${ shop.optionalPhone}`}>
                                     <button className="btn-secondary w-full"> <FontAwesomeIcon className="mr-2" width={12} height={12} icon={faPhone} /> Contact Shop</button>
                                 </a>
                                 <div className=" hidden group h-[35px] relative w-[35px] md:grid place-items-center bg-gray-100 hover:bg-gray-200 duration-150 text-gray-700 cursor-pointer rounded-full">

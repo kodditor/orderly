@@ -4,7 +4,6 @@ import { POPUP_ICON } from "@/models/popup.enum";
 
 
 export function popupText(text:string, state?: POPUP_ICON){
-    //console.log('Changed popup')
     const popupText = document.getElementById("popup-text")!
     const popupContainer = document.getElementById("popup-container")!
     popupText.innerHTML = text
@@ -18,8 +17,8 @@ export default function Popup (){
 
     return(
         <>
-            <div className="fixed w-[80%] z-[99] ml-10 md:w-fit bottom-5 md:bottom-10 md:right-10 md:left-auto"  style={{display:'none'}} id="popup-container">
-                <div className="flex gap-2 items-center border-2 bg-white border-darkRed px-3 py-2 rounded-full">
+            <div className="fixed w-[80%] flex items-center z-[99] ml-10 md:w-fit bottom-5 md:bottom-10 md:right-10 md:left-auto"  style={{display:'none'}} id="popup-container">
+                <div className="flex gap-2 items-start md:items-center border-2 bg-white border-darkRed px-3 py-2 rounded-full">
                     <div className="w-[20px] animate-pulse h-[20px] rounded-full bg-darkRed flex items-center justify-center">
                         <FontAwesomeIcon className="w-1 text-white" icon={faInfo} />
                     </div>

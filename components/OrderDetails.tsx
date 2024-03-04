@@ -5,9 +5,10 @@ import Header from "./Header.component";
 import { styledCedis } from "@/app/utils/frontend/utils";
 import Link from "next/link";
 import { useRef } from "react";
+import { signedInUser } from "@/models/user.model";
 
 
-export default function OrderDetailsComponent({order}: {order: IOrderDetails}){
+export default function OrderDetailsComponent({order, signedInUser}: {order: IOrderDetails, signedInUser:signedInUser}){
 
     //console.log(order)
 
@@ -37,13 +38,13 @@ export default function OrderDetailsComponent({order}: {order: IOrderDetails}){
                 </div>
             </dialog>
 
-            <Header signedInUser={null} />
+            <Header signedInUser={signedInUser} />
             <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] bg-gray-50 grid place-items-center">
                 <div className="w-full bg-white p-4 md:p-8 md:shadow-md md:rounded-xl md:max-w-[800px] md:overflow-auto h-full md:max-h-[550px]">
                     <div className="h-fit">
                         <p className="text-xs text-white bg-red px-2 py-1 rounded-full inline">ORDER #{order.id}</p>
                             { 
-                                order.status == 'SENT' && <h1 className="font-bold text-xl mt-2 md:text-2xl mb-2 md:mb-4">our order is awaiting confirmation.</h1> ||
+                                order.status == 'SENT' && <h1 className="font-bold text-xl mt-2 md:text-2xl mb-2 md:mb-4">Your order is awaiting confirmation.</h1> ||
                                 order.status == 'DECLINED' && <h1 className="font-bold mt-2 text-xl md:text-2xl mb-2 md:mb-4">Your order has been declined by the shop.</h1> ||
                                 order.status == 'CONFIRMED' && <h1 className="font-bold mt-2 text-xl md:text-2xl mb-2 md:mb-4">Your order has been confirmed. Sit tight!</h1> ||
                                 order.status == 'ON_DELIVERY' && <h1 className="font-bold mt-2 text-xl md:text-2xl mb-2 md:mb-4">Your order is out for delivery! <br />You can confirm the delivery or your order here.</h1> ||
@@ -53,9 +54,9 @@ export default function OrderDetailsComponent({order}: {order: IOrderDetails}){
                         <small>ORDER PRODUCTS</small>
                         <div className="flex gap-2 flex-col max-h-[300px] overflow-auto mt-2 mb-4 bg-gray-50">
                             {
-                                order.order_products.map((product, idx) =>{
+                                order.order_products.map((product, idx) => {
                                     return (
-                                        <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/s/${order.shop_id.shopNameTag}/?product=${product.product.id}`} className="group rounded-lg duration-150 relative bg-white mb-4 last:mb-0 border-[1px] border-gray-200 overflow-hidden flex items-center" key={idx}>
+                                        <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/s/${order.shop_id.shopNameTag}/?product=${product.product.id}`} className="group rounded-lg duration-150 relative bg-white border-[1px] border-gray-200 overflow-hidden flex items-center" key={idx}>
                                             <span className="h-[80px] md:h-[90px] w-[80px] md:w-[90px] aspect-square border-r-2 border-gray-200 overflow-hidden flex justify-center items-center">
                                                 <img src={product.product.imageURL!} />
                                             </span>

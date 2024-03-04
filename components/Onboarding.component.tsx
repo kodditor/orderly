@@ -5,11 +5,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useRef, useEffect } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLink, faShareFromSquare, faUpload } from "@fortawesome/free-solid-svg-icons";
-import { OrderlyPlans } from "@/constants/orderlyPlans.constant";
+import {  faShareFromSquare, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { IPlan } from "@/models/plans.model";
 import { clientSupabase } from "@/app/supabase/supabase-client";
-import { Tables, TablesInsert } from "@/types/supabase";
+import { TablesInsert } from "@/types/supabase";
 import { v4 as uuidv4 } from 'uuid';
 import { PostgrestSingleResponse, User } from "@supabase/supabase-js";
 import { popupText } from "./Popup.component";

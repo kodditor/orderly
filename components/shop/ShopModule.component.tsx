@@ -9,7 +9,6 @@ import { signedInUser } from "@/models/user.model";
 
 export default function ShopModule({selectedShop, signedInUser}: {selectedShop: IShop, signedInUser: signedInUser| null}){
 
-
     return (
         <>
             <Provider store={orderlyStore} >

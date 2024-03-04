@@ -12,7 +12,7 @@ import ShopSideBar from "./ShopSidebar.component"
 import { addToLocalCart, capitalizeAll,  emptyCart,  getLocalCart, removeFromLocalCart, styledCedis, updateProductOnLocalCart } from "@/app/utils/frontend/utils"
 import ProductItem from "./ProductItem.component"
 import { Tables, TablesInsert } from "@/types/supabase"
-import { useSearchParams } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { IOrderProducts, IShopCart } from "@/models/OrderProducts.model"
 import { v4 } from "uuid"
 import ShopCart from "./ShopCart.component"
@@ -30,11 +30,11 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
 
     const supabase = clientSupabase
 
-    const [ selectedProduct , setSelectedProduct ] = useState<Tables<'products'> | null>(null)
-    const [ showProduct, setShowProduct          ] = useState<boolean>(false)
-    const [ showCart, setShowCart                ] = useState<boolean>(false)
-    const [ favourites, setFavourites            ] = useState<string[]>([])
-
+    const [ selectedProduct , setSelectedProduct   ] = useState<Tables<'products'> | null>(null)
+    const [ showProduct, setShowProduct            ] = useState<boolean>(false)
+    const [ showCart, setShowCart                  ] = useState<boolean>(false)
+    const [ favourites, setFavourites              ] = useState<string[]>([])
+    const [ hasChangedFavourites, changeFavourites ] = useState<boolean>(false)
 
     const [ cart, setCart                        ] = useState<IShopCart>({
                                                                             id: v4(),
@@ -59,6 +59,8 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
 
     const searchParams = useSearchParams()
     const pathProductVariable = searchParams.get('product')
+
+    const router = useRouter()
 
     useEffect(()=>{
         dispatch(setShop(selectedShop))
@@ -87,7 +89,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
         .eq('user', signedInUser.id)
         .then(({data, error}) => {
             if( error != null){
-                console.log(error)
+                console.log(error, signedInUser)
                 popupText(`SB${error.code}: An error occurred while loading your favourites`)
             }
             else {
@@ -95,17 +97,15 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
             }
         })
 
-    }, [selectedShop, favourites])
-
-    useEffect(()=>{
         setCart((prev) => {
             return ({
                 ...prev,
                 products: getLocalCart(selectedShop.shopNameTag)
             })
         })
-    }, [])
 
+        console.log(favourites)
+    }, [hasChangedFavourites])
     function ArrayExistsAndHasLengthLargerThanTwo(array : any[] | null){
 
         if (array != null) return array.length != 0 &&  array.at(0) != ''  && array.length > 2 // sorry you had to read this
@@ -258,6 +258,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 return prev
             })
             //console.log(favourites)
+            changeFavourites(prev => !prev)
             popupText(`Added ${data[0].product.name} to your favourites!`)
         
         })
@@ -285,6 +286,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
             setFavourites((prev) =>{
                 return prev.filter((fav) => fav != product_id)
             })
+            changeFavourites(prev => !prev)
             //console.log(favourites)
             popupText(`Removed from your favourites.`)
         })
@@ -292,7 +294,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
 
     return(
         <>
-            <Header signedInUser={signedInUser ?? null} />
+            <Header signedInUser={signedInUser} />
             <ShopSideBar
                 showCart={showCart}
                 setShowCart={setShowCart} 
@@ -309,6 +311,8 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 removeFromFavourites={removeFromFavourites}
                 setIsOpen={setShowProduct} 
                 favourites={favourites}
+                router={router}
+                shopNameTag={shop.shopNameTag}
             />
             <ShopCart 
                 showCart={showCart} 
@@ -398,7 +402,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                                                 <span className={`bg-gray-200 flex ${productIndexInCart == null ? 'w-fit md:ml-0 p-0 md:p-1' : 'p-1' } gap-2 justify-between md:justify-normal items-center rounded-full`}>
                                                     <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className={`text-gray-400 rounded-full w-7 md:w-5 h-7 md:h-5 flex items-center justify-center duration-150 ${(productIndexInCart == null) ? '' : 'hover:bg-white'}`} onClick={(e)=>{e.stopPropagation(); (productIndexInCart == null) ? null : removeFromCart(product)} }><FontAwesomeIcon width={12} height={12} icon={faMinus} /></span>
                                                     <span style={{display: (productIndexInCart == null ? 'none': 'flex')}} className="text-sm text-gray-500 font-black items-center">{productIndexInCart != null ? cart.products[productIndexInCart].quantity : 0 }</span>
-                                                    <span className={`rounded-full w-7 md:w-5 h-7 md:h-5 flex items-center justify-center duration-150 ${productIndexInCart == null ? 'bg-red md:bg-gray-200 gap-2 md:gap-0 w-[4.5rem] md:w-5 text-white md:text-gray-400 p-1' : ' bg-gray-200 text-gray-400'} hover:bg-white`} onClick={(e)=>{e.stopPropagation(); addToCart(product)}}><FontAwesomeIcon width={12} height={12} icon={faPlus} /><span className={`${ (productIndexInCart == null) ? 'block md:hidden' : 'hidden'}`} >Add</span></span>
+                                                    <span className={`rounded-full w-7 md:w-5 h-7 md:h-5 flex items-center justify-center duration-150 ${productIndexInCart == null ? 'bg-red md:bg-gray-200 gap-2 md:gap-0 w-[4.5rem] md:w-5 text-white hover:text-red md:text-gray-400 p-1' : ' bg-gray-200 text-gray-400'} hover:bg-white`} onClick={(e)=>{e.stopPropagation(); addToCart(product)}}><FontAwesomeIcon width={12} height={12} icon={faPlus} /><span className={`${ (productIndexInCart == null) ? 'block md:hidden' : 'hidden'}`} >Add</span></span>
                                                 </span>
                                             </div>
                                         </div>

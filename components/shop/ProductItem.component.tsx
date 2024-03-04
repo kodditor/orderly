@@ -1,13 +1,15 @@
-import { capitalizeAll, copyToClipboard, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils";
+"use client"
+import { capitalizeAll, copyToClipboard, styledCedis } from "@/app/utils/frontend/utils";
 import { IOrderProducts } from "@/models/OrderProducts.model";
 import { Tables } from "@/types/supabase";
 import { faHeart, faMinus, faPlus, faShareNodes } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dispatch, SetStateAction } from "react";
 import { popupText } from "../Popup.component";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 
-export default function ProductItem({product, allProducts, isOpen, setIsOpen, addToCart, favourites, addToFavourites, removeFromFavourites, removeFromCart
+export default function ProductItem({product, allProducts, router, isOpen, setIsOpen, addToCart, favourites, addToFavourites, removeFromFavourites, removeFromCart, shopNameTag
 } :{
     product:Tables<'products'> | null, 
     isOpen:boolean, 
@@ -18,26 +20,36 @@ export default function ProductItem({product, allProducts, isOpen, setIsOpen, ad
     removeFromFavourites: (product_id: string) => void, 
     favourites: string[],
     removeFromCart: (product:Tables<'products'>)=>void,
+    router: AppRouterInstance
+    shopNameTag: string
 }){
+
+    let productOpened = isOpen
+
+    function closeProduct(){
+       setIsOpen(false)
+    }
+
+    //console.log(isOpen)
     
-    if(isOpen && ( product != null ))
+    if(productOpened && (product != null))
     {
         let productIndexInCart: number | null = null
         if( allProducts.length == 0){null}
         else {
             for (let i = 0; i < allProducts.length; ++i){
-                if(allProducts[i].product_id === product.id){
+                if(allProducts[i].product_id === product?.id){
                     productIndexInCart = i
                 }
             }
         }
 
-        const isAFavourite = favourites.includes(product.id)
+        const isAFavourite = favourites.includes(product?.id)
 
         return (
             <>
                 <div className="fixed top-0 flex flex-col md:flex-row w-full h-screen z-[51]">
-                    <div className=" bg-gray-400 opacity-40 w-full h-[30%] md:h-full md:w-[50%] 2xl:w-[65%]" onClick={()=>{setIsOpen(false)}}></div>
+                    <div className=" bg-gray-400 opacity-40 w-full h-[30%] md:h-full md:w-[50%] 2xl:w-[65%]" onClick={closeProduct}></div>
                     <div className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] 2xl:w-[35%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="flex flex-col justify-between h-[calc(100%-4rem)]">
                             <div>
@@ -104,7 +116,7 @@ export default function ProductItem({product, allProducts, isOpen, setIsOpen, ad
                                         </span>
                                     </span>
                                     <span  className="w-1/2" >
-                                        <button className=" btn-secondary w-full" onClick={()=>{setIsOpen(false)}}>Close</button>
+                                        <button className=" btn-secondary w-full" onClick={closeProduct}>Close</button>
                                     </span>
                                 </div>
                             </div>

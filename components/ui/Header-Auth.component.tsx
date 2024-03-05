@@ -1,6 +1,6 @@
 "use client"
 import type { signedInUser } from "@/models/user.model";
-import { faHeart, faReceipt, faCog, faChevronDown } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faReceipt, faCog, faChevronDown, faUserCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 
@@ -23,8 +23,9 @@ export default function HeaderAuth({signedInUser}:{signedInUser: signedInUser | 
     return (
         <>
             <span className="flex gap-2 md:gap-4 items-center">
-                <div className="group flex cursor-pointer relative group py-2 px-4 duration-150 gap-2 rounded-full items-center">
+                <div className="group flex cursor-pointer relative group py-2 px-2 md:px-4 duration-150 gap-2 rounded-full items-center">
                     <p className="hidden md:block text-sm">Hi, <span className="font-semibold">{signedInUser.firstName}</span></p>
+                    <FontAwesomeIcon className="md:hidden text-gray-400" width={15} height={15} icon={faUserCircle} />
                     <FontAwesomeIcon className="relative group-hover:top-[1.5px] duration-150" width={12} height={12} icon={faChevronDown} />
                     <div className="absolute hidden group-hover:block w-full min-w-[130px] pt-2 text-darkRed top-[100%] -left-4">
                         <div className="flex flex-col p-[2px] rounded-lg w-full bg-gray-100"> 

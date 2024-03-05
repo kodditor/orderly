@@ -82,7 +82,7 @@ export default function FavsComponent({user}:{user: signedInUser}){
                             {
                                 !isLoading && (favourites?.length == 0 || favourites == null) &&
                                 <>
-                                    <p className="text-gray-400 text-center animate-pulse font-medium m-auto">You have no favourites.</p>
+                                    <p className="text-gray-400 text-center font-medium m-auto">You have no favourites.</p>
                                 </>
                             }
                             {

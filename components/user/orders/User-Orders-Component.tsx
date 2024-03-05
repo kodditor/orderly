@@ -54,7 +54,7 @@ export default function UserOrdersComponent({user}:{user: signedInUser}){
                             {
                                 !isLoading && (orders?.length == 0 || orders == null) &&
                                 <>
-                                    <p className="text-gray-400 text-center animate-pulse font-medium m-auto">You have no orders.</p>
+                                    <p className="text-gray-400 text-center font-medium m-auto">You have no orders.</p>
                                 </>
                             }
                             {

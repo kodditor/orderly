@@ -42,7 +42,7 @@ export default function OrderDetailsComponent({order, signedInUser}: {order: IOr
             <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] bg-gray-50 grid place-items-center">
                 <div className="w-full bg-white p-4 md:p-8 md:shadow-md md:rounded-xl md:max-w-[800px] md:overflow-auto h-full md:max-h-[550px]">
                     <div className="h-fit">
-                        <p className="text-xs text-white bg-red px-2 py-1 rounded-full inline">ORDER #{order.id}</p>
+                        <p className="text-xs text-darkRed bg-peach px-2 py-1 rounded-full inline">ORDER #{order.id}</p>
                             { 
                                 order.status == 'SENT' && <h1 className="font-bold text-xl mt-2 md:text-2xl mb-2 md:mb-4">Your order is awaiting confirmation.</h1> ||
                                 order.status == 'DECLINED' && <h1 className="font-bold mt-2 text-xl md:text-2xl mb-2 md:mb-4">Your order has been declined by the shop.</h1> ||
@@ -51,7 +51,7 @@ export default function OrderDetailsComponent({order, signedInUser}: {order: IOr
                                 order.status == 'FULFILLED' && <h1 className="font-bold mt-2 text-xl md:text-2xl mb-2 md:mb-4">Your order has been fulfilled. <br />Thanks for shopping with Orderly!</h1> ||
                                 order.status == 'DISPUTED' && <h1 className="font-bold mt-2 text-xl md:text-2xl mb-2 md:mb-4">We're working to resolve you dispute. Sit tight!</h1> 
                             }
-                        <small>ORDER PRODUCTS</small>
+                        <small className="text-red">ORDER PRODUCTS</small>
                         <div className="flex gap-2 flex-col max-h-[300px] overflow-auto mt-2 mb-4 bg-gray-50">
                             {
                                 order.order_products.map((product, idx) => {
@@ -72,7 +72,7 @@ export default function OrderDetailsComponent({order, signedInUser}: {order: IOr
                                 })
                             }
                         </div>
-                        <small>DELIVERY DETAILS</small>
+                        <small className="text-red">DELIVERY DETAILS</small>
                         <div>
                             <p>{`${order.shopper.firstName} ${order.shopper.lastName} - (${order.shopper.phoneNumber}${order.shopper.email ? " ," + order.shopper.email: ""})`}</p>
                             <p></p>
@@ -85,14 +85,14 @@ export default function OrderDetailsComponent({order, signedInUser}: {order: IOr
                                 <span className="text-lg font-bold">GHS{styledCedis(totalCost)}</span>
                             </span>
                         </div>
-                        <div className="mt-2 flex">
-                            <div>
+                        <div className="mt-2 flex w-full md:w-fit">
+                            <div className="w-full">
                                 { 
                                     order.status == 'SENT' && <></> ||
-                                    order.status == 'DECLINED' && <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/s/${order.shop_id.shopNameTag}`}><button>Back to shop</button></Link> ||
+                                    order.status == 'DECLINED' && <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/s/${order.shop_id.shopNameTag}`}><button className="w-full md:w-fit">Back to shop</button></Link> ||
                                     order.status == 'CONFIRMED' && <></> ||
-                                    order.status == 'ON_DELIVERY' && <button onClick={()=>{confirmRef.current?.showModal()}}>I have received my order</button> ||
-                                    order.status == 'FULFILLED' && <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/s/${order.shop_id.shopNameTag}`}><button>Back to shop</button></Link>||
+                                    order.status == 'ON_DELIVERY' && <button className="w-full md:w-fit" onClick={()=>{confirmRef.current?.showModal()}}>I have received my order</button> ||
+                                    order.status == 'FULFILLED' && <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/s/${order.shop_id.shopNameTag}`}><button className="w-full md:w-fit">Back to shop</button></Link>||
                                     order.status == 'DISPUTED' && <></>
                                 }
                             </div>

@@ -1,25 +1,27 @@
 "use client"
 import type { RootState } from "@/constants/orderly.store"
-import { faArrowLeft, faArrowRight, faExternalLink, faExternalLinkSquare, faTrash } from "@fortawesome/free-solid-svg-icons"
+import { faArrowLeft, faExternalLink, faTrash } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
-import { MutableRefObject, RefObject, forwardRef, useRef, useState } from "react"
+import { RefObject, useRef, useState } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { capitalizeAll, fadePages, getCSV } from "@/app/utils/frontend/utils"
 import { IShop } from "@/models/shop.model"
 import { popupText } from "@/components/Popup.component"
 import { clientSupabase } from "@/app/supabase/supabase-client"
-import { Database, Tables, TablesUpdate } from "@/types/supabase"
+import { TablesUpdate } from "@/types/supabase"
 import { setShop, updateShop } from "@/constants/orderly.slice"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import { Dispatch } from "@reduxjs/toolkit"
-import { IUserMetadataWithIDAndEmail } from "@/models/user.model"
+import Link from "next/link"
+import { supportedCountries } from "@/constants/country-codes"
+import { findFlagUrlByIso3Code } from "country-flags-svg"
 
 
 export default function SettingsTabComponent(){
 
-    const {shop, user, products} = useSelector((state: RootState) => state.shopAndUser) 
+    const {shop, user } = useSelector((state: RootState) => state.shopAndUser) 
     const dispatch = useDispatch()
 
     const router = useRouter()
@@ -31,12 +33,39 @@ export default function SettingsTabComponent(){
 
     const defaultPageRef = useRef<HTMLDivElement>(null) 
     const shopPageRef = useRef<HTMLDivElement>(null) 
+    const deleteDialogRef = useRef<HTMLDialogElement>(null)
     
     const [ currentPage, setCurrentPage] = useState<RefObject<HTMLDivElement>>(defaultPageRef)
 
     const allPageRefs :{[key: string] : RefObject<HTMLDivElement>} = {
         'default': defaultPageRef,
         'my-shop': shopPageRef
+    }
+
+
+    function handleDeleteShop(e:any){
+        e.preventDefault()
+        let confirmationValue = e.target[0].value
+        //console.log(confirmationValue, shop.shopNameTag, typeof(confirmationValue), typeof(shop.shopNameTag))
+        if (confirmationValue === shop.shopNameTag){
+            //console.log(confirmationValue)
+            
+            clientSupabase
+            .from('shops')
+            .update({deleted_at: new Date().toISOString()})
+            .eq('id', shop.id)
+            .then(({ error }) => {
+                if(!error){
+                    router.push('/')
+                    popupText(`${shop.name} deleted.`)
+                } else {
+                    console.error(error)
+                    popupText('An error occurred.')
+
+                }
+
+            })
+        }
     }
 
     function changePageTo(nextRefName:string){
@@ -55,6 +84,19 @@ export default function SettingsTabComponent(){
         if(section == '' || section == null){
             return (
                 <>
+                    <dialog ref={deleteDialogRef} className="p-8 border-2 w-96 border-peach rounded-xl">
+                        <div className="flex flex-col gap-4">
+                            <h1 className="text-2xl text-center font-bold">Are you sure you want to delete your shop?</h1>
+                            <h2 className="text-center text-lg" >Enter <span className="text-red font-medium">{shop.shopNameTag}</span> to confirm.</h2>
+                            <form className="flex flex-col gap-4" onSubmit={handleDeleteShop}>
+                                <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="" name="confirmation" required/>
+                                <span className="flex flex-col md:flex-row gap-2 md:gap-4">
+                                    <button className="w-full">Delete My Shop</button>
+                                    <button className="w-full btn-secondary" onClick={(e)=>{e.preventDefault(); deleteDialogRef.current!.close()}}>Cancel</button>
+                                </span>
+                            </form>
+                        </div>
+                    </dialog>
                     <div className="mb-4 md:mb-8 flex w-full md:w-[calc(75%+8rem)] justify-between">
                         <h1 className="font-bold text-2xl">My Settings</h1>
                         <span className=" group flex gap-1 cursor-pointer items-center py-2 px-4 rounded-full bg-gray-100 hover:bg-gray-200 duration-150" style={{display: (currentPage == defaultPageRef) ? 'none': 'flex'}} onClick={()=>{changePageTo('default')}}>
@@ -63,147 +105,56 @@ export default function SettingsTabComponent(){
                         </span>
                     </div>
                     <div className="mb-8 w-full md:w-[calc(75%+8rem)]" ref={settingsParentRef}>
-                        <DefaultSettingsPage 
-                            divRef={defaultPageRef} 
-                            changePageTo={changePageTo}
-                            shop={shop}
-                            router={router}
-                        />
-
-                        <MyShopSettingsPage 
-                            divRef={shopPageRef} 
-                            changePageTo={changePageTo}
-                            shop={shop} 
-                            router={router}
-                            dispatch={dispatch}
-                            user={user}
-                        />
+                        <section className="w-full md:w-[calc(75%+8rem)] mb-8" >
+                            <h3 className="text-gray-500 text-sm mb-4">GENERAL</h3>
+                            <div className="mb-8">
+                                <MyShopSettingsPage 
+                                    divRef={shopPageRef}
+                                    shop={shop} 
+                                    router={router}
+                                    dispatch={dispatch}
+                                />
+                            </div>
+                            <h3 className="text-gray-500 text-sm mb-4">USER</h3>
+                            <Link href={'/settings'}>
+                                <div className="group cursor-pointer rounded-lg flex mb-4 justify-between items-center px-4 py-2 hover:bg-gray-100 duration-150 border-2 border-gray-100" >
+                                    <h2 className="text-xl">My Account</h2>
+                                    <span className="w-10 h-10 bg-peach rounded-full flex items-center justify-center duration-150 group-hover:mr-0 mr-3">
+                                        <FontAwesomeIcon className="w-7" icon={faExternalLink} />
+                                    </span>
+                                </div>
+                            </Link>
+                        </section>
+                        <section className="w-full md:w-[calc(75%+8rem)]">
+                            <div className="bg-red rounded-lg p-4 md:p-8 text-white">
+                                <h1 className="mb-2 md:mb-4">DANGER ZONE</h1>
+                                <div className="group cursor-pointer rounded-lg flex mb-0 md:mb-4 justify-between items-center px-4 py-2 text-black bg-white duration-150 border-2 border-gray-100" onClick={()=>{deleteDialogRef.current!.showModal()}}>
+                                    <h2 className="text-xl">Delete Shop</h2>
+                                    <span className="w-10 h-10 bg-peach rounded-full flex items-center justify-center duration-150 group-hover:bg-red group-hover:text-white">
+                                        <FontAwesomeIcon className="w-7" icon={faTrash} />
+                                    </span>
+                                </div>
+                            </div>
+                        </section>
 
                     </div>
+                    
                 </>
             )    
         }
     }
 }
-
-function DefaultSettingsPage({divRef, changePageTo, shop, router }: {divRef:RefObject<HTMLDivElement>, changePageTo: any, shop: IShop, router: AppRouterInstance}){
-
-    const deleteDialogRef = useRef<HTMLDialogElement>(null)
-
-    function handleDeleteShop(e:any){
-        e.preventDefault()
-        let confirmationValue = e.target[0].value
-        //console.log(confirmationValue, shop.shopNameTag, typeof(confirmationValue), typeof(shop.shopNameTag))
-        if (confirmationValue === shop.shopNameTag){
-            //console.log(confirmationValue)
-            
-            clientSupabase
-            .from('shops')
-            .delete()
-            .eq('id', shop.id)
-            .then(({ error }) => {
-                if(!error){
-                    router.push('/')
-                    popupText(`${shop.name} deleted.`)
-                } else {
-                    console.error(error)
-                    popupText('An error occurred.')
-
-                }
-
-            })
-        }
-    }
-
-    return (
-        <>
-            <dialog ref={deleteDialogRef} className="p-8 border-2 w-96 border-peach rounded-xl">
-                    <div className="flex flex-col gap-4">
-                        <h1 className="text-2xl text-center font-bold">Are you sure you want to delete your shop?</h1>
-                        <h2 className="text-center text-lg" >Enter <span className="text-red font-medium">{shop.shopNameTag}</span> to confirm.</h2>
-                        <form className="flex flex-col gap-4" onSubmit={handleDeleteShop}>
-                            <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="" name="confirmation" required/>
-                            <span className="flex flex-col md:flex-row gap-2 md:gap-4">
-                                <button className="w-full">Delete My Shop</button>
-                                <button className="w-full btn-secondary" onClick={(e)=>{e.preventDefault(); deleteDialogRef.current!.close()}}>Cancel</button>
-                            </span>
-                        </form>
-                    </div>
-                </dialog>
-            <div ref={divRef}>   
-                <section className="w-full md:w-[calc(75%+8rem)] mb-8" >
-                    <h3 className="text-gray-500 text-sm mb-4">GENERAL</h3>
-                    <div className="mb-8">
-                        <DefaultSettingOption 
-                            changePageTo={changePageTo} 
-                            changePageToDest='my-shop'
-                            title="My Shop"
-                        />
-                        {/*
-                        <DefaultSettingOption 
-                            changePageTo={changePageTo} 
-                            changePageToDest=''
-                            title="Deliveries"
-                        />
-                       <DefaultSettingOption 
-                            changePageTo={changePageTo} 
-                            changePageToDest=''
-                            title="Payments & Finances"
-                        />
-                        <DefaultSettingOption 
-                            changePageTo={changePageTo} 
-                            changePageToDest=''
-                            title="Legal and Compliance"
-                        />
-                        */}
-                    </div>
-                    <h3 className="text-gray-500 text-sm mb-4">USER</h3>
-                    <div>
-                        <DefaultSettingOption 
-                            changePageTo={changePageTo} 
-                            changePageToDest=''
-                            title="Account Management (awaiting implementation)"
-                        />
-                        {/*
-                        <DefaultSettingOption 
-                            changePageTo={changePageTo} 
-                            changePageToDest=''
-                            title="Notifications"
-                        />
-                        */}
-                    </div>
-                </section>
-                <section className="w-full md:w-[calc(75%+8rem)]">
-                    <div className="bg-red rounded-lg p-4 md:p-8 text-white">
-                        <h1 className="mb-2 md:mb-4">DANGER ZONE</h1>
-                        <div className="group cursor-pointer rounded-lg flex mb-0 md:mb-4 justify-between items-center px-4 py-2 text-black bg-white duration-150 border-2 border-gray-100" onClick={()=>{deleteDialogRef.current!.showModal()}}>
-                            <h2 className="text-xl">Delete Shop</h2>
-                            <span className="w-10 h-10 bg-peach rounded-full flex items-center justify-center duration-150 group-hover:bg-red group-hover:text-white">
-                                <FontAwesomeIcon className="w-7" icon={faTrash} />
-                            </span>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </>
-    )
-}
-
 function MyShopSettingsPage(
-    { 
-        divRef, 
-        changePageTo, 
-        shop, 
-        user,
+    {
+        divRef,
+        shop,
         router, 
         dispatch
     }
     : {
         divRef:RefObject<HTMLDivElement>, 
-        changePageTo: any, 
         shop: IShop, 
         router:AppRouterInstance,
-        user: IUserMetadataWithIDAndEmail 
         dispatch:Dispatch
     }){
 
@@ -251,7 +202,7 @@ function MyShopSettingsPage(
 
                 console.log(value)
 
-                if(value = shop.shopNameTag){
+                if(value == shop.shopNameTag){
                     return
                 }
 
@@ -376,57 +327,60 @@ function MyShopSettingsPage(
 
     return (
         <>
-            <div className="w-full hidden" ref={divRef}>
-                <h1 className="text-3xl mb-2">Shop Details</h1>
+            <div className="w-full" ref={divRef}>
                 <form className="flex flex-col gap-6" onSubmit={(e)=>e.preventDefault()}>
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='name' className="ml-2 font-bold">Shop Name</label>
-                        <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                            type="text" 
-                            required 
-                            id="name"
-                            name="name"
-                            onChange={handleValueChange}
-                            defaultValue={shop.name} 
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='shopNameTag' className="ml-2 font-bold">Shop Nametag</label>
-                        <span className="flex items-center gap-2">
+                    <span className="flex flex-col md:flex-row gap-6">
+                        <div className="w-full flex flex-col gap-2">
+                            <label htmlFor='name' className="font-medium text-sm" >Shop Name</label>
                             <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                                type="text" 
+                                type="text"
                                 required
-                                id="shopNameTag"
-                                name="shopNameTag"
+                                id="name"
+                                name="name"
                                 onChange={handleValueChange}
-                                defaultValue={shop.shopNameTag} 
+                                defaultValue={shop.name}
                             />
-                            <br className="md:hidden" /> 
-                            <p className="text-red" style={{display: 'none'}} id="nameTagExists">Nametag already taken</p>
-                        </span>
-                    </div>
+                        </div>
+                        <div className="w-full flex flex-col gap-2">
+                            <label htmlFor='shopNameTag' className="font-medium text-sm" >Shop Nametag</label>
+                            <span className="flex items-center gap-2">
+                                <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
+                                    type="text"
+                                    required
+                                    id="shopNameTag"
+                                    name="shopNameTag"
+                                    onChange={handleValueChange}
+                                    defaultValue={shop.shopNameTag}
+                                />
+                                <br className="md:hidden" />
+                                <p className="text-red" style={{display: 'none'}} id="nameTagExists">Nametag already taken</p>
+                            </span>
+                        </div>
+                    </span>
+                    <span className="flex flex-col md:flex-row gap-6">
+                        <div className="w-full flex flex-col gap-2">
+                            <label htmlFor='optionalEmail' className="font-medium text-sm" >Public Shop Email</label>
+                            <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
+                                type="email"
+                                id="optionalEmail"
+                                name="optionalEmail"
+                                onChange={handleValueChange}
+                                defaultValue={shop.optionalEmail ?? ''}
+                            />
+                        </div>
+                        <div className="w-full flex flex-col gap-2">
+                            <label htmlFor='optionalPhone' className="font-medium text-sm" >Public Shop Phone Number</label>
+                            <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
+                            type="text" 
+                            id="optionalPhone"
+                            name="optionalPhone"
+                                onChange={handleValueChange}
+                            defaultValue={shop.optionalPhone ?? ''}
+                            />
+                        </div>
+                    </span>
                     <div className="flex flex-col gap-2">
-                        <label htmlFor='optionalEmail' className="ml-2 font-bold">Public Shop Email</label>
-                        <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                            type="email" 
-                            id="optionalEmail"
-                            name="optionalEmail"
-                            onChange={handleValueChange}
-                            defaultValue={shop.optionalEmail ?? ''} 
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='optionalPhone' className="ml-2 font-bold">Public Shop Phone Number</label>
-                        <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                        type="text" 
-                        id="optionalPhone"
-                        name="optionalPhone"
-                            onChange={handleValueChange}
-                        defaultValue={shop.optionalPhone ?? ''} 
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='tags' className="ml-2 font-bold">Shop Search Tags</label>
+                        <label htmlFor='tags' className="font-medium text-sm" >Shop Search Tags</label>
                         <span className="flex gap-3 items-center">
                             <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
                             type="text" 
@@ -440,101 +394,93 @@ function MyShopSettingsPage(
                             <p className={`${ (updatedShop.tags?.length ?? shop.tags.length) == 4 ? 'text-red' : '' }`}>{updatedShop.tags?.length ?? shop.tags.length}/4</p>
                         </span>
                     </div>
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='city' className="ml-2 font-bold">City</label>
-                        <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                        type="text" 
-                        required
-                        id="city"
-                        name="city"
-                        onChange={handleValueChange}
-                        defaultValue={
-                            //@ts-ignore
-                            shop.location?.city ?? ''} 
-                        />
-                    </div>
 
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='buildingNum' className="ml-2 font-bold">Building Number</label>
-                        <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                        type="text" 
-                        required
-                        id="buildingNum"
-                        name="buildingNum"
-                        onChange={handleValueChange}
-                        defaultValue={
-                            //@ts-ignore 
-                            shop.location?.buildingNum
-                            ?? ''} 
-                        />
-                    </div>
+                    <span className="w-full flex flex-col md:flex-row gap-6">
+                        <div className=" w-full md:w-4/12 flex flex-col gap-2">
+                            <label htmlFor='buildingNum' className="font-medium text-sm" >Building Number</label>
+                            <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
+                            type="text" 
+                            required
+                            id="buildingNum"
+                            name="buildingNum"
+                            onChange={handleValueChange}
+                            defaultValue={
+                                //@ts-ignore 
+                                shop.location?.buildingNum
+                                ?? ''} 
+                            />
+                        </div>
 
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='streetAddress' className="ml-2 font-bold">Street Address</label>
-                        <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                        type="text" 
-                        required
-                        id="streetAddress"
-                        name="streetAddress"
-                        onChange={handleValueChange}
-                        defaultValue={
-                            //@ts-ignore 
-                            shop.location?.streetAddress
-                            ?? ''} 
-                        />
-                    </div>
-                        
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='region' className="ml-2 font-bold">Region</label>
-                        <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                        type="text" 
-                        required
-                        id="region"
-                        name="region"
-                        onChange={handleValueChange}
-                        defaultValue={
-                            //@ts-ignore
-                            shop.location?.region
-                            ?? ''} 
-                        />
-                    </div>
+                        <div className="w-full md:w-8/12 flex flex-col gap-2">
+                            <label htmlFor='streetAddress' className="font-medium text-sm" >Street Address</label>
+                            <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
+                            type="text" 
+                            required
+                            id="streetAddress"
+                            name="streetAddress"
+                            onChange={handleValueChange}
+                            defaultValue={
+                                //@ts-ignore 
+                                shop.location?.streetAddress
+                                ?? ''} 
+                            />
+                        </div>
+                    </span>
+                    <span className="w-full flex flex-col md:flex-row gap-6">
+                        <div className="w-full flex flex-col gap-2">
+                            <label htmlFor='city' className="font-medium text-sm" >City</label>
+                            <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
+                            type="text" 
+                            required
+                            id="city"
+                            name="city"
+                            onChange={handleValueChange}
+                            defaultValue={
+                                //@ts-ignore
+                                shop.location?.city ?? ''} 
+                            />
+                        </div>
 
-                    <div className="flex flex-col gap-2">
-                        <label htmlFor='country' className="ml-2 font-bold">Country</label>
-                        <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
-                        type="text" 
-                        required
-                        id="country"
-                        name="country"
-                        onChange={handleValueChange}
-                        defaultValue={ 
-                            //@ts-ignore
-                            shop.location?.country
-                            ?? ''} 
-                        />
+                        <div className="w-full flex flex-col gap-2">
+                            <label htmlFor='region' className="font-medium text-sm" >Region</label>
+                            <input className="p-2 pl-4 text-lg bg-peach rounded-full w-[clamp(200px,100%,400px)]" 
+                            type="text" 
+                            required
+                            id="region"
+                            name="region"
+                            onChange={handleValueChange}
+                            defaultValue={
+                                //@ts-ignore
+                                shop.location?.region
+                                ?? ''} 
+                            />
+                        </div>
+                    </span>
+
+                    <div className="w-full md:w-48 flex flex-col gap-2">
+                        <label htmlFor='country' className="font-medium text-sm" >Country</label>
+                        <span className="w-full relative">
+                            <select id='country' className="p-2 pl-10 pr-4 bg-peach w-full rounded-full" name="country" onChange={handleValueChange} required>
+                                {
+                                    supportedCountries.map((country, idx) => {
+                                        return (
+                                            <option className="flex bg-white hover:bg-gray-50 duration-150 p-2 items-center gap-2" key={idx} selected={country.isoCode == shop.location?.country} value={country.isoCode}>
+                                                <span className="ml-2">{country.name}</span>
+                                            </option>
+                                        )
+                                    })
+                                }
+                            </select>
+                            <span className="absolute top-[0.6rem] left-4">
+                                <img className="w-[20px] h-[17px]" src={findFlagUrlByIso3Code(updatedShopLocation.country ?? shop.location?.country)} />
+                            </span>
+                        </span>
                     </div>
-                    <div className="ml-1 mb-2 text-gray-400">
-                        <p className="mr-4 inline-block"><span className="font-bold">Date Created:</span> <span className="hidden md:inline">{new Date(shop.createdAt).toUTCString()}</span><span className="inline md:hidden">{new Date(shop.createdAt).toDateString()}</span></p>
+                    <div className="text-gray-400">
                         <p className="inline-block"><span className="font-bold">Last Updated:</span> <span className="hidden md:inline">{new Date(shop.updatedAt).toUTCString()}</span><span className="inline md:hidden">{new Date(shop.createdAt).toDateString()}</span></p>
                     </div>
-                    <button className="w-fit" disabled={!valueChanged || invalidValueProvided} onClick={handleUpdateShopDetails}>Save Changes</button>
+                    <button className={`w-fit ${!valueChanged ? 'hidden': ''}`} disabled={!valueChanged || invalidValueProvided} onClick={handleUpdateShopDetails}>Save Changes</button>
                 </form>
-            </div>
-
-        </>
-    )
-
-}
-
-function DefaultSettingOption({ changePageTo, changePageToDest, title}: { changePageTo: any, changePageToDest: string ,title:string}){
-
-    return (
-        <>
-            <div className="group cursor-pointer rounded-lg flex mb-4 justify-between items-center px-4 py-2 hover:bg-gray-100 duration-150 border-2 border-gray-100" onClick={()=>changePageTo(changePageToDest)}>
-                <h2 className="text-xl">{title}</h2>
-                <span className="w-10 h-10 bg-peach rounded-full flex items-center justify-center duration-150 group-hover:mr-0 mr-3">
-                    <FontAwesomeIcon className="w-7" icon={faExternalLink} />
-                </span>
             </div>
         </>
     )

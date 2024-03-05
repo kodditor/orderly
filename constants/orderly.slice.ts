@@ -35,6 +35,7 @@ interface IShopAndUser {
       shopNameTag: '',
       tags: [],
       updatedAt: '',
+      deleted_at: '',
       user_id: ''
     },
     user: {

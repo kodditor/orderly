@@ -33,7 +33,7 @@ export interface signedInUser {
     id: string,
     email: string,
     firstName: string,
-    lastName: string | null,
+    lastName: string,
     location: {
         id: string,
         buildingNum: string,

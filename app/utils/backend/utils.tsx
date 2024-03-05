@@ -34,7 +34,8 @@ export async function getUser(user_id?: string):Promise<GetUserType> {
                                             lastName,
                                             isOrderly,
                                             phoneNumber,
-                                            shop_id
+                                            shop_id,
+                                            location(*)
                                         `)
                                         .eq('id', session.user.user_metadata.user_metadata)
                                         .returns<signedInUser>()
@@ -51,7 +52,8 @@ export async function getUser(user_id?: string):Promise<GetUserType> {
                                             lastName,
                                             isOrderly,
                                             phoneNumber,
-                                            shop_id
+                                            shop_id,
+                                            location(*)
                                         `)
                                         .eq('id', user_id)
                                         .returns<signedInUser>()

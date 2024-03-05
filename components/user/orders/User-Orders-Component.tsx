@@ -20,7 +20,7 @@ export default function UserOrdersComponent({user}:{user: signedInUser}){
     useEffect(() =>{
         clientSupabase
         .from('orders')
-        .select('*, order_products(price, quantity, product(name, imageURl)), location(*)')
+        .select('*, order_products(price, quantity, product(id, name, imageURL, price, shop_id(shopNameTag))), location(*)')
         .eq('shopper', user.id)
         .returns<IUserOrder[]>()
         .then(({data, error}) => {
@@ -58,11 +58,51 @@ export default function UserOrdersComponent({user}:{user: signedInUser}){
                                 </>
                             }
                             {
-                                !isLoading && orders != null && orders.map((fav, idx) =>{
+                                !isLoading && orders != null && orders.map((order, idx) =>{
+
+                                    let total = 0
+                                    for(let i = 0; i < order.order_products.length; i++){
+                                        total += ( order.order_products[i].price * order.order_products[i].quantity )
+                                    }
                                     return (
-                                        <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/s/`} className="group rounded-lg duration-150 relative bg-white border-[1px] border-gray-200 h-full overflow-hidden flex items-center" key={idx}>
-                                            
-                                        </Link>
+                                        <div className="group rounded-lg duration-150 relative border-[1px] border-gray-200 h-full overflow-hidden flex flex-col" key={idx}>
+                                            <div className="bg-white flex gap-1 cursor-pointer items-center justify-between p-2">
+                                                <span className="flex flex-col md:flex-row md:gap-2 items-center w-10/12">
+                                                    <small className="w-full md:w-1/12 text-xs">#{order.id}</small>
+                                                    <h2 className="w-full md:w-6/12 text-lg font-medium">{order.order_products.length} Product(s)</h2>
+                                                    <span className="w-full md:w-5/12 flex gap-2 md:gap-4 items-center">
+                                                        <span>GHS{styledCedis(total)}</span>
+                                                        <span className="text-xs text-red my-auto">{order.status}</span>
+                                                    </span>
+                                                </span>
+                                                <Link href={`/orders/${order.id}`} className="w-2/12 min-w-[60px] md:min-w-[120px]">
+                                                    <button className="w-full">View<span className="hidden md:inline"> Order</span></button>
+                                                </Link>
+                                            </div>
+                                            <div className=" invisible h-0 overflow-hidden group-hover:visible group-hover:h-fit duration-150">
+                                                <div className="flex flex-col gap-2 items-center w-full ">
+                                                    {   order.order_products.map((ordProduct, idx) => {
+                                                        return (
+                                                            <div className="w-full" key={idx}>
+                                                                 <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/s/${ordProduct.product.shop_id.shopNameTag}/?product=${ordProduct.product.id}`} className="group duration-150 relative bg-white border-t-[1px] border-b-[1px] last:border-b-0 border-gray-200 h-full overflow-hidden flex items-center" key={idx}>
+                                                                    <span className="h-[80px] md:h-[90px] w-[80px] md:w-[90px] aspect-square border-r-2 border-gray-200 overflow-hidden flex justify-center items-center">
+                                                                        <img src={ordProduct.product.imageURL!} />
+                                                                    </span>
+                                                                    <div className="w-[calc(100%-100px)] flex flex-col md:flex-row md:justify-between p-2 md:p-4 gap-1 md:gap-2">
+                                                                        <h1 className="text-lg leading-5 md:leading-normal mb-0 md:mb-0">{ordProduct.product.name}</h1>
+                                                                        <span className="flex flex-row md:justify-end gap-2 items-center md:gap-4">
+                                                                            <h3 className="font-medium text-md md:text-lg">GHS{styledCedis(ordProduct.product.price!)}</h3>
+                                                                            <span className="text-xs">x{ordProduct.quantity}</span>
+                                                                        </span>
+                                                                    </div>
+                                                                </Link>
+                                                            </div>
+                                                        )
+                                                    })
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
                                     )
                                 })
                             }

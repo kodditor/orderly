@@ -10,6 +10,24 @@ export default async function Orders(){
     const {user, error} = await getUser()
 
     if(error){
+
+        if(error.code == '401'){
+            return (
+                <>
+                    <Header signedInUser={null} />
+                    <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
+                        <div className="flex flex-col gap-4 items-center justify-center">
+                            <p className="font-medium text-lg">Please sign in to continue</p>
+                            <Link href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login?to=/orders`}>
+                                <button>Sign In</button>
+                            </Link>
+                        </div>
+                    </main>
+                    <Footer />
+                </>
+            )
+        }
+
         return (
             <>
                 <Header signedInUser={null} />

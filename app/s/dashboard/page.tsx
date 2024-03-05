@@ -1,8 +1,11 @@
 import { serverSupabase } from "@/app//supabase/supabase-server"
 import { getShopDetails } from "@/app/utils/db/supabase-server-queries"
+import Footer from "@/components/Footer.component"
+import Header from "@/components/Header.component"
 import DashboardLoadSkeleton from "@/components/dashboard/DashboardLoadSkeleton.component"
 import ShopDashboardModule from "@/components/dashboard/ShopDashboard.component"
 import { IUserMetadata, IUserMetadataWithIDAndEmail, signedInUser } from "@/models/user.model"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 
 export default async function ShopDashboard(){
@@ -16,7 +19,6 @@ export default async function ShopDashboard(){
     }
 
     const user = session.user
-    //console.log(user)
 
     if(!user.user_metadata.user_metadata)
     {
@@ -39,10 +41,18 @@ export default async function ShopDashboard(){
     if(userQuery.error != null || userQuery.data == null){
         return (
             <>
-                <div className="w-full h-full flex gap-4 justify-center items-center">
-                    <p className="font-bold text-2xl">An error occurred when loading your shop. Please try again later</p>
-                    <p className="text-red text-lg">SB{userQuery.error?.code}</p>
-                </div>
+                <Header signedInUser={null} />
+                <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
+                    <div className="flex flex-col gap-4 items-center justify-center">
+                        <h1 className="font-extrabold text-6xl">500</h1>
+                        <p className="font-medium text-lg">Oh No! We couldn't get your details.</p>
+                        <p>Code: SB{userQuery.error.code}</p>
+                        <Link href={`/`}>
+                            <button>Back to Home</button>
+                        </Link>
+                    </div>
+                </main>
+                <Footer />
             </>
         )
     }
@@ -59,26 +69,24 @@ export default async function ShopDashboard(){
 
     let shopDataQuery = await getShopDetails('id', orderlyUser.shop_id)
     //console.log(data)
-    if(shopDataQuery.error || shopDataQuery.data == null){
+    if(shopDataQuery.error != null || shopDataQuery.data == null || shopDataQuery.data.length == 0){
         return (
             <>
-                <div className="w-full h-full flex gap-4 justify-center items-center">
-                    <p className="font-bold text-2xl">An error occurred when loading your shop. Please try again later</p>
-                    <p className="text-red text-lg">SB{shopDataQuery.error.code}</p>
-                </div>
+                <Header signedInUser={null} />
+                <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
+                    <div className="flex flex-col gap-4 items-center justify-center">
+                        <h1 className="font-extrabold text-6xl">500</h1>
+                        <p className="font-medium text-lg">Oh No! We couldn't get your details.</p>
+                        <p>Code: SB{shopDataQuery.error?.code ?? '404'}</p>
+                        <Link href={`/`}>
+                            <button>Back to Home</button>
+                        </Link>
+                    </div>
+                </main>
+                <Footer />
             </>
         )
     }
-
-    if(shopDataQuery.data.length == 0){
-        return (
-            <DashboardLoadSkeleton />
-        )
-    }       
-
-    //console.log(user.user_metadata)
-
-    //console.log(orderlyUser)
 
     return (
         <>

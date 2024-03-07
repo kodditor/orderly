@@ -43,6 +43,5 @@ export interface signedInUser {
         streetAddress: string
     },
     phoneNumber: string | null,
-    isOrderly: boolean,
     shop_id?: string
 }

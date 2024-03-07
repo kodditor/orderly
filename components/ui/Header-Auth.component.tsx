@@ -12,7 +12,7 @@ export default function HeaderAuth({signedInUser}:{signedInUser: signedInUser | 
             <>
                 <span className="flex gap-2 md:gap-4 items-center">
                     <Link className="text-darkRed text-md font-semibold hover:text-red" href={`${process.env.NEXT_PUBLIC_BASE_URL}/auth/login${ typeof window != 'undefined' ? '?to=' + location.pathname : '' }`}>Log in</Link>
-                    <Link href={'/s/onboarding'}>
+                    <Link href={'/auth/signup?to=/onboarding'}>
                         <button>Get Orderly</button>
                     </Link>
                 </span>
@@ -51,13 +51,13 @@ export default function HeaderAuth({signedInUser}:{signedInUser: signedInUser | 
                     </div>
                 </div>
                 { 
-                    typeof signedInUser.isOrderly == 'undefined' || !signedInUser.isOrderly &&
+                    typeof signedInUser.shop_id == 'undefined' || !signedInUser.shop_id &&
                     <Link href={'/s/onboarding'}>
                         <button>Get Orderly</button>
                     </Link>
                 }
                 { 
-                    typeof signedInUser.isOrderly != 'undefined' && signedInUser.isOrderly &&
+                    typeof signedInUser.shop_id != 'undefined' && signedInUser.shop_id &&
                     <Link href={'/s/dashboard'}>
                         <button>Dashboard</button>
                     </Link>

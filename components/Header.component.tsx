@@ -1,6 +1,4 @@
 import { signedInUser } from "@/models/user.model"
-import { faCog, faHeart, faReceipt } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import Image from "next/image"
 import Link from "next/link"
 import HeaderAuth from "./ui/Header-Auth.component"

@@ -3,24 +3,29 @@ import Header from "../components/Header.component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight, faBoltLightning, faHandsClapping, faShield, faShieldAlt } from "@fortawesome/free-solid-svg-icons";
 import Footer from "@/components/Footer.component";
+import Link from "next/link";
+import { getUser } from "./utils/backend/utils";
 
-export default function Home() {
+export default async function Home() {
+
+	const {user} = await getUser()
+
 	return (
 		<>
-			<Header signedInUser={null} />
+			<Header signedInUser={user} />
 			<main className="w-full h-[100%-4rem]">
 				<section className="flex bg-peach flex-col gap-4 justify-center pt-6 md:pt-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] items-center">
 					<h1 className="text-3xl md:text-6xl text-center font-black w-[80%] md:w-[60%] text-darkRed">Discover the easiest way to sell online</h1>
-					<h3 className="text-xl md:text-2xl text-center w-[80%] md:w-[55%] text-darkRed mb-2">Orderly is the digital storefront solution that enables businesses to list their products and receive orders from online customers. Start selling or buying today!</h3>
+					<h3 className="text-xl text-center w-[80%] md:w-[55%] text-darkRed mb-2">Orderly is the digital storefront solution that enables businesses to list their products and receive orders from online customers. Start selling or buying today!</h3>
 					<span className="flex items-center flex-row gap-2 md:gap-3 mb-4">
-						<a className="" href="https://getwaitlist.com/waitlist/12417">
-							<button className="">Join the Waitlist</button>
-						</a>
+						<Link className="" href="/auth/signup?to=/onboarding">
+							<button className="">Get Orderly</button>
+						</Link>
 						<a href="" className="">
 							<button className="btn-secondary" >Learn More</button>
 						</a>
 					</span>
-					<div className="relative w-[90%] md:w-full h-[25rem] md:h-80">
+					<div className="relative w-[90%] md:w-full h-[25rem] md:h-[19rem]">
 						<Image className="hidden md:block" src={'/img/desktop-dashboard.png'} alt="The Orderly Dashboard page" fill  />
 						<Image className="md:hidden" src={'/img/mobile-dashboard.png'} alt="The Orderly Dashboard page" fill  />
 					</div>
@@ -99,13 +104,15 @@ export default function Home() {
 					<div className="w-full md:w-1/2 flex gap-8 flex-col">
 						<div className="w-full">
 							<div className="w-full flex justify-center md:justify-start">
-								<small className="text-sm text-center md:text-left">SECURE</small>
+								<small className="text-sm text-center md:text-left">COMING SOON</small>
 							</div>
 							<h1 className="text-darkRed leading-snug md:leading-normal w-[85%] md:w-full m-auto text-2xl md:text-4xl mt-4 mb-4 font-bold text-center md:text-left">Convenient and Safe Payment Options</h1>
 							<h4 className=" text-black text-xl w-[85%] md:w-full m-auto md:text-lg text-center md:text-left">We offer a variety of secure payment options to ensure a smooth and worry-free transaction process for our customers. From credit card payments to mobile money transfers, you can choose the option that works best for you.</h4>
 						</div>
 						<div className="flex flex-row justify-center md:justify-start gap-4">
-							<button>Get Orderly</button>
+							<Link className="" href="/auth/signup?to=/onboarding">
+								<button>Get Orderly</button>
+							</Link>
 							<button className="btn-secondary group flex gap-2 items-center">
 								Learn More
 								<FontAwesomeIcon className="group-hover:ml-1 ml-0 duration-150" style={{width: '15px', height: '15px', display: 'inline'}} icon={faArrowRight} />
@@ -152,7 +159,9 @@ export default function Home() {
 					</div>
 					<div className="w-full flex gap-4 justify-center">
 						<div className="flex gap-4 items-center">
-							<button>Get Orderly</button>
+							<Link className="" href="/auth/signup?to=/onboarding">
+								<button>Get Orderly</button>
+							</Link>
 							<button className="btn-secondary group flex gap-2 items-center">
 								Learn More
 								<FontAwesomeIcon className="group-hover:ml-1 ml-0 duration-150" style={{width: '15px', height: '15px', display: 'inline'}} icon={faArrowRight} />

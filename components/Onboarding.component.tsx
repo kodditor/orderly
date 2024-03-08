@@ -1,7 +1,7 @@
 'use client'
 import { copyToClipboard, fadePages, getBlobAndURLFromArrayBuffer, getCSV, getExtension } from "@/app/utils/frontend/utils";
 import Link from "next/link";
-import { useState, useRef, FormEvent } from 'react'
+import { useState, useRef, FormEvent, useEffect } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {  faShareFromSquare, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { clientSupabase } from "@/app/supabase/supabase-client";
@@ -17,6 +17,7 @@ import { findFlagUrlByIso3Code } from "country-flags-svg";
 import Footer from "./Footer.component";
 import { ShopCategories } from "@/constants/shop-categories";
 import { POPUP_STATE } from "@/models/popup.enum";
+import { usePostHog } from "posthog-js/react";
 
 export default function OnboardingComponent({user}: {user: User}){ //Let's try to avoid prop drilling eh?
 
@@ -57,6 +58,11 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
     const [ shopNameTagAllowed, setShopNameTagAllowed ] = useState<boolean>(true)
 
     const parent = useRef<HTMLDivElement|null>(null)
+    const posthog = usePostHog()
+    
+    useEffect(() => {
+        posthog.startSessionRecording()
+    })
 
     function handleChangeQuestions(curr:string, next:string){
         fadePages(parent)

@@ -4,7 +4,7 @@ import { faArrowLeft, faExternalLink, faTrash } from "@fortawesome/free-solid-sv
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { useSearchParams } from "next/navigation"
 import { useRouter } from "next/navigation"
-import { RefObject, useRef, useState } from "react"
+import { RefObject, useEffect, useRef, useState } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { capitalizeAll, fadePages, getCSV } from "@/app/utils/frontend/utils"
 import { IShop } from "@/models/shop.model"
@@ -18,6 +18,7 @@ import Link from "next/link"
 import { supportedCountries } from "@/constants/country-codes"
 import { findFlagUrlByIso3Code } from "country-flags-svg"
 import { POPUP_STATE } from "@/models/popup.enum"
+import { usePostHog } from "posthog-js/react"
 
 
 export default function SettingsTabComponent(){
@@ -42,6 +43,11 @@ export default function SettingsTabComponent(){
         'default': defaultPageRef,
         'my-shop': shopPageRef
     }
+    const posthog = usePostHog()
+    
+    useEffect(() => {
+        posthog.startSessionRecording()
+    })
 
 
     function handleDeleteShop(e:any){
@@ -177,18 +183,6 @@ function MyShopSettingsPage(
                 setUpdatedShopLocation( (prev) =>{
                     return (
                         {
-                            /*
-                            //@ts-ignore
-                            aptNum: shop.location?.aptNum,
-                            //@ts-ignore
-                            city: shop.location?.city,
-                            //@ts-ignore
-                            streetAddress: shop.location?.streetAddress,
-                            //@ts-ignore
-                            region: shop.location?.region,
-                            //@ts-ignore
-                            country: shop.location?.country,
-                            */
                             ...prev,
                             [field]: value
                         }

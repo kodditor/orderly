@@ -1,10 +1,11 @@
 "use client"
 
 import { useSearchParams, useRouter } from "next/navigation"
-import { FormEvent, useRef, useState } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
 
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import HCaptcha from "@hcaptcha/react-hcaptcha"
+import { usePostHog } from "posthog-js/react"
 
 
 export default function UpdatePasswordComponent(){
@@ -24,6 +25,11 @@ export default function UpdatePasswordComponent(){
     const supabase = clientSupabase
 
     let destination = searchParams.get('to')
+
+    const posthog = usePostHog()
+    useEffect(() => {
+        posthog.startSessionRecording()
+    })
 
     async function handlePasswordSubmit(e: FormEvent){
         if(!verified) return

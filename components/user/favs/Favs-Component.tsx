@@ -7,9 +7,10 @@ import { popupText } from "@/components/Popup.component";
 import { IFavourite } from "@/models/favourites.models";
 import { POPUP_STATE } from "@/models/popup.enum";
 import { signedInUser } from "@/models/user.model";
-import { faCross, faHeart, faMinus, faTrashCan, faX } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faTrashCan, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
+import { usePostHog } from "posthog-js/react";
 import { useEffect, useState } from "react";
 
 
@@ -19,7 +20,10 @@ export default function FavsComponent({user}:{user: signedInUser}){
     const [favourites, setFavourites ] = useState<IFavourite[] | null>(null) 
     const [ hasChangedFavourites, changeFavourites ] = useState<boolean>(false)
 
+    const posthog = usePostHog()
     useEffect(() =>{
+        posthog.startSessionRecording()
+        
         clientSupabase
         .from('favourites')
         .select('*, product(*, shop_id(shopNameTag))')

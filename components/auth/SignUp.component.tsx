@@ -4,10 +4,11 @@ import { clientSupabase } from "@/app/supabase/supabase-client";
 import { faEyeSlash, faEye } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useSearchParams } from "next/navigation";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { popupText } from "../Popup.component";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { POPUP_STATE } from "@/models/popup.enum";
+import { usePostHog } from "posthog-js/react";
 
 /*
  * TODO
@@ -40,6 +41,10 @@ export default function SignUpComponent() {
   const supabase = clientSupabase;
 
   let destination = searchParams.get("to");
+  const posthog = usePostHog()
+  useEffect(() => {
+    posthog.startSessionRecording()
+  })
 
   async function handleSignUpSubmit(e: FormEvent) {
     e.preventDefault();

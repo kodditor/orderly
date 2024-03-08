@@ -10,7 +10,7 @@ import { setOrders } from "@/constants/orderly.slice"
 import { getOrdersWithProductsAndShopperDetails } from "@/app/utils/db/supabase-client-queries"
 import {  sortByDateUpdated, styledCedis } from "@/app/utils/frontend/utils"
 import { POPUP_STATE } from "@/models/popup.enum"
-
+import { usePostHog } from "posthog-js/react"
 
 export default function DashboardTabComponent (){
 
@@ -28,6 +28,7 @@ export default function DashboardTabComponent (){
     let timeOfDay = (hour < 12) ? 'Morning' : (hour < 17 ) ? 'Afternoon' : 'Evening'
 
     const supabase = clientSupabase
+    const posthog = usePostHog()
     
     function getTableNum(table: string, setStateAction: Dispatch<SetStateAction<number>>){
         supabase
@@ -49,7 +50,7 @@ export default function DashboardTabComponent (){
     }
 
     useEffect(() =>{
-
+        posthog.startSessionRecording()
         if (products.length === 0){ getTableNum('products', setProductsNum)}
         //getTableNum('orders', setOrdersNum)
 

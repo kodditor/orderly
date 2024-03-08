@@ -2,11 +2,17 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Popup from '@/components/Popup.component'
 import { Analytics } from '@vercel/analytics/react'
+import { PHProvider } from './providers'
+import dynamic from 'next/dynamic'
 
 const metadata: Metadata = {
   title: 'Orderly Ghana',
   description: 'Orderly - The premier Ghanaian digital storefront solution.',
 }
+
+const PostHogPageView = dynamic(() => import('./utils/frontend/PostHogPageView'), {
+  ssr: false,
+})
 
 export default function RootLayout({
   children,
@@ -21,11 +27,14 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="manifest" href="/site.webmanifest" />
       </head>
-      <body>
-        <Popup />
-        {children}
-        <Analytics />
-      </body>
+      <PHProvider>
+        <body>
+          <Popup />
+          <PostHogPageView />
+          {children}
+          <Analytics />
+        </body>
+      </PHProvider>
     </html>
   )
 }

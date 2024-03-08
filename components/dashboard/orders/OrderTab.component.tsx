@@ -15,6 +15,8 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import { sendText } from "@/app/utils/notifications/phone"
 import sendConfirmationEmail from "@/app/utils/notifications/email"
 import { POPUP_STATE } from "@/models/popup.enum"
+import { useDebounceCallback } from "usehooks-ts"
+import { usePostHog } from "posthog-js/react"
 
 function convertDate(dateString: string){
     let date = new Date(dateString)
@@ -42,7 +44,11 @@ function convertDate(dateString: string){
     const declineRef = useRef<HTMLDialogElement>(null)
     const deliverRef = useRef<HTMLDialogElement>(null)
 
+    const posthog = usePostHog()
+    
     useEffect(()=>{
+        posthog.startSessionRecording()
+        
         orders.length == 0 && getOrdersWithProductsAndShopperDetails
         .eq('shop_id', shop.id)
         .then(({data, error}) =>{
@@ -68,7 +74,8 @@ function convertDate(dateString: string){
 
     }, [section])
 
-    function handleConfirmOrder(): void{
+    const handleConfirmOrder = useDebounceCallback(handleConfirmOrderUndebounced, 2000)
+    function handleConfirmOrderUndebounced(): void{
         let date = new Date().toISOString()   
         const updateObject: TablesUpdate<'orders'> = {
             status: "CONFIRMED",
@@ -129,7 +136,8 @@ function convertDate(dateString: string){
         }
     }
 
-    function handleDeclineOrder(): void{        
+    const handleDeclineOrder = useDebounceCallback(handleDeclineOrderUndebounced, 2000)
+    function handleDeclineOrderUndebounced(): void{        
         let date = new Date().toISOString()
         const updateObject: TablesUpdate<'orders'> = {
             status: "DECLINED",
@@ -164,7 +172,8 @@ function convertDate(dateString: string){
         })
     }
 
-    function handleDeliverOrder(): void{
+    const handleDeliverOrder = useDebounceCallback(handleDeliverOrderUndebounced, 2000)
+    function handleDeliverOrderUndebounced(): void{
         let date = new Date().toISOString()
         const updateObject: TablesUpdate<'orders'> = {
             status: "ON_DELIVERY",

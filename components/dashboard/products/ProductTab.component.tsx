@@ -15,6 +15,7 @@ import EditProduct from "./EditProduct.component"
 import { popupText } from "@/components/Popup.component"
 import { getAllProducts } from "@/app/utils/db/supabase-client-queries"
 import { POPUP_STATE } from "@/models/popup.enum"
+import { usePostHog } from "posthog-js/react"
 
 export default function ProductTabComponent(){
 
@@ -37,8 +38,11 @@ export default function ProductTabComponent(){
 
     // will the useffect run after a nav from one of the child pages?
 
-
+    const posthog = usePostHog()
+    
     useEffect(()=>{
+        posthog.startSessionRecording()
+        
         getAllProducts
         .eq('shop_id', shop.id)
         .then(({data, error}) =>{

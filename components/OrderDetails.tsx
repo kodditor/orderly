@@ -1,16 +1,15 @@
 "use client"
-import { IOrderDetails, IOrderResponse } from "@/models/OrderProducts.model";
+import { IOrderDetails } from "@/models/OrderProducts.model";
 import Footer from "./Footer.component";
 import Header from "./Header.component";
 import { styledCedis } from "@/app/utils/frontend/utils";
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { signedInUser } from "@/models/user.model";
+import { usePostHog } from "posthog-js/react";
 
 
 export default function OrderDetailsComponent({order, signedInUser}: {order: IOrderDetails, signedInUser:signedInUser}){
-
-    //console.log(order)
 
     let totalCost = 0
     for (let i=0; i < order.order_products.length; i++){
@@ -18,6 +17,11 @@ export default function OrderDetailsComponent({order, signedInUser}: {order: IOr
     }
 
     const confirmRef = useRef<HTMLDialogElement>(null)
+    
+    const posthog = usePostHog()
+    useEffect(() => {
+        posthog.startSessionRecording()
+    })
 
     function handleConfirmDelivery(){
         throw new Error("Confirm delivery not implemented")

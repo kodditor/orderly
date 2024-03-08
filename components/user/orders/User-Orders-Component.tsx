@@ -10,6 +10,7 @@ import { signedInUser } from "@/models/user.model";
 import { faReceipt} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
+import { usePostHog } from "posthog-js/react";
 import { useEffect, useState } from "react";
 
 
@@ -18,7 +19,11 @@ export default function UserOrdersComponent({user}:{user: signedInUser}){
     const [ isLoading, setIsLoading  ] = useState<boolean>(true)
     const [ orders, setOrders ] = useState<IUserOrder[] | null>(null)
 
+    const posthog = usePostHog()
+    
     useEffect(() =>{
+        posthog.startSessionRecording()
+
         clientSupabase
         .from('orders')
         .select('*, order_products(price, quantity, product(id, name, imageURL, price, shop_id(shopNameTag))), location(*)')

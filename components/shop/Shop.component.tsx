@@ -21,6 +21,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { signedInUser } from "@/models/user.model"
 import { popupText } from "../Popup.component"
 import { POPUP_STATE } from "@/models/popup.enum"
+import { useDebounceCallback } from 'usehooks-ts'
+import { usePostHog } from "posthog-js/react"
 
 export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop, signedInUser: signedInUser | null})
 {
@@ -63,7 +65,11 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
 
     const router = useRouter()
 
+    const posthog = usePostHog()
+    
     useEffect(()=>{
+        posthog.startSessionRecording()
+        
         dispatch(setShop(selectedShop))
         supabase
         .from('products')
@@ -79,7 +85,6 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 }
                 setLoading(false)
             } else {
-                setError(true)
                 setLoading(false)
             }
         })
@@ -230,7 +235,11 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
         emptyCart()
     }
 
-    function addToFavourites(product_id: string){
+
+
+    const addToFavourites = useDebounceCallback(addToFavouritesUndebounced, 500)
+
+    function addToFavouritesUndebounced(product_id: string){
 
         if(!signedInUser){
             popupText('Sign in to add favourites!', POPUP_STATE.WARNING)
@@ -258,7 +267,6 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 prev.push(product_id)
                 return prev
             })
-            //console.log(favourites)
             changeFavourites(prev => !prev)
             popupText(`Added ${data[0].product.name} to your favourites!`, POPUP_STATE.SUCCESS)
         
@@ -266,7 +274,9 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
 
     }
 
-    function removeFromFavourites(product_id: string){
+    const removeFromFavourites = useDebounceCallback(removeFromFavouritesUndebounced, 500)
+
+    function removeFromFavouritesUndebounced(product_id: string){
         if(!signedInUser){
             popupText('Sign in to remove from favourites!', POPUP_STATE.WARNING)
             return
@@ -288,7 +298,6 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 return prev.filter((fav) => fav != product_id)
             })
             changeFavourites(prev => !prev)
-            //console.log(favourites)
             popupText(`Removed from your favourites.`, POPUP_STATE.INFO)
         })
     }

@@ -9,6 +9,7 @@ import { signedInUser } from "@/models/user.model"
 import { TablesUpdate } from "@/types/supabase"
 import { findFlagUrlByIso3Code } from "country-flags-svg"
 import { useRouter } from "next/navigation"
+import { usePostHog } from "posthog-js/react"
 import { ChangeEvent, FormEvent, useEffect, useState } from "react"
 
 
@@ -23,6 +24,11 @@ export default function UserSettingsComponent({user}:{user: signedInUser}){
     const [ isLoading, setIsLoading ] = useState<boolean>(false)
 
     const router = useRouter()
+    const posthog = usePostHog()
+    
+    useEffect(() => {
+        posthog.startSessionRecording()
+    })
 
     function handleValueChange(e: ChangeEvent<HTMLInputElement | HTMLSelectElement>){
         const field = e.target.name

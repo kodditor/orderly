@@ -2,10 +2,11 @@
 
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import { useSearchParams, useRouter } from "next/navigation"
-import { FormEvent, useRef, useState } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
 import { popupText } from "../Popup.component"
 import HCaptcha from "@hcaptcha/react-hcaptcha"
 import { POPUP_STATE } from "@/models/popup.enum"
+import { usePostHog } from "posthog-js/react"
 
 export default function ForgotPasswordComponent(){
 
@@ -22,6 +23,11 @@ export default function ForgotPasswordComponent(){
     const supabase = clientSupabase
 
     let destination = searchParams.get('to')
+    const posthog = usePostHog()
+    
+    useEffect(() => {
+        posthog.startSessionRecording()  
+    })
 
     async function handleEmailSubmit(e: FormEvent){
         if(!verified) return

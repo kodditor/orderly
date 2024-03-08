@@ -7,9 +7,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dispatch, SetStateAction } from "react";
 import { popupText } from "../Popup.component";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { POPUP_STATE } from "@/models/popup.enum";
 
 
-export default function ProductItem({product, allProducts, router, isOpen, setIsOpen, addToCart, favourites, addToFavourites, removeFromFavourites, removeFromCart, shopNameTag
+export default function ProductItem({product, allProducts, isOpen, setIsOpen, addToCart, favourites, addToFavourites, removeFromFavourites, removeFromCart, shopNameTag
 } :{
     product:Tables<'products'> | null, 
     isOpen:boolean, 
@@ -20,7 +21,6 @@ export default function ProductItem({product, allProducts, router, isOpen, setIs
     removeFromFavourites: (product_id: string) => void, 
     favourites: string[],
     removeFromCart: (product:Tables<'products'>)=>void,
-    router: AppRouterInstance
     shopNameTag: string
 }){
 
@@ -49,8 +49,8 @@ export default function ProductItem({product, allProducts, router, isOpen, setIs
         return (
             <>
                 <div className="fixed top-0 flex flex-col md:flex-row w-full h-screen z-[51]">
-                    <div className=" bg-gray-400 opacity-40 w-full h-[30%] md:h-full md:w-[50%] 2xl:w-[65%]" onClick={closeProduct}></div>
-                    <div className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] 2xl:w-[35%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
+                    <div className=" bg-gray-400 opacity-40 w-full h-[20%] md:h-full md:w-[50%] 2xl:w-[65%]" onClick={closeProduct}></div>
+                    <div className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] 2xl:w-[35%] h-[80%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16">
                         <div className="flex flex-col justify-between h-[calc(100%-4rem)]">
                             <div>
                                 <div className="w-full flex flex-col md:flex-row gap-2 md:gap-8">
@@ -91,7 +91,7 @@ export default function ProductItem({product, allProducts, router, isOpen, setIs
                                     <div title="Add to your favourites!" className={`w-[30px] h-[30px] border-2 ${ isAFavourite ? 'bg-red text-white' : 'border-gray-200 bg-gray-200' } hover:bg-red hover:text-white duration-150 cursor-pointer rounded-full grid place-items-center text-darkRed`} onClick={() => isAFavourite ? removeFromFavourites(product.id) : addToFavourites(product.id) }>
                                         <FontAwesomeIcon width={11} height={11} icon={faHeart} />
                                     </div>
-                                    <div title="Share this product!" className="w-[30px] h-[30px] border-2 border-gray-200 bg-gray-200 hover:bg-darkRed hover:text-white duration-150 cursor-pointer rounded-full grid place-items-center text-darkRed"   onClick={()=>{ copyToClipboard(`${location.href}?product=${product.id}`) ? popupText('Product link copied!') : null}}>
+                                    <div title="Share this product!" className="w-[30px] h-[30px] border-2 border-gray-200 bg-gray-200 hover:bg-darkRed hover:text-white duration-150 cursor-pointer rounded-full grid place-items-center text-darkRed"   onClick={()=>{ copyToClipboard(`${location.href}?product=${product.id}`) ? popupText('Product link copied!', POPUP_STATE.INFO) : null}}>
                                         <FontAwesomeIcon width={11} height={11} icon={faShareNodes} />
                                     </div>
                                 </div>

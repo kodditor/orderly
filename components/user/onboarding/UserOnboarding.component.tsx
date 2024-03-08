@@ -6,6 +6,7 @@ import Header from "@/components/Header.component";
 import { popupText } from "@/components/Popup.component";
 import { supportedCountries } from "@/constants/country-codes";
 import { IOTPPayload } from "@/models/otp.model";
+import { POPUP_STATE } from "@/models/popup.enum";
 import { TablesInsert } from "@/types/supabase";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
 import { PostgrestSingleResponse, User } from "@supabase/supabase-js";
@@ -165,7 +166,7 @@ export default function UserOnboardingComponent({user} : {user:User}){
         .then(({data, error}:PostgrestSingleResponse<{id: string}[]>) => {
             if(error){
                 console.log(error)
-                popupText(`SB${error.code}: An error occurred`)
+                popupText(`SB${error.code}: An error occurred`, POPUP_STATE.FAILED)
             } else{
                 if(data[0].id != newUser.id){
                     throw('ids in users table and user_metadata table are not equal')
@@ -195,7 +196,7 @@ export default function UserOnboardingComponent({user} : {user:User}){
         .select('id')
         .then(({data, error}) => {
             if(error != null){
-                popupText(`SB${error.code}: An error occurred while saving your location`)
+                popupText(`SB${error.code}: An error occurred while saving your location`, POPUP_STATE.FAILED)
             }
             else {
                 clientSupabase
@@ -204,10 +205,10 @@ export default function UserOnboardingComponent({user} : {user:User}){
                 .eq('id', user.id)
                 .then(({error}) => {
                     if(error != null){
-                        popupText(`SB${error.code}: An error occurred while saving your location`)
+                        popupText(`SB${error.code}: An error occurred while saving your location`, POPUP_STATE.FAILED)
                     }
                     else {
-                        popupText('Location saved successfully')
+                        popupText('Location saved successfully', POPUP_STATE.SUCCESS)
                         handleChangeQuestions('page3', 'page4')
                         setNewUser((prev) => {
                             return ({

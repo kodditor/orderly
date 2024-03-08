@@ -4,6 +4,7 @@ import Footer from "@/components/Footer.component"
 import Header from "@/components/Header.component"
 import { popupText } from "@/components/Popup.component"
 import { supportedCountries } from "@/constants/country-codes"
+import { POPUP_STATE } from "@/models/popup.enum"
 import { signedInUser } from "@/models/user.model"
 import { TablesUpdate } from "@/types/supabase"
 import { findFlagUrlByIso3Code } from "country-flags-svg"
@@ -73,9 +74,9 @@ export default function UserSettingsComponent({user}:{user: signedInUser}){
                 .eq('id', user.id)
                 .then(({error}) => {
                     if(error != null){
-                        popupText(`SB${error.code}: An error occurred when updating your details.`)
+                        popupText(`SB${error.code}: An error occurred when updating your details.`, POPUP_STATE.FAILED)
                     } else {
-                        !secondChanged ? popupText('Update successful') : null
+                        !secondChanged ? popupText('Update successful', POPUP_STATE.SUCCESS) : null
                         setSecondChanged(false)
                         setIsLoading(false)
                         !secondChanged ? router.refresh : null
@@ -91,9 +92,9 @@ export default function UserSettingsComponent({user}:{user: signedInUser}){
                 .eq('id', user.location.id)
                 .then(({error}) => {
                     if(error != null){
-                        popupText(`SB${error.code}: An error occurred when updating your location.`)
+                        popupText(`SB${error.code}: An error occurred when updating your location.`, POPUP_STATE.FAILED)
                     } else {
-                        popupText('Update successful')
+                        popupText('Update successful', POPUP_STATE.SUCCESS)
                         setSecondChanged(false)
                         setIsLoading(false)
                         router.refresh()

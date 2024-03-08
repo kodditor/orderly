@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { FormEvent, useRef, useState } from "react"
 import { popupText } from "../Popup.component"
 import HCaptcha from "@hcaptcha/react-hcaptcha"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 export default function ForgotPasswordComponent(){
 
@@ -45,7 +46,7 @@ export default function ForgotPasswordComponent(){
 
         if (error){
             setSubmitted(false)
-            popupText(`SB${error.status}: An error occurred. Please try again later.`)
+            popupText(`SB${error.status}: An error occurred. Please try again later.`, POPUP_STATE.FAILED)
             console.log(error)
         } else {
             setEmailSent(true)

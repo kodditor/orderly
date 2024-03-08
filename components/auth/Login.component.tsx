@@ -7,6 +7,7 @@ import { popupText } from "../Popup.component"
 import HCaptcha from "@hcaptcha/react-hcaptcha"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 
 /*
@@ -73,10 +74,10 @@ export default function LoginComponent(){
                 setFailedLogins((prev) => prev + 1)
             }
             if (error?.message == 'Email not confirmed'){
-                popupText('Email not confirmed. Please check you email.')
+                popupText('Email not confirmed. Please check you email.', POPUP_STATE.WARNING)
                 setSubmitted(false)
             } else {
-                popupText('Invalid login details entered.')
+                popupText('Invalid login details entered.', POPUP_STATE.FAILED)
                 //console.log(error)
                 setSubmitted(false)
             }
@@ -99,7 +100,7 @@ export default function LoginComponent(){
                 break;
         
             default:
-                popupText(`An error occurred. ${field} is not a valid field`)
+                popupText(`An error occurred. ${field} is not a valid field`, POPUP_STATE.FAILED)
                 break;
         }
 

@@ -20,6 +20,7 @@ import { faHeart, faMinus, faPlus, faShoppingCart } from "@fortawesome/free-soli
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { signedInUser } from "@/models/user.model"
 import { popupText } from "../Popup.component"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop, signedInUser: signedInUser | null})
 {
@@ -90,7 +91,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
         .then(({data, error}) => {
             if( error != null){
                 console.log(error, signedInUser)
-                popupText(`SB${error.code}: An error occurred while loading your favourites`)
+                popupText(`SB${error.code}: An error occurred while loading your favourites`, POPUP_STATE.FAILED)
             }
             else {
                 setFavourites(data.map((fav) => fav.product!))
@@ -232,7 +233,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
     function addToFavourites(product_id: string){
 
         if(!signedInUser){
-            popupText('Sign in to add favourites!')
+            popupText('Sign in to add favourites!', POPUP_STATE.WARNING)
             return
         }
 
@@ -250,7 +251,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
         .then(({data, error}) => {
             if(error != null){
                 console.log(error)
-                popupText(`SB${error.code}: An error occured while trying to add the product to your favourites`)
+                popupText(`SB${error.code}: An error occured while trying to add the product to your favourites`, POPUP_STATE.FAILED)
                 return
             }
             setFavourites((prev) => {
@@ -259,7 +260,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
             })
             //console.log(favourites)
             changeFavourites(prev => !prev)
-            popupText(`Added ${data[0].product.name} to your favourites!`)
+            popupText(`Added ${data[0].product.name} to your favourites!`, POPUP_STATE.SUCCESS)
         
         })
 
@@ -267,7 +268,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
 
     function removeFromFavourites(product_id: string){
         if(!signedInUser){
-            popupText('Sign in to remove from favourites!')
+            popupText('Sign in to remove from favourites!', POPUP_STATE.WARNING)
             return
         }
         if(!favourites.includes(product_id)) return
@@ -279,7 +280,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
         .then(({error}) => {
             if(error != null){
                 console.log(error)
-                popupText(`SB${error.code}:An error occurred while trying to remove the product from your favourites`)
+                popupText(`SB${error.code}:An error occurred while trying to remove the product from your favourites`, POPUP_STATE.FAILED)
                 return
             }
 
@@ -288,7 +289,7 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
             })
             changeFavourites(prev => !prev)
             //console.log(favourites)
-            popupText(`Removed from your favourites.`)
+            popupText(`Removed from your favourites.`, POPUP_STATE.INFO)
         })
     }
 
@@ -311,7 +312,6 @@ export default function Shop({selectedShop, signedInUser}: {selectedShop: IShop,
                 removeFromFavourites={removeFromFavourites}
                 setIsOpen={setShowProduct} 
                 favourites={favourites}
-                router={router}
                 shopNameTag={shop.shopNameTag}
             />
             <ShopCart 

@@ -11,6 +11,7 @@ import { popupText } from "../Popup.component"
 import { clientSupabase } from "@/app/supabase/supabase-client"
 import { TablesInsert } from "@/types/supabase"
 import HCaptcha from "@hcaptcha/react-hcaptcha"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 
 export default function ShopSideBar({ showCart, setShowCart, cart, signedInUser_id}: 
@@ -39,12 +40,12 @@ export default function ShopSideBar({ showCart, setShowCart, cart, signedInUser_
 
         if(!verified) return 
         if(!signedInUser_id){
-            popupText('Please sign in to report the shop')
+            popupText('Please sign in to report the shop', POPUP_STATE.WARNING)
             reportRef.current?.close()
             return
         }
         if( reportCount >= 3){
-            popupText('You have exceeded your report limit. Please try again later.')
+            popupText('You have exceeded your report limit. Please try again later.', POPUP_STATE.FAILED)
             reportRef.current?.close()
             return
         }
@@ -63,9 +64,9 @@ export default function ShopSideBar({ showCart, setShowCart, cart, signedInUser_
         .select('id')
         .then(({data, error}) => {
             if(error != null){
-                popupText(`SB${error.code}: An error occurred while trying to submit your report.`)
+                popupText(`SB${error.code}: An error occurred while trying to submit your report.`, POPUP_STATE.FAILED)
             } else {
-                popupText(`Your report (#${data[0].id}) has been sumbitted.`)    
+                popupText(`Your report (#${data[0].id}) has been sumbitted.`, POPUP_STATE.INFO)    
                 setReportCount(prev => prev + 1)
                 captchaRef.current?.resetCaptcha()
             }
@@ -156,11 +157,11 @@ export default function ShopSideBar({ showCart, setShowCart, cart, signedInUser_
                                     <div className="absolute top-5 pt-4 right-2">
                                         <div className=" w-[130px] rounded-xl overflow-hidden hidden group-hover:flex flex-col bg-white border-2 border-gray-100">
                                             <div className="px-3 py-2 hover:bg-peach hover:text-darkRed duration-150 bg-white w-full" onClick={()=>{reportRef.current?.show()}}>Report shop</div>
-                                            <div className="px-3 py-2 hover:bg-peach hover:text-darkRed duration-150 bg-white w-full" onClick={()=>{copyToClipboard(`${process.env.NEXT_PUBLIC_BASE_URL}/s/${shop.shopNameTag}`) ? popupText('Link copied!'): null}}>Share Link</div>
+                                            <div className="px-3 py-2 hover:bg-peach hover:text-darkRed duration-150 bg-white w-full" onClick={()=>{copyToClipboard(`${process.env.NEXT_PUBLIC_BASE_URL}/s/${shop.shopNameTag}`) ? popupText('Link copied!', POPUP_STATE.INFO): null}}>Share Link</div>
                                         </div>
                                     </div>
                                 </div>
-                                <span className="md:hidden h-[30px] w-[30px] grid place-items-center text-gray-600 rounded-full bg-gray-100 hover:bg-gray-200" onClick={()=>{copyToClipboard(`${process.env.NEXT_PUBLIC_BASE_URL}/s/${shop.shopNameTag}`) ? popupText('Link copied!'): null}}>
+                                <span className="md:hidden h-[30px] w-[30px] grid place-items-center text-gray-600 rounded-full bg-gray-100 hover:bg-gray-200" onClick={()=>{copyToClipboard(`${process.env.NEXT_PUBLIC_BASE_URL}/s/${shop.shopNameTag}`) ? popupText('Link copied!', POPUP_STATE.INFO): null}}>
                                     <FontAwesomeIcon width={12} height={12} icon={faShareNodes} />
                                 </span>
                                 <p className="md:hidden text-gray-600 font-medium" onClick={()=>{reportRef.current?.show()}}>

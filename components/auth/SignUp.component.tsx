@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { FormEvent, useRef, useState } from "react";
 import { popupText } from "../Popup.component";
 import HCaptcha from "@hcaptcha/react-hcaptcha";
+import { POPUP_STATE } from "@/models/popup.enum";
 
 /*
  * TODO
@@ -57,7 +58,7 @@ export default function SignUpComponent() {
       captchaRef.current!.resetCaptcha();
       setSubmitted(false);
     } else {
-      popupText("An error occurred when trying to sign in.");
+      popupText("An error occurred when trying to sign in.", POPUP_STATE.FAILED);
       if (failedSignUpsCounter + 1 === 5) {
         captchaRef.current!.resetCaptcha();
         setSubmitted(false);
@@ -86,7 +87,7 @@ export default function SignUpComponent() {
         break;
 
       default:
-        popupText(`An error occurred. ${field} is not a valid field`);
+        popupText(`An error occurred. ${field} is not a valid field`, POPUP_STATE.FAILED);
         break;
     }
   }

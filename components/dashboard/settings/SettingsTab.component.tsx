@@ -17,6 +17,7 @@ import { Dispatch } from "@reduxjs/toolkit"
 import Link from "next/link"
 import { supportedCountries } from "@/constants/country-codes"
 import { findFlagUrlByIso3Code } from "country-flags-svg"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 
 export default function SettingsTabComponent(){
@@ -46,9 +47,7 @@ export default function SettingsTabComponent(){
     function handleDeleteShop(e:any){
         e.preventDefault()
         let confirmationValue = e.target[0].value
-        //console.log(confirmationValue, shop.shopNameTag, typeof(confirmationValue), typeof(shop.shopNameTag))
         if (confirmationValue === shop.shopNameTag){
-            //console.log(confirmationValue)
             
             clientSupabase
             .from('shops')
@@ -57,10 +56,10 @@ export default function SettingsTabComponent(){
             .then(({ error }) => {
                 if(!error){
                     router.push('/')
-                    popupText(`${shop.name} deleted.`)
+                    popupText(`${shop.name} deleted.`, POPUP_STATE.INFO)
                 } else {
                     console.error(error)
-                    popupText('An error occurred.')
+                    popupText('An error occurred.', POPUP_STATE.FAILED)
 
                 }
 
@@ -73,7 +72,7 @@ export default function SettingsTabComponent(){
         setTimeout( ()=>{
             currentPage.current!.style.display = 'none'
             allPageRefs[nextRefName]!.current!.style.display = 'block'
-            setCurrentPage(allPageRefs[nextRefName]) // Pray if this doesn't exist
+            setCurrentPage(allPageRefs[nextRefName])
         }, 250)
     }
  
@@ -212,12 +211,12 @@ function MyShopSettingsPage(
                 .eq('shopNameTag', value)
                 .then((res)=>{
                     if(res.error){
-                        popupText(`SB${res.error.code} An error occurred. Try again later.`)
+                        popupText(`SB${res.error.code} An error occurred. Try again later.`, POPUP_STATE.FAILED)
                         console.log(res.error)
                     }
 
                     if(res.data?.length != 0){
-                        popupText('Please choose another name tag')
+                        popupText('Please choose another name tag', POPUP_STATE.INFO)
                         document.getElementById('nameTagExists')!.style.display = 'block'
                         setInvalidValueProvided(true)
                         //console.log(res.data)
@@ -272,7 +271,7 @@ function MyShopSettingsPage(
 
         e.preventDefault()
         if(!valueChanged){
-            popupText('Shop was not updated, nothing changed.')
+            popupText('Shop was not updated, nothing changed.', POPUP_STATE.INFO)
             return
         }
 
@@ -297,7 +296,7 @@ function MyShopSettingsPage(
         .then( ({data, error}) => {
             if(error){
                 console.log(error)
-                popupText(`SB${error.code}: An error occured when updating the location.`)
+                popupText(`SB${error.code}: An error occured when updating the location.`, POPUP_STATE.FAILED)
             } else {
                 //console.log(data, shop.location.id)
                 dispatch(updateShop({ location: data![0] }))
@@ -309,13 +308,13 @@ function MyShopSettingsPage(
                 .then( ({data, error}) =>{
                     if(!error){
                         //console.log(data[0], error, shop.id)
-                        popupText("Shop Updated Successfully")
+                        popupText("Shop Updated Successfully", POPUP_STATE.SUCCESS)
                         //@ts-ignore
                         dispatch(setShop(data[0])) 
                         setTimeout(() => router.push('/s/dashboard'), 1000)
                             
                     } else {
-                        popupText(`SB${error.code}: An error occurred. Please try again later.`)
+                        popupText(`SB${error.code}: An error occurred. Please try again later.`, POPUP_STATE.FAILED)
                         console.error(error)
                     }
                 })

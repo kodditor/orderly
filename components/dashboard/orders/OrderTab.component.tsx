@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons"
 import { sendText } from "@/app/utils/notifications/phone"
 import sendConfirmationEmail from "@/app/utils/notifications/email"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 function convertDate(dateString: string){
     let date = new Date(dateString)
@@ -44,7 +45,7 @@ function convertDate(dateString: string){
         .then(({data, error}) =>{
             if(error){
                 console.log(error)
-                popupText(`SB${error.code}: An error occured when fetching the orders`)
+                popupText(`SB${error.code}: An error occured when fetching the orders`, POPUP_STATE.FAILED)
             } else {
                 dispatch(setOrders(data))
             }
@@ -56,7 +57,7 @@ function convertDate(dateString: string){
         .then(({data, error}) =>{
             if(error){
                 console.error(error)
-                popupText(`SB${error.code}: An error occured when fetching the shop products`)
+                popupText(`SB${error.code}: An error occured when fetching the shop products`, POPUP_STATE.FAILED)
             } else  {
                 dispatch(setProducts(data!))
             }
@@ -80,13 +81,13 @@ function convertDate(dateString: string){
                 //console.log(data)
                 if(error){
                     console.error(error)
-                    popupText(`SB${error.code}: An error occurred when confirming the order.`)
+                    popupText(`SB${error.code}: An error occurred when confirming the order.`, POPUP_STATE.FAILED)
                 } else {
                     //@ts-expect-error
                     sendText(selectedOrder.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} has been confirmed!`)
                     .then(({data, error}) =>{
                         if(error){
-                            popupText(`ARK${error.code}: An error occurred when confirming the order`)
+                            popupText(`ARK${error.code}: An error occurred when confirming the order`, POPUP_STATE.FAILED)
                             confirmationRef.current?.close()
                         } else {
                             sendConfirmationEmail(
@@ -106,10 +107,10 @@ function convertDate(dateString: string){
                                 .then(({data, error}) => {
                                     if(error){
                                         console.log(error)
-                                        popupText(`RS: An error occurred when confirming the order`)
+                                        popupText(`RS: An error occurred when confirming the order`, POPUP_STATE.FAILED)
                                         confirmationRef.current?.close()
                                     } else {
-                                        popupText('Order confirmed! The shopper has been notified.')
+                                        popupText('Order confirmed! The shopper has been notified.', POPUP_STATE.SUCCESS)
                                         confirmationRef.current?.close()
                                     }
                                     setOrderActionProcessing(false)
@@ -119,7 +120,7 @@ function convertDate(dateString: string){
                 } 
             })
         } else {
-            popupText('No order selected!')
+            popupText('No order selected!', POPUP_STATE.WARNING)
         }
     }
 
@@ -138,16 +139,16 @@ function convertDate(dateString: string){
             //console.log(data)
             if(error){
                 console.error(error)
-                popupText(`SB${error.code}: An error occurred when confirming the order.`)
+                popupText(`SB${error.code}: An error occurred when confirming the order.`, POPUP_STATE.FAILED)
             } else {
                 //@ts-expect-error
                 sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} has been declined.`)
                 .then(({data, error}) =>{
                     if(error){
-                        popupText(`ARK${error.code}: An error occurred when declining the order`)
+                        popupText(`ARK${error.code}: An error occurred when declining the order`, POPUP_STATE.FAILED)
                         declineRef.current?.close()
                     } else {
-                        popupText('Order Declined. The shopper has been notified.')
+                        popupText('Order Declined. The shopper has been notified.', POPUP_STATE.SUCCESS)
                         declineRef.current?.close()
                         router.push('/s/dashboard?tab=orders')
                     }
@@ -171,16 +172,16 @@ function convertDate(dateString: string){
             //console.log(data)
             if(error){
                 console.error(error)
-                popupText(`SB${error.code}: An error occurred when notifying the customer of your delivery.`)
+                popupText(`SB${error.code}: An error occurred when notifying the customer of your delivery.`, POPUP_STATE.FAILED)
             } else {
                 //@ts-expect-error
                 sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} is out for delivery!\nYou can verify the delivery at https://orderlygh.shop/orders/${selectedOrder!.id}`)
                 .then(({data, error}) =>{
                     if(error){
-                        popupText(`ARK${error.code}: An error occurred when notifying the customer of your delivery.`)
+                        popupText(`ARK${error.code}: An error occurred when notifying the customer of your delivery.`, POPUP_STATE.FAILED)
                         declineRef.current?.close()
                     } else {
-                        popupText('Order sent out for delivery. The customer has been notified.')
+                        popupText('Order sent out for delivery. The customer has been notified.',POPUP_STATE.SUCCESS)
                         declineRef.current?.close()
                         router.push('/s/dashboard?tab=orders')
                     }

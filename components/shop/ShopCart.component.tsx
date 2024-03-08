@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Dispatch,   RefObject, SetStateAction, useRef, useState } from "react"
 import { popupText } from "../Popup.component"
 import { IShop } from "@/models/shop.model"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 export default function ShopCart({cart, showCart, setShowCart, allProducts, removeFromCart, addToCart, setCart, shop, clearCart}: 
         {
@@ -63,7 +64,7 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                 if(error){
                     console.log(error)
                     setIsSendingOrder(false)
-                    popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`)
+                    popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`, POPUP_STATE.FAILED)
                 } else {
                     //@ts-ignore
                     let orderDetails = data[0] as IOrderResponse
@@ -85,13 +86,13 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
                         if(error){
                             console.log(error)
                             setIsSendingOrder(false)
-                            popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`)
+                            popupText(`SB${error.code}: Oops! An error occurred, please try again in 5 minutes.`, POPUP_STATE.FAILED)
                         } else {
                             orderDetails.products = data
                             setOrderResponse(orderDetails)
                             setIsSendingOrder(false)
                             clearCart()
-                            popupText('Order submitted!')
+                            popupText('Order submitted!', POPUP_STATE.WARNING)
                             //console.log(orderDetails)
                         } 
                     })
@@ -99,8 +100,8 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
             })
 
         } else { // The person is not an orderly user.
-            // This will never happen now
-            popupText('Please sign in to continue.')
+            // This should never happen now
+            popupText('Please sign in to continue.', POPUP_STATE.WARNING)
             return
         }
     }
@@ -162,8 +163,8 @@ export default function ShopCart({cart, showCart, setShowCart, allProducts, remo
         return (
             <>
                 <div className="z-[51] top-0 left-0 fixed w-screen flex flex-col md:flex-row h-screen">
-                    <div className="w-full md:w-[50%] 2xl:w-[65%] h-[30%] md:h-full bg-gray-400 opacity-40" onClick={()=>{setShowCart(false)}}></div>
-                    <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] 2xl:w-[35%] h-[70%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
+                    <div className="w-full md:w-[50%] 2xl:w-[65%] h-[20%] md:h-full bg-gray-400 opacity-40" onClick={()=>{setShowCart(false)}}></div>
+                    <div  className="bg-white opacity-100 shadow-lg w-full md:mt-0 md:w-[50%] 2xl:w-[35%] h-[80%] overflow-y-auto md:h-full p-4 pt-6 md:pt-16 md:p-16 ">
                         <div className="w-full h-full" ref={parentRef}>
                             { /* Cart Page */}
                             <div ref={cartRef} style={{display: 'flex'}} className="flex flex-col justify-between h-full">

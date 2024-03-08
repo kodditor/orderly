@@ -12,6 +12,7 @@ import { TablesInsert } from "@/types/supabase";
 
 import { popupText } from "@/components/Popup.component";
 import { cedisToPesewas, getBlobAndURLFromArrayBuffer, getCSV, getExtension, pesewasToCedis, styledCedis } from "@/app/utils/frontend/utils"
+import { POPUP_STATE } from '@/models/popup.enum';
 
 export default function AddProduct(){
     
@@ -124,18 +125,18 @@ export default function AddProduct(){
             .insert(insertObject)
             .then(({error})=>{
                 if(!error){
-                    popupText(`Added New Product: ${newProduct.name}`)
+                    popupText(`Added New Product: ${newProduct.name}`, POPUP_STATE.SUCCESS)
                     router.push('/s/dashboard?tab=products')
                     setSubmitted(true)
                 } else {
-                    popupText('An error occurred. Please try again later')
+                    popupText('An error occurred. Please try again later', POPUP_STATE.FAILED)
                     console.log('Error: ', error)
                     setSubmitted(true)
                 }
             })
         })
         .catch((error) =>{
-            popupText('An error occurred. Please try again later')
+            popupText('An error occurred. Please try again later', POPUP_STATE.FAILED)
             console.log('Error: ', error)
         })
     }

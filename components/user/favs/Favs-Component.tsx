@@ -5,6 +5,7 @@ import Footer from "@/components/Footer.component";
 import Header from "@/components/Header.component";
 import { popupText } from "@/components/Popup.component";
 import { IFavourite } from "@/models/favourites.models";
+import { POPUP_STATE } from "@/models/popup.enum";
 import { signedInUser } from "@/models/user.model";
 import { faCross, faHeart, faMinus, faTrashCan, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -25,7 +26,7 @@ export default function FavsComponent({user}:{user: signedInUser}){
         .returns<IFavourite[]>()
         .then(({data, error}) => {
             if(error != null){
-                popupText(`SB${error.code}: An error occurred`)
+                popupText(`SB${error.code}: An error occurred`, POPUP_STATE.FAILED)
             }
             else {
                 setFavourites(data)
@@ -46,7 +47,7 @@ export default function FavsComponent({user}:{user: signedInUser}){
         .then(({error}) => {
             if(error != null){
                 console.log(error)
-                popupText(`SB${error.code}:An error occurred while trying to remove the product from your favourites`)
+                popupText(`SB${error.code}:An error occurred while trying to remove the product from your favourites`, POPUP_STATE.FAILED)
                 return
             }
             setFavourites((prev) => {
@@ -58,7 +59,7 @@ export default function FavsComponent({user}:{user: signedInUser}){
                 ])
             })
             changeFavourites(prev => !prev)
-            popupText(`Removed from your favourites.`)
+            popupText(`Removed from your favourites.`, POPUP_STATE.INFO)
         })
     }
 

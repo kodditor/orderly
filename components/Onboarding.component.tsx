@@ -16,6 +16,7 @@ import { supportedCountries } from "@/constants/country-codes";
 import { findFlagUrlByIso3Code } from "country-flags-svg";
 import Footer from "./Footer.component";
 import { ShopCategories } from "@/constants/shop-categories";
+import { POPUP_STATE } from "@/models/popup.enum";
 
 export default function OnboardingComponent({user}: {user: User}){ //Let's try to avoid prop drilling eh?
 
@@ -127,7 +128,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
         .then(({data, error}: PostgrestSingleResponse<{id: string}[]>) => {
             if(error){
                 console.log(error)
-                popupText(`SB${error.code}: An error occurred.`)
+                popupText(`SB${error.code}: An error occurred.`, POPUP_STATE.FAILED)
                 setSubmitted(false)
             } else {
                 let shopLocationID = data[0].id 
@@ -163,7 +164,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                     .then(({error}) => {
                         if(error){
                             console.log(error)
-                            popupText(`SB${error.code}: An error occurred.`)
+                            popupText(`SB${error.code}: An error occurred.`, POPUP_STATE.FAILED)
                             setSubmitted(false)
                         } else {
                             supabase
@@ -192,7 +193,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                                 .then(({error}: brevoApiResponse) => {
                                     if(error != null){
                                         console.log(error)
-                                        popupText(`BR${error.code}: An error occurred, please try again later`)
+                                        popupText(`BR${error.code}: An error occurred, please try again later`, POPUP_STATE.FAILED)
                                         setSubmitted(false)
                                     } else {
                                         handleChangeQuestions('page3', 'page4')
@@ -260,7 +261,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
                 .then(({ data, error }) =>{
                     if(error){
                         console.log(error)
-                        popupText(`SB${error.code}: An error occurred`)
+                        popupText(`SB${error.code}: An error occurred`, POPUP_STATE.FAILED)
                     } else {
                         if( data.length == 0 ){
                             setShopNameTagAllowed(true)
@@ -425,7 +426,7 @@ export default function OnboardingComponent({user}: {user: User}){ //Let's try t
 
                     <div className="flex flex-col items-center gap-4 w-80" style={{display: 'none'}} id='page4'>
                         <h1 className="text-2xl text-center font-bold">All done! What's next?</h1>
-                        <p className="">Show orderly to the <span className="text-red group relative cursor-pointer">world!<span className="hidden group-hover:block -top-2 left-4  absolute pl-10"><span className="p-2 rounded-lg shadow hover:shadow-md duration-150 bg-white border-2 border-gray-50 text-gray-800 hover:text-red" onClick={()=>{copyToClipboard(`${process.env.NEXT_PUBLIC_BASE_URL}/s/${newShop.shopNameTag}`) ? popupText(`Your shop is live!\n You can share ${process.env.NEXT_PUBLIC_BASE_URL}/s/${newShop.shopNameTag} online!`) : null}}><FontAwesomeIcon width={12} icon={faShareFromSquare} /></span></span></span></p>
+                        <p className="">Show orderly to the <span className="text-red group relative cursor-pointer">world!<span className="hidden group-hover:block -top-2 left-4  absolute pl-10"><span className="p-2 rounded-lg shadow hover:shadow-md duration-150 bg-white border-2 border-gray-50 text-gray-800 hover:text-red" onClick={()=>{copyToClipboard(`${process.env.NEXT_PUBLIC_BASE_URL}/s/${newShop.shopNameTag}`) ? popupText(`Your shop is live!\n You can share ${process.env.NEXT_PUBLIC_BASE_URL}/s/${newShop.shopNameTag} online!`, POPUP_STATE.SUCCESS) : null}}><FontAwesomeIcon width={12} icon={faShareFromSquare} /></span></span></span></p>
                         <div className="flex flex-col mb-4 text-center gap-3 p-8 bg-peach rounded-xl shadow-sm w-80">
                             <h3 className="font-bold text-xl">You can do all this - and more - with Orderly!</h3>
                             <p>Take client orders</p>

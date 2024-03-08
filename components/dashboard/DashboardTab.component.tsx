@@ -9,6 +9,7 @@ import { popupText } from "../Popup.component"
 import { setOrders } from "@/constants/orderly.slice"
 import { getOrdersWithProductsAndShopperDetails } from "@/app/utils/db/supabase-client-queries"
 import {  sortByDateUpdated, styledCedis } from "@/app/utils/frontend/utils"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 
 export default function DashboardTabComponent (){
@@ -61,7 +62,7 @@ export default function DashboardTabComponent (){
             .then(({data, error}) =>{
                 if(error){
                     console.log(error)
-                    popupText(`SB${error.code}: An error occured when fetching the orders`)
+                    popupText(`SB${error.code}: An error occured when fetching the orders`, POPUP_STATE.FAILED)
                 } else {
                     //console.log(data)
                     dispatch(setOrders(data.sort(sortByDateUpdated)))

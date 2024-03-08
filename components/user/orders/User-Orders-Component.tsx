@@ -4,6 +4,7 @@ import { styledCedis } from "@/app/utils/frontend/utils";
 import Footer from "@/components/Footer.component";
 import Header from "@/components/Header.component";
 import { popupText } from "@/components/Popup.component";
+import { POPUP_STATE } from "@/models/popup.enum";
 import { IUserOrder } from "@/models/server.model";
 import { signedInUser } from "@/models/user.model";
 import { faReceipt} from "@fortawesome/free-solid-svg-icons";
@@ -25,7 +26,7 @@ export default function UserOrdersComponent({user}:{user: signedInUser}){
         .returns<IUserOrder[]>()
         .then(({data, error}) => {
             if(error != null){
-                popupText(`SB${error.code}: An error occurred`)
+                popupText(`SB${error.code}: An error occurred`, POPUP_STATE.INFO)
             }
             else {
                 setOrders(data)

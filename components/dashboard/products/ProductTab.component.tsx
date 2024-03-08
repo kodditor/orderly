@@ -14,6 +14,7 @@ import AddProduct from "./AddProduct.component"
 import EditProduct from "./EditProduct.component"
 import { popupText } from "@/components/Popup.component"
 import { getAllProducts } from "@/app/utils/db/supabase-client-queries"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 export default function ProductTabComponent(){
 
@@ -64,7 +65,7 @@ export default function ProductTabComponent(){
             if(!error){
                 console.log(data)
                 dispatch(removeProduct(selectedProduct!))
-                popupText(`Deleted ${selectedProduct!.name}`)
+                popupText(`Deleted ${selectedProduct!.name}`, POPUP_STATE.INFO)
                 deleteDialogRef.current?.close()
 
             } else {

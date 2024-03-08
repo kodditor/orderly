@@ -10,6 +10,7 @@ import { faBars, faClose, faCog, faHome, faReceipt, faShoppingBag } from "@forta
 import { faInstagram, faFacebook, faXTwitter, faTiktok } from "@fortawesome/free-brands-svg-icons"
 import { useState } from "react"
 import { popupText } from "../Popup.component"
+import { POPUP_STATE } from "@/models/popup.enum"
 
 
 export default function DashboardHeader(){
@@ -25,7 +26,7 @@ export default function DashboardHeader(){
     function handleSignOut(){
         supabase.auth.signOut().then((data) => {
             router.push('/')
-            popupText('You signed out')
+            popupText('You signed out', POPUP_STATE.SUCCESS)
         })
     }
 

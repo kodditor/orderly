@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Header from "../components/Header.component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRight, faBoltLightning, faHandsClapping, faShield, faShieldAlt } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRight, faBoltLightning, faHandsClapping, faShieldAlt } from "@fortawesome/free-solid-svg-icons";
 import Footer from "@/components/Footer.component";
 import Link from "next/link";
 import { getUser } from "./utils/backend/utils";
@@ -25,7 +25,7 @@ export default async function Home() {
 							<button className="btn-secondary" >Learn More</button>
 						</a>
 					</span>
-					<div className="relative w-[90%] md:w-full h-[25rem] md:h-[19rem]">
+					<div className="hero-image relative w-[90%] md:w-full h-[25rem] md:h-[19rem]">
 						<Image className="hidden md:block" src={'/img/desktop-dashboard.png'} alt="The Orderly Dashboard page" fill  />
 						<Image className="md:hidden" src={'/img/mobile-dashboard.png'} alt="The Orderly Dashboard page" fill  />
 					</div>

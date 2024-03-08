@@ -29,6 +29,9 @@ function convertDate(dateString: string){
     const [ selectedOrder, setSelectedOrder ] = useState<ordersType[0] | null>(null)
     const [ dataLoading, setLoading ] = useState<boolean>(true)
 
+    const [ deliveryRider, setDeliveryRider ] = useState<string | null>(null)
+    const [ riderNotUsed, setRiderNotUsed ] = useState<boolean>(false)
+
     const [orderActionProcessing, setOrderActionProcessing ] = useState<boolean>(false)
 
     const searchParams = useSearchParams()
@@ -65,10 +68,12 @@ function convertDate(dateString: string){
 
     }, [section])
 
-    function handleConfirmOrder(): void{        
+    function handleConfirmOrder(): void{
+        let date = new Date().toISOString()   
         const updateObject: TablesUpdate<'orders'> = {
             status: "CONFIRMED",
-            updated_at: new Date().toISOString()
+            confirmed_at: date,
+            updated_at: date
         }
 
         if(selectedOrder){
@@ -125,10 +130,12 @@ function convertDate(dateString: string){
     }
 
     function handleDeclineOrder(): void{        
+        let date = new Date().toISOString()
         const updateObject: TablesUpdate<'orders'> = {
             status: "DECLINED",
             isActive: false,
-            updated_at: new Date().toISOString()
+            declined_at: date,
+            updated_at: date,
         }
 
         accessOrders
@@ -158,24 +165,25 @@ function convertDate(dateString: string){
     }
 
     function handleDeliverOrder(): void{
+        let date = new Date().toISOString()
         const updateObject: TablesUpdate<'orders'> = {
             status: "ON_DELIVERY",
+            delivery_rider_contact: riderNotUsed ? shop.optionalPhone ?? '' : deliveryRider!,
             isActive: false,
-            updated_at: new Date().toISOString()
+            updated_at: date,
         }
 
         accessOrders
         .update(updateObject)
         .eq('id', selectedOrder!.id)
         .select()
-        .then(({data, error}) => {
-            //console.log(data)
+        .then(({error}) => {
             if(error){
                 console.error(error)
                 popupText(`SB${error.code}: An error occurred when notifying the customer of your delivery.`, POPUP_STATE.FAILED)
             } else {
                 //@ts-expect-error
-                sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} is out for delivery!\nYou can verify the delivery at https://orderlygh.shop/orders/${selectedOrder!.id}`)
+                sendText(selectedOrder!.shopper.phoneNumber, `Your order (#${selectedOrder!.id}) from ${selectedOrder!.shopName} is out for delivery!\nYou can verify the delivery at ${process.env.NEXT_PUBLIC_BASE_URL}/orders/${selectedOrder!.id}`)
                 .then(({data, error}) =>{
                     if(error){
                         popupText(`ARK${error.code}: An error occurred when notifying the customer of your delivery.`, POPUP_STATE.FAILED)
@@ -196,8 +204,6 @@ function convertDate(dateString: string){
         case 'order':
             const orderID = searchParams.get('id')
             const order = orders.find((order) => { return order.id.toString() == orderID} ) 
-
-            //console.log(order)
             
             if(order){
 
@@ -237,14 +243,22 @@ function convertDate(dateString: string){
                             </div>
                         </dialog>
                         <dialog ref={deliverRef} className="w-[90%] md:max-w-[400px] rounded-xl overflow-hidden">
-                            <div className="p-6 flex flex-col gap-3">
+                            <form onSubmit={(e)=>{e.preventDefault(); handleDeliverOrder()}} className="p-6 flex flex-col gap-3">
                                 <h1 className="text-xl font-semibold">Deliver order #{selectedOrder?.id}?</h1>
                                 <p>This will notify the customer that their order is out for delivery.</p>
+                                <span className="w-full flex flex-col gap-2">
+                                    <label className="text-sm" htmlFor="delivery_rider">Delivery Rider Contact</label>
+                                    <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="0207770777" disabled={riderNotUsed} type="text" name="delivery_rider" id='delivery_rider' pattern="[0-9]*." maxLength={13} minLength={8} onChange={(e)=>{setDeliveryRider(e.target.value)}} required/>
+                                    <label>
+                                        <input checked={riderNotUsed} onChange={(e) => {setRiderNotUsed(prev => !prev)}} type="checkbox" />
+                                        
+                                    </label>
+                                </span>
                                 <div className="flex gap-2 mt-2">
-                                    <button className="w-1/2" onClick={handleDeliverOrder}>Deliver Order</button>
-                                    <button className="btn-secondary w-1/2" onClick={()=>{deliverRef.current?.close()}}>Cancel</button>
+                                    <button className="w-1/2">Deliver Order</button>
+                                    <button className="btn-secondary w-1/2" onClick={(e)=>{e.preventDefault(); deliverRef.current?.close()}}>Cancel</button>
                                 </div>
-                            </div>
+                            </form>
                         </dialog>
                         <section className="w-full md:w-[calc(75%+8rem)]">
                             <span className="mb-4 flex gap-4 items-center">

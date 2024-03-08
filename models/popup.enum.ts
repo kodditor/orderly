@@ -1,6 +1,6 @@
 
 
-export enum POPUP_ICON {
+export enum POPUP_STATE {
     WARNING = "WARNING",
     INFO = "INFO",
     SUCCESS = "SUCCESS",

@@ -55,7 +55,7 @@ button:hover {
   color:white;
 }
 
-button:disabled, button[disabled], button[disabled]:hover button:disabled:hover {
+button:disabled, button[disabled], button[disabled]:hover, button:disabled:hover, input:disabled {
   background-color: rgba(200,200,200,.5);
   color: rgba(75, 75, 75, 0.4);
   border-color: rgba(200,200,200,.5);

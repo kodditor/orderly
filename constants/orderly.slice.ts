@@ -2,13 +2,13 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { IShop } from '@/models/shop.model'
 import { merge } from 'lodash'
-import { IUserMetadataWithIDAndEmail } from '@/models/user.model'
+import { IUserMetadataWithIDAndEmail, signedInUser } from '@/models/user.model'
 import { Tables } from '@/types/supabase'
 import { ordersType } from '@/app/utils/db/supabase-client-queries'
 
 interface IShopAndUser {
   shop : IShop
-  user :IUserMetadataWithIDAndEmail
+  user :signedInUser
   products: Tables<'products'>[]
   orders: ordersType
 }
@@ -42,9 +42,9 @@ interface IShopAndUser {
       id: '',
       email: '',
       firstName: '',
-      isOrderly: true,
       lastName: '',
       location: {
+        id: '',
         buildingNum: '',
         city: '',
         country: '',
@@ -52,17 +52,13 @@ interface IShopAndUser {
         streetAddress: ''
       },
       phoneNumber: '',
-      plan: {
-        isAnnual: true,
-        name: ''
-      },
       shop_id: ''
     },
     products: [],
     orders: []
   }
   
-  export function getOrderlyReducer(shop: IShop,user: IUserMetadataWithIDAndEmail){
+  export function getOrderlyReducer(shop: IShop,user: signedInUser){
 
     const initialState: IShopAndUser = {
       shop: shop,
@@ -86,7 +82,7 @@ interface IShopAndUser {
           }
           // Probably call a supabase update func here
         },
-        setUser: (state, action: PayloadAction<IUserMetadataWithIDAndEmail>) => {
+        setUser: (state, action: PayloadAction<signedInUser>) => {
           state.user = action.payload
         },
         setProducts: (state, action: PayloadAction<Tables<'products'>[]>) => {
@@ -128,7 +124,7 @@ interface IShopAndUser {
           ...action
         }
       },
-      setUser: (state, action: PayloadAction<IUserMetadataWithIDAndEmail>) => {
+      setUser: (state, action: PayloadAction<signedInUser>) => {
         state.user = action.payload
       },
       setProducts: (state, action: PayloadAction<Tables<'products'>[]>) => {

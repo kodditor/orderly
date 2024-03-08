@@ -169,7 +169,6 @@ function convertDate(dateString: string){
         const updateObject: TablesUpdate<'orders'> = {
             status: "ON_DELIVERY",
             delivery_rider_contact: riderNotUsed ? shop.optionalPhone ?? '' : deliveryRider!,
-            isActive: false,
             updated_at: date,
         }
 
@@ -249,9 +248,9 @@ function convertDate(dateString: string){
                                 <span className="w-full flex flex-col gap-2">
                                     <label className="text-sm" htmlFor="delivery_rider">Delivery Rider Contact</label>
                                     <input className="p-2 pl-4 bg-peach rounded-full w-full" placeholder="0207770777" disabled={riderNotUsed} type="text" name="delivery_rider" id='delivery_rider' pattern="[0-9]*." maxLength={13} minLength={8} onChange={(e)=>{setDeliveryRider(e.target.value)}} required/>
-                                    <label>
+                                    <label className="text-xs flex gap-2">
                                         <input checked={riderNotUsed} onChange={(e) => {setRiderNotUsed(prev => !prev)}} type="checkbox" />
-                                        
+                                        Delivering without a rider
                                     </label>
                                 </span>
                                 <div className="flex gap-2 mt-2">
@@ -322,7 +321,7 @@ function convertDate(dateString: string){
                                             <button className="w-full"  onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); deliverRef.current?.showModal()}}>Deliver Order</button>
                                         }
                                         { order.status == "ON_DELIVERY" &&
-                                            <button className="w-full">Contact Delivery Rider</button>
+                                            <a href={`tel:${order.delivery_rider_contact}`}><button className="w-full">Contact Delivery Rider</button></a>
                                         }
                                         { order.status == "FULFILLED" &&
                                             <button className="w-full" disabled>Unavailable</button>
@@ -426,29 +425,9 @@ function convertDate(dateString: string){
                                                             <h2 className="text-gray-400">{order.order_products?.length} Products</h2>
                                                         </span>
                                                         <p className="flex justify-center items-center font-bold">GHS{styledCedis(total)}</p>
-                                                        <p className="flex justify-center text-sm items-center" >{order.status}</p>
+                                                        <p className="flex justify-center text-sm items-center" >{order.status.replace('_', ' ')}</p>
                                                         <div className="flex items-center justify-center">
-                                                            { order.status == "SENT" &&
-                                                                <button className="mr-2 btn-secondary" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); confirmationRef.current?.showModal()}}>Confirm Order</button>
-                                                            }
-                                                            { order.status == "CONFIRMED" &&
-                                                                <button className="mr-2 btn-secondary" onClick={(e)=>{e.preventDefault(); setSelectedOrder(order); deliverRef.current?.showModal()}}>Deliver Order</button>
-                                                            }
-                                                            { order.status == "ON_DELIVERY" &&
-                                                                <button className="mr-2 btn-secondary">Contact Rider</button>
-                                                            }
-                                                            { order.status == "FULFILLED" &&
-                                                                <button className="mr-2 btn-secondary" disabled>Unavailable</button>
-                                                            }
-                                                            { order.status == "RETURNED" &&
-                                                                <button className="mr-2 btn-secondary" disabled>Close Order</button>
-                                                            }
-                                                            { order.status == "DISPUTED" &&
-                                                                <button className="mr-2 btn-secondary" disabled>Handle Dispute</button>
-                                                            }
-                                                            { order.status == "DECLINED" &&
-                                                                <button className="mr-2 btn-secondary" disabled>Order Declined</button>
-                                                            }
+                                                            <button className="mr-2 btn-secondary" >View Order</button>
                                                         </div>
                                                     </div>
 

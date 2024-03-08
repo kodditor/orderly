@@ -73,7 +73,7 @@ export default function UserOrdersComponent({user}:{user: signedInUser}){
                                                     <h2 className="w-full md:w-6/12 text-lg font-medium">{order.order_products.length} Product(s)</h2>
                                                     <span className="w-full md:w-5/12 flex gap-2 md:gap-4 items-center">
                                                         <span>GHS{styledCedis(total)}</span>
-                                                        <span className="text-xs text-red my-auto">{order.status}</span>
+                                                        <span className="text-xs text-red my-auto">{order.status.replace('_', ' ')}</span>
                                                     </span>
                                                 </span>
                                                 <Link href={`/orders/${order.id}`} className="w-2/12 min-w-[60px] md:min-w-[120px]">

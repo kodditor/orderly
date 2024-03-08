@@ -30,7 +30,6 @@ export default async function ShopDashboard(){
                         .select(`
                             firstName,
                             lastName,
-                            isOrderly,
                             phoneNumber,
                             shop_id,
                             location(*)
@@ -57,7 +56,7 @@ export default async function ShopDashboard(){
         )
     }
     
-    if(userQuery.data[0].isOrderly == false){
+    if(userQuery.data[0].shop_id == undefined || userQuery.data[0].shop_id == null){
         redirect(`${process.env.NEXT_PUBLIC_BASE_URL}`)
     }
 
@@ -75,8 +74,8 @@ export default async function ShopDashboard(){
                 <Header signedInUser={null} />
                 <main className="w-screen h-[calc(100vh-50px-173px)] md:h-[calc(100vh-70px-66px)] grid place-items-center">
                     <div className="flex flex-col gap-4 items-center justify-center">
-                        <h1 className="font-extrabold text-6xl">500</h1>
-                        <p className="font-medium text-lg">Oh No! We couldn't get your details.</p>
+                        <h1 className="font-extrabold text-6xl">403</h1>
+                        <p className="font-medium text-lg">Oh No! You're not authorized to be here.</p>
                         <p>Code: SB{shopDataQuery.error?.code ?? '404'}</p>
                         <Link href={`/`}>
                             <button>Back to Home</button>

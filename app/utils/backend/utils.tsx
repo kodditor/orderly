@@ -32,7 +32,6 @@ export async function getUser(user_id?: string):Promise<GetUserType> {
                                             email,
                                             firstName,
                                             lastName,
-                                            isOrderly,
                                             phoneNumber,
                                             shop_id,
                                             location(*)
@@ -50,7 +49,6 @@ export async function getUser(user_id?: string):Promise<GetUserType> {
                                             email,
                                             firstName,
                                             lastName,
-                                            isOrderly,
                                             phoneNumber,
                                             shop_id,
                                             location(*)

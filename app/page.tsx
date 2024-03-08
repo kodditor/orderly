@@ -66,7 +66,7 @@ export default async function Home() {
 
 				<section className="flex flex-col bg-peach md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto justify-center items-center">
 					<div className="w-full rounded-lg overflow-hidden md:max-w-none md:w-1/2">
-						<div className="relative w-full md:w-[300px] h-[34rem] m-auto md:h-[520px]">
+						<div className="relative w-full md:w-[300px] h-[37rem] m-auto md:h-[520px]">
 							<Image className="hidden md:block" alt="" fill src={'/img/mobile-products.png'}/>
 							<Image className="block md:hidden" fill alt="" src={'/img/mobile-shop.png'}/>
 						</div>

@@ -1,7 +1,7 @@
 import Header from "../components/Header.component";
 import Footer from "@/components/Footer.component";
 import { getUser } from "./utils/backend/utils";
-import ClientHome from "@/components/dashboard/Home.component";
+import ClientHome from "@/components/Home.component";
 
 export default async function Home() {
 

@@ -4,14 +4,39 @@ import { faArrowRight, faBoltLightning, faHandsClapping, faShieldAlt } from "@fo
 import Link from "next/link";
 import Image from "next/image";
 import { usePostHog } from "posthog-js/react";
+import gsap from 'gsap'
+import {useGSAP} from '@gsap/react'
+import { useEffect, useRef } from "react";
 
 export default function ClientHome(){
 
+	const parentRef = useRef<HTMLDivElement>(null)
+
     const postHog = usePostHog()
+
+	/*
+	
+	gsap.registerPlugin(useGSAP)
+
+	useGSAP(() => { 
+
+		gsap.fromTo('hero-image', {
+			scale: 1.3,
+			scrollTrigger: {
+				trigger: 'hero-image',
+				start: 'top center',
+				end: 'bottom center',
+				scrub: true,
+			}
+		})
+
+	}, {scope: parentRef})
+
+	*/
 
     return (
         <>
-            <main className="w-full h-[100%-4rem]">
+            <main className="w-full h-[100%-4rem]" ref={parentRef}>
 				<section className="flex bg-peach flex-col gap-4 justify-center pt-6 md:pt-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] items-center">
 					<h1 className="text-3xl md:text-6xl text-center font-black w-[80%] md:w-[60%] text-darkRed">Discover the easiest way to sell online</h1>
 					<h3 className="text-xl text-center w-[80%] md:w-[55%] text-darkRed mb-2">Orderly is the digital storefront solution that enables businesses to list their products and receive orders from online customers. Start selling or buying today!</h3>
@@ -23,7 +48,7 @@ export default function ClientHome(){
 							<button className="btn-secondary" >Learn More</button>
 						</a>
 					</span>
-					<div className="hero-image relative w-[90%] md:w-full h-[25rem] md:h-[19rem]">
+					<div className="hero-image relative w-[90%] md:w-full h-[27rem] md:h-[19rem]">
 						<Image className="hidden md:block" src={'/img/desktop-dashboard.png'} alt="The Orderly Dashboard page" fill  />
 						<Image className="md:hidden" src={'/img/mobile-dashboard.png'} alt="The Orderly Dashboard page" fill  />
 					</div>
@@ -63,12 +88,12 @@ export default function ClientHome(){
 				</section>
 
 				<section className="flex flex-col bg-peach md:flex-row gap-4 md:gap-16 py-16 w-[100%] px-[5%] md:px-[10%] 2xl:px-[20%] m-auto justify-center items-center">
-					<div className="w-full rounded-lg overflow-hidden md:max-w-none md:w-1/2">
-						<div className="relative w-full md:w-[300px] h-[37rem] m-auto md:h-[520px]">
+					<Link href={'/s/showdownshoes'} className="w-full rounded-lg overflow-hidden md:max-w-none md:w-1/2">
+						<div className="relative w-full md:w-[300px] h-[35.5rem] m-auto md:h-[520px]">
 							<Image className="hidden md:block" alt="" fill src={'/img/mobile-products.png'}/>
 							<Image className="block md:hidden" fill alt="" src={'/img/mobile-shop.png'}/>
 						</div>
-					</div>
+					</Link>
 					<div className="w-full md:w-1/2 flex gap-8 flex-col">
 						<div className="w-full">
 							<div className="w-full flex justify-center md:justify-start">

@@ -1,11 +1,30 @@
 "use client"
+import { clientSupabase } from "@/app/supabase/supabase-client";
 import type { signedInUser } from "@/models/user.model";
-import { faHeart, faReceipt, faCog, faChevronDown, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { faHeart, faReceipt, faCog, faChevronDown, faUserCircle, faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import * as Sentry from '@sentry/nextjs'
 import Link from "next/link";
+
+import { popupText } from "../Popup.component";
+import { useRouter } from "next/navigation";
 
 
 export default function HeaderAuth({signedInUser}:{signedInUser: signedInUser | null}){
+
+    const router = useRouter()
+
+    function signOut(){
+        clientSupabase.auth.signOut().then(({error}) =>{
+            if(error != null){
+                popupText(`SB${error.status}:An error occurred while logging out`)
+                Sentry.captureException(new Error(`SB${error.status}:${error.cause}, ${error.message}`))
+            } else {
+                router.push('/')
+            }
+        })
+
+    }
 
     if(signedInUser == null){
         return (
@@ -47,6 +66,12 @@ export default function HeaderAuth({signedInUser}:{signedInUser: signedInUser | 
                                     <span>Settings</span>
                                 </div>
                             </Link>
+                            <div onClick={signOut}>
+                                <div className="bg-white p-2 hover:bg-red hover:text-white text-red flex items-center gap-3 rounded-b-lg">
+                                    <FontAwesomeIcon width={12} height={12} icon={faArrowRightFromBracket} />
+                                    <span>Logout</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

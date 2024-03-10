@@ -19,7 +19,9 @@ import { supportedCountries } from "@/constants/country-codes"
 import { findFlagUrlByIso3Code } from "country-flags-svg"
 import { POPUP_STATE } from "@/models/popup.enum"
 import { usePostHog } from "posthog-js/react"
-
+import { getPaystack } from "@/app/utils/payments/paystack"
+import { Plan, PlanResponse } from "paystack-sdk/dist/plan"
+import { IPlan } from "@/models/plans.model"
 
 export default function SettingsTabComponent(){
 
@@ -119,6 +121,11 @@ export default function SettingsTabComponent(){
                                     router={router}
                                     dispatch={dispatch}
                                 />
+                            </div>
+
+                            <h3 className="text-gray-500 text-sm mb-4">PAYMENTS & PLANS</h3>
+                            <div className="mb-8">
+                                <PaymentsPage shop={shop} />
                             </div>
                             <h3 className="text-gray-500 text-sm mb-4">USER</h3>
                             <Link href={'/settings'}>
@@ -477,4 +484,62 @@ function MyShopSettingsPage(
             </div>
         </>
     )
+}
+
+function PaymentsPage({shop} : {shop: IShop,}) {
+
+    type IPlanResponse = Omit<PlanResponse, 'data'> & {
+        data: IPlan[]
+    }
+
+    const [ isLoading, setLoading ] = useState<boolean>(true)
+    const [ plans, setPlans ] = useState<IPlan[] | null>(null)
+
+    useEffect( () => {
+        fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/paystack/plan`)
+        .then(res =>res.json())
+        .then((planRes: IPlanResponse) => {
+
+            if(planRes.status == false){
+                popupText('We had an issue when getting your plan details')
+                console.log(planRes)
+                setLoading(false)
+                throw new Error (`PS: ${planRes.message}`)
+            }
+            else {
+                setPlans(planRes.data)
+                setLoading(false)
+            }
+        })
+    }, [])
+
+
+    return (
+        <>
+            <div className="w-full">
+            <div className="w-full flex flex-col gap-2 bg-gray-50 rounded-lg p-2">
+                {
+                    isLoading && 
+                    <>
+                        <div className="bg-white w-full px-4 py-2 grid place-items-center text-gray-400 animate-pulse">Loading</div>
+                    </>
+                }
+                {
+                    !isLoading && plans != null && plans.map((plan, idx) => {
+
+                        return (
+                            <div key={idx} className={`${ shop.plan == plan.plan_code ? 'bg-darkRed text-white' : 'bg-peach text-darkRed'} p-2 rounded-lg`}>
+                                <h3>{plan.name.slice(8)}</h3>
+                                <h4>{plan.cost}</h4>
+                            </div>
+                        )
+                    }) 
+            
+                }
+            </div>
+            </div>
+
+        </>
+    )
+
 }

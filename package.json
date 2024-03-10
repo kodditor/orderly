@@ -36,6 +36,7 @@
     "lodash": "^4.17.21",
     "mailersend": "^2.2.0",
     "next": "14.0.4",
+    "paystack-sdk": "^2.5.12",
     "posthog-js": "^1.112.0",
     "react": "^18",
     "react-dom": "^18",

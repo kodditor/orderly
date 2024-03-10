@@ -6,17 +6,13 @@ import { redirect } from "next/navigation";
 
 
 export default async function Onboarding(){
-
-    const supabase = serverSupabase
-
-    const { data: { session }} = await supabase.auth.getSession()
     const { user } = await getUser()
 
-    if(session){
+    if(user){
         return (
             <>
                 <Header signedInUser={user} />
-                <OnboardingComponent user={session.user} />
+                <OnboardingComponent user={user} />
             </>
         )
     }

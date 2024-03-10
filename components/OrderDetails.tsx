@@ -78,7 +78,7 @@ export default function OrderDetailsComponent({order, signedInUser}: {order: IOr
                         </div>
                         <small className="text-red">DELIVERY DETAILS</small>
                         <div>
-                            <p>{`${order.shopper.firstName} ${order.shopper.lastName} - (${order.shopper.phoneNumber}${order.shopper.email ? " ," + order.shopper.email: ""})`}</p>
+                            <p>{`${order.shopper.firstName} ${order.shopper.lastName} - (${order.shopper.phoneNumber}${order.shopper.email ? (", " + order.shopper.email) : ""})`}</p>
                             <p></p>
                             <p></p>
                             <p>{`${order.location.buildingNum ? order.location.buildingNum + " " : ""}${order.location.streetAddress}, ${order.location.city}`}<br/>{`${order.location.region}, ${order.location.country}`}</p>

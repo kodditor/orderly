@@ -117,9 +117,9 @@ export default function UserSettingsComponent({user}:{user: signedInUser}){
         <>
             <Header signedInUser={user} />
             <main className="w-screen min-h-[calc(100vh-50px-173px)] md:min-h-[calc(100vh-70px-66px)] bg-gray-50 grid place-items-center">
-                <div className="w-full bg-white p-4 md:p-8 md:shadow-md md:rounded-xl md:max-w-[800px] md:overflow-auto h-full md:max-h-[550px]">
+                <div className="w-full bg-white p-4 md:p-8 mb:p-0 md:shadow-md md:rounded-xl md:max-w-[800px] md:overflow-auto h-full md:max-h-[550px]">
                     <div className="h-fit">
-                        <div className="mb-4 md:mb-8">
+                        <div>
                             <h1 className="font-bold text-2xl mb-4 md:mb-1">My Account Settings</h1>
                             <div className="w-full">
                                 <form className="flex flex-col gap-3 mb-8 md:mb-3" onSubmit={handleUpdateUser}> 

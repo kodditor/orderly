@@ -11,8 +11,6 @@ import { redirect } from "next/navigation"
 
 export default async function ShopDashboard(){
 
-    const supabase = serverSupabase
-
     const { user, error } = await getUser()
 
     if(error != null || user == null){

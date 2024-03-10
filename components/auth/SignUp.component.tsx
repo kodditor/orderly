@@ -54,7 +54,7 @@ export default function SignUpComponent() {
     let { data, error } = await supabase.auth.signUp({
       ...signUpDetails,
       options: {
-        emailRedirectTo: `${location.origin}/api/auth/signup/callback`,
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/signup/callback`,
       },
     });
 

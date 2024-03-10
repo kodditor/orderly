@@ -460,11 +460,11 @@ function MyShopSettingsPage(
                     <div className="w-full md:w-48 flex flex-col gap-2">
                         <label htmlFor='country' className="font-medium text-sm" >Country</label>
                         <span className="w-full relative">
-                            <select id='country' className="p-2 pl-10 pr-4 bg-peach w-full rounded-full" name="country" onChange={handleValueChange} required>
+                            <select id='country' defaultValue={shop.location?.country} className="p-2 pl-10 pr-4 bg-peach w-full rounded-full" name="country" onChange={handleValueChange} required>
                                 {
                                     supportedCountries.map((country, idx) => {
                                         return (
-                                            <option className="flex bg-white hover:bg-gray-50 duration-150 p-2 items-center gap-2" key={idx} selected={country.isoCode == shop.location?.country} value={country.isoCode}>
+                                            <option className="flex bg-white hover:bg-gray-50 duration-150 p-2 items-center gap-2" key={idx} value={country.isoCode}>
                                                 <span className="ml-2">{country.name}</span>
                                             </option>
                                         )
@@ -517,28 +517,32 @@ function PaymentsPage({shop} : {shop: IShop,}) {
     return (
         <>
             <div className="w-full">
-            <div className="w-full flex flex-col gap-2 bg-gray-50 rounded-lg p-2">
-                {
-                    isLoading && 
-                    <>
-                        <div className="bg-white w-full px-4 py-2 grid place-items-center text-gray-400 animate-pulse">Loading</div>
-                    </>
-                }
-                {
-                    !isLoading && plans != null && plans.map((plan, idx) => {
+                <div className="w-full flex flex-col gap-2 bg-gray-50 rounded-lg p-2">
+                    {
+                        isLoading && 
+                        <>
+                            <div className="bg-white w-full px-4 py-2 grid place-items-center text-gray-400 animate-pulse">Loading</div>
+                        </>
+                    }
+                    {
+                        !isLoading && plans != null && plans.map((plan, idx) => {
 
-                        return (
-                            <div key={idx} className={`${ shop.plan == plan.plan_code ? 'bg-darkRed text-white' : 'bg-peach text-darkRed'} p-2 rounded-lg`}>
-                                <h3>{plan.name.slice(8)}</h3>
-                                <h4>{plan.cost}</h4>
-                            </div>
-                        )
-                    }) 
-            
-                }
+                            return (
+                                <div key={idx} className={`${ shop.plan == plan.plan_code ? 'bg-darkRed text-white' : 'bg-peach text-darkRed'} p-2 rounded-lg`}>
+                                    <h3>{plan.name.slice(8)}</h3>
+                                    <h4>{plan.cost}</h4>
+                                </div>
+                            )
+                        }) 
+                    }
+                    {
+                        !isLoading && plans == null && 
+                        <>
+                            <div className="bg-white w-full px-4 py-2 grid place-items-center text-gray-400">An error occurred, please try again later.</div>
+                        </>
+                    }
+                </div>
             </div>
-            </div>
-
         </>
     )
 

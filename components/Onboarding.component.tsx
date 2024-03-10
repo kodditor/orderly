@@ -192,42 +192,45 @@ export default function OnboardingComponent({user}: {user: signedInUser}){ //Let
                                     }
                                 }
 
-                                getPaystack().customer.create(paystackCustomer)
-                                .then((res) => {
-                                    if(res.status == false){
-                                        popupText(`PS500: An error occurred when setting up your shop`, POPUP_STATE.FAILED)
-                                        setSubmitted(false)
-                                        throw new Error(`PS: ${res.message}`)
-                                    }
-                                    else {
-                                        let brevoApiBody: CreateContact = {
-                                            email: user.email,
-                                            extId: user.id,
-                                            updateEnabled: true,
-                                            smsBlacklisted: false,
-                                            attributes: {
-                                                'shop': shopID
-                                            }
+                                getPaystack()
+                                .then((paystack) => {
+                                    paystack.customer.create(paystackCustomer) 
+                                    .then((res) => {
+                                        if(res.status == false){
+                                            popupText(`PS500: An error occurred when setting up your shop`, POPUP_STATE.FAILED)
+                                            setSubmitted(false)
+                                            throw new Error(`PS: ${res.message}`)
                                         }
-                        
-                                        fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/brevo/contact`, {
-                                            method: 'POST',
-                                            body: JSON.stringify(brevoApiBody)
-                                        })
-                                        .then(res => res.json())
-                                        .then(({error}: brevoApiResponse) => {
-                                            if(error != null){
-                                                console.log(error)
-                                                popupText(`BR${error.code}: An error occurred, please try again later`, POPUP_STATE.FAILED)
-                                                setSubmitted(false)
-                                            } else {
-                                                handleChangeQuestions('page3', 'page4')
-                                                setTimeout(() => {
-                                                    setSubmitted(false)
-                                                }, 250);
+                                        else {
+                                            let brevoApiBody: CreateContact = {
+                                                email: user.email,
+                                                extId: user.id,
+                                                updateEnabled: true,
+                                                smsBlacklisted: false,
+                                                attributes: {
+                                                    'shop': shopID
+                                                }
                                             }
-                                        })
-                                    }
+                            
+                                            fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/brevo/contact`, {
+                                                method: 'POST',
+                                                body: JSON.stringify(brevoApiBody)
+                                            })
+                                            .then(res => res.json())
+                                            .then(({error}: brevoApiResponse) => {
+                                                if(error != null){
+                                                    console.log(error)
+                                                    popupText(`BR${error.code}: An error occurred, please try again later`, POPUP_STATE.FAILED)
+                                                    setSubmitted(false)
+                                                } else {
+                                                    handleChangeQuestions('page3', 'page4')
+                                                    setTimeout(() => {
+                                                        setSubmitted(false)
+                                                    }, 250);
+                                                }
+                                            })
+                                        }
+                                    })
                                 })
                             })
                         }
